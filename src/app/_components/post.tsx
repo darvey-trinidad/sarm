@@ -1,5 +1,5 @@
 /*
-* this is a sample file
+* BOILERPLATE CODE
 */
 "use client";
 
