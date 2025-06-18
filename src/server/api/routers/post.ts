@@ -12,7 +12,6 @@ import { db } from "@/server/db";
 export const postRouter = createTRPCRouter({
   pingDb: publicProcedure.query(async () => {
     const result = await db.execute(`SELECT 1 + 1 AS result`);
-    console.log('DB Result:', result);
     return result;
   }),
   hello: publicProcedure
