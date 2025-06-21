@@ -1,7 +1,7 @@
 /*
 * BOILERPLATE CODE
 */
-
+import { sql } from "@/server/db";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
@@ -10,7 +10,7 @@ import { db } from "@/server/db";
 
 export const postRouter = createTRPCRouter({
   pingDb: publicProcedure.query(async () => {
-    const result = await db.execute(`SELECT 1 + 1 AS result`);
+    const result = await db.get(sql`SELECT 1 + 1 AS result`);
     return result;
   }),
   hello: publicProcedure
