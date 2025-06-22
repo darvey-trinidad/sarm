@@ -1,6 +1,6 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
-
+/*
 import { sql } from "drizzle-orm";
 import { index, pgTableCreator } from "drizzle-orm/pg-core";
 
@@ -9,7 +9,7 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  * database instance for multiple projects.
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
+ *
 export const createTable = pgTableCreator((name) => `sarm_${name}`);
 
 export const posts = createTable(
@@ -25,3 +25,4 @@ export const posts = createTable(
   }),
   (t) => [index("name_idx").on(t.name)],
 );
+*/
