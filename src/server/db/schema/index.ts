@@ -1,4 +1,4 @@
 export * from "./auth";
 export * from "./classroom";
-export * from "./facility";
+export * from "./venue";
 export * from "./resource";
