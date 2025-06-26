@@ -1,7 +1,7 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { user } from "@/server/db/schema/auth";
 
-import { USABILITY } from "@/constants/usability";
+import { USABILITY, DEFAULT_USABILITY } from "@/constants/usability";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
 
 export const venue = sqliteTable("venue", {
@@ -11,7 +11,7 @@ export const venue = sqliteTable("venue", {
   description: text('description'),
   capacity: integer('capacity', { mode: 'number' }),
   
-  usability: text('usability', { enum: USABILITY }).default("operational").notNull(),
+  usability: text('usability', { enum: USABILITY }).default(DEFAULT_USABILITY).notNull(),
 });
 
 export const venueReservation = sqliteTable("venue_reservation", {
