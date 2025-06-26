@@ -6,4 +6,4 @@ export const REPORT_STATUS = [
 
 export const DEFAULT_REPORT_STATUS = REPORT_STATUS[0];
 
-export type reportStatus = (typeof REPORT_STATUS)[number];
+export type ReportStatus = (typeof REPORT_STATUS)[number];

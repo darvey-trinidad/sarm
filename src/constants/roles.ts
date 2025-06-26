@@ -6,4 +6,4 @@ export const ROLES = [
   "classroom_manager",
 ] as const;
 
-export type roles = (typeof ROLES)[number];
+export type Roles = (typeof ROLES)[number];

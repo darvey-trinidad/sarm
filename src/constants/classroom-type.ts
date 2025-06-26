@@ -3,4 +3,4 @@ export const CLASSROOM_TYPE = [
   "laboratory"
 ] as const;
 
-export type classroomType = (typeof CLASSROOM_TYPE)[number];
+export type ClassroomType = (typeof CLASSROOM_TYPE)[number];

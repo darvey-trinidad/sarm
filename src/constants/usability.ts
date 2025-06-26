@@ -5,4 +5,4 @@ export const USABILITY = [
 
 export const DEFAULT_USABILITY = USABILITY[0];
 
-export type usability = (typeof USABILITY)[number];
+export type Usability = (typeof USABILITY)[number];

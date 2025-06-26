@@ -7,4 +7,4 @@ export const RESERVATION_STATUS = [
   "canceled"
 ] as const;
 
-export type reservationStatus = (typeof RESERVATION_STATUS)[number];
+export type ReservationStatus = (typeof RESERVATION_STATUS)[number];

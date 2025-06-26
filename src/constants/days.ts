@@ -8,4 +8,4 @@ export const DAYS = [
   "sunday"
 ] as const;
 
-export type days = (typeof DAYS)[number];
+export type Days = (typeof DAYS)[number];

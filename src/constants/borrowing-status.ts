@@ -8,4 +8,4 @@ export const BORROWING_STATUS = [
 
 export const DEFAULT_BORROWING_STATUS = BORROWING_STATUS[0];
 
-export type borrowingStatus = (typeof BORROWING_STATUS)[number];
+export type BorrowingStatus = (typeof BORROWING_STATUS)[number];
