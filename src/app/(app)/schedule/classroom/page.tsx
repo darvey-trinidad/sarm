@@ -1,7 +1,7 @@
 import React from "react";
 import { type Metadata } from "next";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
-import Header from "./_components/page-holder";
+import Header from "./_components/room-request";
 import BuildingDirectory from "./_components/building-directory";
 
 export const metadata: Metadata = {
