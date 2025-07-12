@@ -10,7 +10,6 @@ export const createBuilding = async (data: Building) => {
     throw new Error("Could not create building");
   }
 };
-
 export const editBuilding = async (data: EditBuilding) => {
   try {
     const { id, ...rest } = data;
@@ -20,7 +19,17 @@ export const editBuilding = async (data: EditBuilding) => {
     throw new Error("Could not edit building");
   }
 }
-
+export const deleteBuilding = async (id: string) => {
+  try {
+    return await db.delete(building).where(eq(building.id, id)).run();
+  } catch (err) {
+    console.error("Failed to delete building:", err);
+    throw new Error("Could not delete building");
+  }
+}
+/*
+  Classrooms
+*/
 export const createClassroom = async (data: Classroom) => {
   try {
     return await db.insert(classroom).values(data).run();
@@ -29,7 +38,6 @@ export const createClassroom = async (data: Classroom) => {
     throw new Error("Could not create classroom");
   }
 };
-
 export const editClassroom = async (data: EditClassroom) => {
   try {
     const { id, ...rest } = data;
@@ -39,7 +47,6 @@ export const editClassroom = async (data: EditClassroom) => {
     throw new Error("Could not edit classroom");
   }
 }
-
 export const changeClassroomUsability = async (data: ChangeClassroomUsability) => {
   try {
     const current = await db.select().from(classroom).where(eq(classroom.id, data.id)).get();
@@ -52,3 +59,11 @@ export const changeClassroomUsability = async (data: ChangeClassroomUsability) =
     throw new Error("Could not change classroom usability");
   }
 };
+export const deleteClassroom = async (id: string) => {
+  try {
+    return await db.delete(classroom).where(eq(classroom.id, id)).run();
+  } catch (err) {
+    console.error("Failed to delete classroom:", err);
+    throw new Error("Could not delete classroom");
+  }
+}

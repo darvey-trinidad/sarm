@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { changeClassroomUsability, createBuilding, createClassroom, editBuilding, editClassroom } from "@/lib/api/classroom/mutation";
+import { changeClassroomUsability, createBuilding, createClassroom, deleteBuilding, deleteClassroom, editBuilding, editClassroom } from "@/lib/api/classroom/mutation";
 import { createBuildingSchema, createClassroomSchema, changeClassroomUsabilitySchema, editBuildingSchema, editClassroomSchema } from "@/server/api-utils/validators/classroom";
 import { generateUUID } from "@/lib/utils";
 import { getAllBuildings, getAllClassrooms, getClassroom, getBuilding } from "@/lib/api/classroom/query";
@@ -25,7 +25,11 @@ export const classroomRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return editBuilding(input);
   }),
-
+  deleteBuilding: protectedProcedure
+    .input(z.object({id: z.string()}))
+    .mutation(({ input }) => {
+      return deleteBuilding(input.id);
+  }),
   /*
   * Classroom Procedures
   */
@@ -51,5 +55,10 @@ export const classroomRouter = createTRPCRouter({
     .input(changeClassroomUsabilitySchema)
     .mutation(({ input }) => {
       return changeClassroomUsability(input);
+  }),
+  deleteClassroom: protectedProcedure
+    .input(z.object({id: z.string()}))
+    .mutation(({ input }) => {
+      return deleteClassroom(input.id);
   }),
 });
