@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { changeClassroomUsability, createBuilding, createClassroom } from "@/lib/api/classroom/mutation";
-import { createBuildingSchema, createClassroomSchema, changeClassroomUsabilitySchema } from "@/server/api-utils/validators/classroom";
+import { changeClassroomUsability, createBuilding, createClassroom, editBuilding, editClassroom } from "@/lib/api/classroom/mutation";
+import { createBuildingSchema, createClassroomSchema, changeClassroomUsabilitySchema, editBuildingSchema, editClassroomSchema } from "@/server/api-utils/validators/classroom";
 import { generateUUID } from "@/lib/utils";
 import { getAllBuildings, getAllClassrooms, getClassroom, getBuilding } from "@/lib/api/classroom/query";
 
@@ -20,6 +20,11 @@ export const classroomRouter = createTRPCRouter({
   getAllBuildings: protectedProcedure.query(() => {
     return getAllBuildings();
   }),
+  editBuilding: protectedProcedure
+    .input(editBuildingSchema)
+    .mutation(({ input }) => {
+      return editBuilding(input);
+  }),
 
   /*
   * Classroom Procedures
@@ -36,6 +41,11 @@ export const classroomRouter = createTRPCRouter({
   }),
   getAllClassrooms: protectedProcedure.query(() => {
     return getAllClassrooms();
+  }),
+  editClassroom: protectedProcedure
+    .input(editClassroomSchema)
+    .mutation(({ input }) => {
+      return editClassroom(input);
   }),
   changeClassroomUsability: protectedProcedure
     .input(changeClassroomUsabilitySchema)

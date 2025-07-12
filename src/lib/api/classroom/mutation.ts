@@ -1,6 +1,6 @@
 import { db, eq } from "@/server/db";
 import { classroom, building } from "@/server/db/schema/classroom";
-import type { Classroom, Building, ChangeClassroomUsability } from "@/server/db/types/classroom";
+import type { Building, EditBuilding, Classroom, ChangeClassroomUsability, EditClassroom } from "@/server/db/types/classroom";
 
 export const createBuilding = async (data: Building) => {
   try {
@@ -11,6 +11,16 @@ export const createBuilding = async (data: Building) => {
   }
 };
 
+export const editBuilding = async (data: EditBuilding) => {
+  try {
+    const { id, ...rest } = data;
+    return await db.update(building).set(rest).where(eq(building.id, id)).run();
+  } catch (err) {
+    console.error("Failed to edit building:", err);
+    throw new Error("Could not edit building");
+  }
+}
+
 export const createClassroom = async (data: Classroom) => {
   try {
     return await db.insert(classroom).values(data).run();
@@ -19,6 +29,16 @@ export const createClassroom = async (data: Classroom) => {
     throw new Error("Could not create classroom");
   }
 };
+
+export const editClassroom = async (data: EditClassroom) => {
+  try {
+    const { id, ...rest } = data;
+    return await db.update(classroom).set(rest).where(eq(classroom.id, id)).run();
+  } catch (err) {
+    console.error("Failed to edit classroom:", err);
+    throw new Error("Could not edit classroom");
+  }
+}
 
 export const changeClassroomUsability = async (data: ChangeClassroomUsability) => {
   try {
