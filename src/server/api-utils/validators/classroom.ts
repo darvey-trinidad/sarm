@@ -16,5 +16,10 @@ export const createClassroomSchema = z.object({
   usability: z.enum(USABILITY).optional(),
 });
 
+export const changeClassroomUsabilitySchema = z.object({
+  id: z.string(),
+  usability: z.enum(USABILITY),
+});
+
 export type CreateBuildingInput = z.infer<typeof createBuildingSchema>;
 export type CreateClassroomInput = z.infer<typeof createClassroomSchema>;
