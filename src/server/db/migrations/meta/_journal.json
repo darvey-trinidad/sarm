@@ -8,6 +8,13 @@
       "when": 1750954238774,
       "tag": "0000_secret_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1752506669783,
+      "tag": "0001_parallel_tana_nile",
+      "breakpoints": true
     }
   ]
 }

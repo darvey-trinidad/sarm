@@ -13,7 +13,6 @@ export const user = sqliteTable("user", {
 
 	email: text('email').notNull().unique(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).$defaultFn(() => false).notNull(),
-	image: text('image'),
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
 });
