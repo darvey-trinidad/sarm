@@ -4,7 +4,6 @@ import { ROLES } from "@/constants/roles";
 
 export const user = sqliteTable("user", {
 	id: text('id').primaryKey(),
-	username: text('username').notNull().unique(),
 	name: text('name'),
 
 	role: text('role', { enum: ROLES }).notNull(),

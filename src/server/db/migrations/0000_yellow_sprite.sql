@@ -29,14 +29,12 @@ CREATE TABLE `session` (
 --> statement-breakpoint
 CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
-	`username` text NOT NULL,
 	`name` text,
 	`role` text NOT NULL,
 	`department_or_organization` text,
 	`is_active` integer DEFAULT false NOT NULL,
 	`email` text NOT NULL,
 	`email_verified` integer NOT NULL,
-	`image` text,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL
 );
@@ -160,5 +158,4 @@ CREATE TABLE `venue_reservation` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-breakpoint
-CREATE UNIQUE INDEX `user_username_unique` ON `user` (`username`);--> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);
