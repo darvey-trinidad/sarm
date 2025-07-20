@@ -39,7 +39,21 @@ export const timeIntSchema = z
   .enum(TIME_KEYS.map(String) as [string, ...string[]])
   .transform(Number);
 
-// TIME_OPTIONS for dropdowns, etc.
+/* TIME_OPTIONS for dropdowns, etc.
+  Example:
+  [
+    { value: "7:00 AM", label: "7:00 AM" },
+    { value: "8:00 AM", label: "8:00 AM" },
+  ]
+  example usage:
+  <select>
+    {TIME_OPTIONS.map(opt => (
+      <option key={opt.value} value={opt.value}>
+        {opt.label}
+      </option>
+    ))}
+  </select>
+*/
 export const TIME_OPTIONS = TIME_ENTRIES.map(([value, label]) => ({
   value,
   label,
