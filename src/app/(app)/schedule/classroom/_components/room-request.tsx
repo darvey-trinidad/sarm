@@ -25,6 +25,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, Calendar as CalendarIcon } from "lucide-react";
+import { CLASSROOM_TYPE } from "@/constants/classroom-type";
 export default function Header() {
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [selectedRoomType, setSelectedRoomType] = useState("");
@@ -102,10 +103,11 @@ export default function Header() {
                 <SelectValue placeholder="Select room type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="classroom">Classroom</SelectItem>
-                <SelectItem value="laboratory">Laboratory</SelectItem>
-                <SelectItem value="conference">Conference Room</SelectItem>
-                <SelectItem value="lecture">Lecture Hall</SelectItem>
+                {CLASSROOM_TYPE.map((roomType) => (
+                  <SelectItem key={roomType} value={roomType}>
+                    {roomType.charAt(0).toUpperCase() + roomType.slice(1)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

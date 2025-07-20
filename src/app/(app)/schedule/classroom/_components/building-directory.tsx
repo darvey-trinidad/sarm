@@ -8,8 +8,7 @@ import Image from "next/image";
 interface Building {
   id: string;
   name: string;
-  department: string;
-  status: "available" | "busy" | "maintenance";
+  description: string;
   rooms: string[];
 }
 
@@ -17,8 +16,7 @@ const buildings: Building[] = [
   {
     id: "A",
     name: "Building A",
-    department: "BT Dept.",
-    status: "available",
+    description: "BT Dept.",
     rooms: [
       "Room 101",
       "Room 206",
@@ -35,8 +33,7 @@ const buildings: Building[] = [
   {
     id: "B",
     name: "Building B",
-    department: "ITDS Dept.",
-    status: "available",
+    description: "ITDS Dept.",
     rooms: [
       "Room 101",
       "Room 206",
@@ -53,8 +50,7 @@ const buildings: Building[] = [
   {
     id: "C",
     name: "Building C",
-    department: "GATE Dept.",
-    status: "maintenance",
+    description: "GATE Dept.",
     rooms: [
       "Room 101",
       "Room 206",
@@ -71,8 +67,7 @@ const buildings: Building[] = [
   {
     id: "D",
     name: "Building D",
-    department: "BA Dept.",
-    status: "available",
+    description: "BA Dept.",
     rooms: [
       "Room 101",
       "Room 206",
@@ -89,8 +84,7 @@ const buildings: Building[] = [
   {
     id: "E",
     name: "Building E",
-    department: "New Building",
-    status: "available",
+    description: "New Building",
     rooms: [
       "Room 101",
       "Room 206",
@@ -105,23 +99,6 @@ const buildings: Building[] = [
     ],
   },
 ];
-
-const StatusIndicator = ({ status }: { status: Building["status"] }) => {
-  const getStatusColor = () => {
-    switch (status) {
-      case "available":
-        return "bg-green-400";
-      case "busy":
-        return "bg-red-400";
-      case "maintenance":
-        return "bg-orange-400";
-      default:
-        return "bg-gray-400";
-    }
-  };
-
-  return <div className={`h-3 w-3 rounded-full ${getStatusColor()}`} />;
-};
 
 const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
   return (
@@ -154,9 +131,8 @@ const BuildingCard = ({ building }: { building: Building }) => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-gray-900">{building.name}</h3>
-            <p className="text-sm text-gray-600">{building.department}</p>
+            <p className="text-sm text-gray-600">{building.description}</p>
           </div>
-          <StatusIndicator status={building.status} />
         </div>
       </CardHeader>
 
