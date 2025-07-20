@@ -44,6 +44,7 @@ export default function Header() {
     { id: "E", name: "Building E", department: "New Building" },
   ];
 
+  //hangle submit, change this to api
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({
@@ -210,10 +211,7 @@ export default function Header() {
           </div>
           {/* Submit Button */} {/* Add Sonner here */}
           <div className="flex justify-end pt-4">
-            <Button
-              type="submit"
-              className="bg-amber-800 px-8 text-white hover:bg-amber-900"
-            >
+            <Button type="submit" className="px-6">
               Send
             </Button>
           </div>
