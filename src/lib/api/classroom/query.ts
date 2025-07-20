@@ -30,9 +30,68 @@ export const getClassroom = async (id: string) => {
 
 export const getAllClassrooms = async () => {
   try {
-    return await db.select().from(classroom).all();
+    return await db.select(
+      {
+        id: classroom.id,
+        name: classroom.name,
+        buildingId: classroom.buildingId,
+        buildingName: building.name,
+        classroomName: classroom.name,
+        capacity: classroom.capacity,
+        usability: classroom.usability,
+      }
+    ).from(classroom).leftJoin(building, eq(classroom.buildingId, building.id)).orderBy(building.name);
   } catch (err) {
     console.error("Failed to get all classrooms:", err);
     throw new Error("Could not get all classrooms");
+  }
+}
+
+export const getClassroomsPerBuilding = async () => {
+  try {
+    const rows = await db
+      .select({
+        buildingId: building.id,
+        buildingName: building.name,
+        description: building.description,
+        classroomId: classroom.id,
+        classroomName: classroom.name,
+      })
+      .from(building)
+      .innerJoin(classroom, eq(classroom.buildingId, building.id));
+
+    const grouped = Object.values(
+      rows.reduce((acc, row) => {
+        const { buildingId, buildingName, description, classroomId, classroomName } = row;
+
+        if (!acc[buildingId]) {
+          acc[buildingId] = {
+            buildingId,
+            name: buildingName,
+            description,
+            classrooms: [],
+          };
+        }
+
+        if (classroomId) {
+          acc[buildingId].classrooms.push({
+            id: classroomId,
+            name: classroomName,
+          });
+        }
+
+        return acc;
+      }, {} as Record<string, {
+        buildingId: string;
+        name: string;
+        description: string | null;
+        classrooms: { id: string; name: string }[];
+      }>)
+    );
+
+    return grouped;
+  } catch (err) {
+    console.error("Failed to get classrooms per buildings:", err);
+    throw new Error("Could not get classrooms per buildings");
   }
 }
