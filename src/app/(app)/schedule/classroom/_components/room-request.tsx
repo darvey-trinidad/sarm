@@ -26,7 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, Calendar as CalendarIcon } from "lucide-react";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
+import { api } from "@/trpc/react";
 export default function Header() {
+  const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [selectedRoomType, setSelectedRoomType] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -36,14 +38,6 @@ export default function Header() {
   const [endMinute, setEndMinute] = useState("00");
   const [isOpen, setIsOpen] = useState(false);
   const [open, setOpen] = useState(false);
-
-  const buildings = [
-    { id: "A", name: "Building A", department: "BIT Dept." },
-    { id: "B", name: "Building B", department: "ITDS Dept." },
-    { id: "C", name: "Building C", department: "GATE Dept." },
-    { id: "D", name: "Building D", department: "BA Dept." },
-    { id: "E", name: "Building E", department: "New Building" },
-  ];
 
   //hangle submit, change this to api
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,11 +78,20 @@ export default function Header() {
                 <SelectValue placeholder="Select a building" />
               </SelectTrigger>
               <SelectContent>
-                {buildings.map((building) => (
-                  <SelectItem key={building.id} value={building.id}>
-                    {building.name} - {building.department}
+                {isLoading ? (
+                  <SelectItem value="loading" disabled>
+                    No buildings available.
                   </SelectItem>
-                ))}
+                ) : (
+                  data?.map((building) => (
+                    <SelectItem
+                      key={building.buildingId}
+                      value={building.buildingId}
+                    >
+                      {building.name} - {building.description}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>

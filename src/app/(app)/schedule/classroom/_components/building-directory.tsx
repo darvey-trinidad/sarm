@@ -4,101 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { api } from "@/trpc/react";
+import { useParams } from "next/navigation";
 interface Building {
   id: string;
   name: string;
   description: string;
   rooms: string[];
 }
-
-const buildings: Building[] = [
-  {
-    id: "A",
-    name: "Building A",
-    description: "BT Dept.",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "B",
-    name: "Building B",
-    description: "ITDS Dept.",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "C",
-    name: "Building C",
-    description: "GATE Dept.",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "D",
-    name: "Building D",
-    description: "BA Dept.",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "E",
-    name: "Building E",
-    description: "New Building",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-];
 
 const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
   return (
@@ -110,7 +23,7 @@ const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
         height={128}
         className="object-contain"
         priority
-        onError={(e) => {
+        onError={() => {
           console.log(`Failed to load image for building ${buildingId}`);
         }}
       />
@@ -122,7 +35,9 @@ const BuildingCard = ({ building }: { building: Building }) => {
   const router = useRouter();
 
   const handleRoomClick = (room: string) => {
-    router.push(`/classroom/room/${building.id}/${room.replace("Room ", "")}`);
+    const encodedBuildingName = encodeURIComponent(building.name);
+    const roomNumber = room.replace("Room ", "");
+    router.push(`/classroom/room/${encodedBuildingName}/${roomNumber}`);
   };
 
   return (
@@ -137,7 +52,19 @@ const BuildingCard = ({ building }: { building: Building }) => {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <BuildingIllustration buildingId={building.id} />
+        <div className="relative mx-auto mb-4 h-32 w-32">
+          <Image
+            src={"/Building-A.png"}
+            alt="Building Illustration"
+            width={128}
+            height={128}
+            className="object-contain"
+            priority
+            onError={() => {
+              console.log("Failed to load image for building");
+            }}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-2">
           {building.rooms.map((room, index) => (
@@ -158,12 +85,21 @@ const BuildingCard = ({ building }: { building: Building }) => {
 };
 
 export default function BuildingDirectory() {
+  const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {buildings.map((building) => (
-            <BuildingCard key={building.id} building={building} />
+          {data?.map((building) => (
+            <BuildingCard
+              key={building.buildingId}
+              building={{
+                id: building.buildingId,
+                name: building.name,
+                description: building.description ?? "",
+                rooms: building.classrooms.map((classroom) => classroom.name),
+              }}
+            />
           ))}
         </div>
       </div>
