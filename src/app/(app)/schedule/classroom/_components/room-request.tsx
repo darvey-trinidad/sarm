@@ -26,14 +26,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, Calendar as CalendarIcon } from "lucide-react";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
+import { TIME_OPTIONS } from "@/constants/timeslot";
 import { api } from "@/trpc/react";
+import { se } from "date-fns/locale";
 export default function Header() {
   const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [selectedRoomType, setSelectedRoomType] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [startHour, setStartHour] = useState("8");
-  const [startMinute, setStartMinute] = useState("00");
+  const [startHour, setSelectedHour] = useState<number | undefined>(undefined);
   const [endHour, setEndHour] = useState("10");
   const [endMinute, setEndMinute] = useState("00");
   const [isOpen, setIsOpen] = useState(false);
@@ -46,8 +47,8 @@ export default function Header() {
       building: selectedBuilding,
       roomType: selectedRoomType,
       date: selectedDate.toLocaleDateString(),
-      startTime: `${startHour}:${startMinute}`,
-      endTime: `${endHour}:${endMinute}`,
+      startTime: `${startHour}`,
+      endTime: `${endHour}`,
     });
     setIsOpen(false);
   };
@@ -155,30 +156,25 @@ export default function Header() {
               <Label>Start Time</Label>
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-1">
-                  <Input
-                    type="number"
-                    min="1"
-                    max="12"
-                    value={startHour}
-                    onChange={(e) => setStartHour(e.target.value)}
-                    className="w-16 text-center"
-                  />
-                  <span>:</span>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="59"
-                    step="15"
-                    value={startMinute}
-                    onChange={(e) => setStartMinute(e.target.value)}
-                    className="w-16 text-center"
-                  />
+                  <Select
+                    onValueChange={(value) => setSelectedHour(Number(value))}
+                  >
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Select a time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIME_OPTIONS.map((opt) => (
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value.toString()}
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Clock className="h-4 w-4 text-gray-400" />
-              </div>
-              <div className="flex w-30 justify-between text-xs text-gray-500">
-                <span>Hours</span>
-                <span>Minutes</span>
               </div>
             </div>
 
@@ -187,30 +183,25 @@ export default function Header() {
               <Label>End Time</Label>
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-1">
-                  <Input
-                    type="number"
-                    min="1"
-                    max="12"
-                    value={endHour}
-                    onChange={(e) => setEndHour(e.target.value)}
-                    className="w-16 text-center"
-                  />
-                  <span>:</span>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="59"
-                    step="15"
-                    value={endMinute}
-                    onChange={(e) => setEndMinute(e.target.value)}
-                    className="w-16 text-center"
-                  />
+                  <Select
+                    onValueChange={(value) => setSelectedHour(Number(value))}
+                  >
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Select a time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIME_OPTIONS.map((opt) => (
+                        <SelectItem
+                          key={opt.value}
+                          value={opt.value.toString()}
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Clock className="h-4 w-4 text-gray-400" />
-              </div>
-              <div className="flex w-30 justify-between text-xs text-gray-500">
-                <span>Hours</span>
-                <span>Minutes</span>
               </div>
             </div>
           </div>
