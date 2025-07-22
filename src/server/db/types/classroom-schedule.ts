@@ -2,6 +2,8 @@ import { classroomSchedule, classroomVacancy, classroomBorrowing } from "@/serve
 import { type InferInsertModel } from "drizzle-orm";
 
 export type ClassroomSchedule = InferInsertModel<typeof classroomSchedule>;
+export type ClassroomScheduleWithoutId = Omit<ClassroomSchedule, "id">;
+
 export type ClassroomVacancy = InferInsertModel<typeof classroomVacancy>;
 export type ClassroomBorrowing = InferInsertModel<typeof classroomBorrowing>;
 
