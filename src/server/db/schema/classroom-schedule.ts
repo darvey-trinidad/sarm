@@ -9,8 +9,8 @@ export const classroomSchedule = sqliteTable("classroom_schedule", {
   facultyId: text('faculty_id').notNull().references(()=> user.id, { onDelete: 'cascade' }),
 
   day: text('day', { enum: DAYS }).notNull(),
-  startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
-  endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
+  startTime: integer('start_time').notNull(),
+  endTime: integer('end_time').notNull(),
   subject: text('subject').notNull(),
   section: text('section').notNull(),
 });
@@ -20,8 +20,8 @@ export const classroomVacancy = sqliteTable("classroom_vacancy", {
   classroomId: text('classroom_id').notNull().references(()=> classroom.id, { onDelete: 'cascade' }),
 
   date: integer('date', { mode: 'timestamp' }).notNull(),
-  startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
-  endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
+  startTime: integer('start_time').notNull(),
+  endTime: integer('end_time').notNull(),
   reason: text('reason'),
 });
 
@@ -31,8 +31,8 @@ export const classroomBorrowing = sqliteTable("classroom_borrowing", {
   facultyId: text('faculty_id').notNull().references(()=> user.id, { onDelete: 'cascade' }),
 
   date: integer('date', { mode: 'timestamp' }).notNull(),
-  startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
-  endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
+  startTime: integer('start_time').notNull(),
+  endTime: integer('end_time').notNull(),
   subject: text('subject'),
   section: text('section'),
 });
