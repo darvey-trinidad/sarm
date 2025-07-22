@@ -4,124 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { api } from "@/trpc/react";
+import { useParams } from "next/navigation";
 interface Building {
   id: string;
   name: string;
-  department: string;
-  status: "available" | "busy" | "maintenance";
+  description: string;
   rooms: string[];
 }
-
-const buildings: Building[] = [
-  {
-    id: "A",
-    name: "Building A",
-    department: "BT Dept.",
-    status: "available",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "B",
-    name: "Building B",
-    department: "ITDS Dept.",
-    status: "available",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "C",
-    name: "Building C",
-    department: "GATE Dept.",
-    status: "maintenance",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "D",
-    name: "Building D",
-    department: "BA Dept.",
-    status: "available",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-  {
-    id: "E",
-    name: "Building E",
-    department: "New Building",
-    status: "maintenance",
-    rooms: [
-      "Room 101",
-      "Room 206",
-      "Room 201",
-      "Room 303",
-      "Room 203",
-      "Room 304",
-      "Room 204",
-      "Room 305",
-      "Room 205",
-      "Room 306",
-    ],
-  },
-];
-
-const StatusIndicator = ({ status }: { status: Building["status"] }) => {
-  const getStatusColor = () => {
-    switch (status) {
-      case "available":
-        return "bg-green-400";
-      case "busy":
-        return "bg-red-400";
-      case "maintenance":
-        return "bg-orange-400";
-      default:
-        return "bg-gray-400";
-    }
-  };
-
-  return <div className={`h-3 w-3 rounded-full ${getStatusColor()}`} />;
-};
 
 const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
   return (
@@ -133,7 +23,7 @@ const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
         height={128}
         className="object-contain"
         priority
-        onError={(e) => {
+        onError={() => {
           console.log(`Failed to load image for building ${buildingId}`);
         }}
       />
@@ -145,23 +35,36 @@ const BuildingCard = ({ building }: { building: Building }) => {
   const router = useRouter();
 
   const handleRoomClick = (room: string) => {
-    router.push(`/classroom/room/${building.id}/${room.replace("Room ", "")}`);
+    const encodedBuildingName = encodeURIComponent(building.name);
+    const roomNumber = room.replace("Room ", "");
+    router.push(`/classroom/room/${encodedBuildingName}/${roomNumber}`);
   };
 
   return (
     <Card className="w-full max-w-sm border border-gray-200 bg-white shadow-sm">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-gray-900">{building.name}</h3>
-            <p className="text-sm text-gray-600">{building.department}</p>
+            <p className="text-sm text-gray-600">{building.description}</p>
           </div>
-          <StatusIndicator status={building.status} />
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <BuildingIllustration buildingId={building.id} />
+        <div className="relative mx-auto mb-4 h-32 w-32">
+          <Image
+            src={"/Building-A.png"}
+            alt="Building Illustration"
+            width={128}
+            height={128}
+            className="object-contain"
+            priority
+            onError={() => {
+              console.log("Failed to load image for building");
+            }}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-2">
           {building.rooms.map((room, index) => (
@@ -170,7 +73,7 @@ const BuildingCard = ({ building }: { building: Building }) => {
               variant="outline"
               size="sm"
               onClick={() => handleRoomClick(room)}
-              className="border-gray-300 px-3 py-2 text-xs transition-colors hover:border-orange-400 hover:text-orange-600"
+              className="border-gray-300 px-2 py-1 text-xs transition-colors hover:border-orange-800 hover:text-orange-800"
             >
               {room}
             </Button>
@@ -182,12 +85,21 @@ const BuildingCard = ({ building }: { building: Building }) => {
 };
 
 export default function BuildingDirectory() {
+  const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
   return (
-    <div className="min-h-screen p-2">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {buildings.map((building) => (
-            <BuildingCard key={building.id} building={building} />
+          {data?.map((building) => (
+            <BuildingCard
+              key={building.buildingId}
+              building={{
+                id: building.buildingId,
+                name: building.name,
+                description: building.description ?? "",
+                rooms: building.classrooms.map((classroom) => classroom.name),
+              }}
+            />
           ))}
         </div>
       </div>
