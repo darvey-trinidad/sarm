@@ -1,6 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { classroomRouter } from "@/server/api/routers/classroom";
-
+import { classroomScheduleRouter } from "@/server/api/routers/classroom-schedule";
 /**
  * This is the primary router for your server.
  *
@@ -8,6 +8,7 @@ import { classroomRouter } from "@/server/api/routers/classroom";
  */
 export const appRouter = createTRPCRouter({
   classroom: classroomRouter,
+  classroomSchedule: classroomScheduleRouter,
 });
 
 // export type definition of API
