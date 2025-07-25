@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -42,12 +43,12 @@ export default function LoginPage() {
               <h2 className="text-4xl font-bold text-amber-800">
                 Welcome back!
               </h2>
-              <p className="text-md text-gray-600">Sign in to your account</p>
+              <p className="text-sm text-gray-600">Sign in to your account</p>
             </div>
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label
                   htmlFor="email"
                   className="text-sm font-medium text-gray-700"
@@ -65,7 +66,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label
                   htmlFor="password"
                   className="text-sm font-medium text-gray-700"
@@ -117,13 +118,21 @@ export default function LoginPage() {
             </form>
 
             {/* Additional Links */}
-            <div className="text-start">
+            <div className="mb-0 text-start">
               <a
                 href="#"
                 className="text-sm text-amber-700 hover:text-amber-800 hover:underline"
               >
                 Forgot your password?
               </a>
+            </div>
+            <div className="text-start">
+              <Link
+                href={"/signup"}
+                className="text-sm text-amber-700 hover:text-amber-800 hover:underline"
+              >
+                Don&apos;t have an account?
+              </Link>
             </div>
           </div>
         </div>
