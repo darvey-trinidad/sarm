@@ -12,7 +12,7 @@ export default function reportCards() {
       <Card className="w-full max-w-sm gap-0 rounded-md border border-gray-200 bg-white p-4">
         <div className="flex flex-row justify-between justify-items-center pb-7">
           <h1 className="text-md font-semibold">Pending</h1>
-          <Clock className="h-5 w-5 text-blue-600" />
+          <Clock className="h-5 w-5 text-yellow-500" />
         </div>
         <h1 className="text-3xl font-semibold">{Pending}</h1>
         <Label className="text-sm text-gray-400">Since this month </Label>
@@ -22,7 +22,7 @@ export default function reportCards() {
       <Card className="w-full max-w-sm gap-0 rounded-md border border-gray-200 bg-white p-4">
         <div className="flex flex-row justify-between justify-items-center pb-7">
           <h1 className="text-md font-semibold">In Progress</h1>
-          <Clock className="h-5 w-5 text-blue-600" />
+          <Wrench className="h-5 w-5 text-blue-600" />
         </div>
         <h1 className="text-3xl font-semibold">{InProgress}</h1>
         <Label className="text-sm text-gray-400">Since this month </Label>
@@ -32,7 +32,7 @@ export default function reportCards() {
       <Card className="w-full max-w-sm gap-0 rounded-md border border-gray-200 bg-white p-4">
         <div className="flex flex-row justify-between justify-items-center pb-7">
           <h1 className="text-md font-semibold">Completed</h1>
-          <Clock className="h-5 w-5 text-blue-600" />
+          <CircleCheck className="h-5 w-5 text-green-600" />
         </div>
         <h1 className="text-3xl font-semibold">{Completed}</h1>
         <Label className="text-sm text-gray-400">Since this month </Label>
