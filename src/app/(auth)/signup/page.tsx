@@ -15,12 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ROLES } from "@/constants/roles";
+import { ROLES_OPTIONS } from "@/constants/roles";
+import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
+
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [roles, setRoles] = useState("");
+  const [departmentOrOrganization, setDepartmentOrOrganization] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,9 +153,30 @@ export default function SignUpPage() {
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLES.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
+                    {ROLES_OPTIONS.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Department or Organization Selection */}
+              <div className="space-y-1">
+                <Label
+                  htmlFor="role"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Department or Organization
+                </Label>
+                <Select value={departmentOrOrganization} onValueChange={setDepartmentOrOrganization}>
+                  <SelectTrigger className="w-full border-gray-300">
+                    <SelectValue placeholder="Select a department or organization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((department) => (
+                      <SelectItem key={department.value} value={department.value}>
+                        {department.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
