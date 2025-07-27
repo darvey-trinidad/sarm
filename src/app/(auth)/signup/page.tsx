@@ -15,21 +15,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ROLES_OPTIONS } from "@/constants/roles";
+import { ROLES_OPTIONS, type Roles } from "@/constants/roles";
 import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
+
+import { api } from "@/trpc/react";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [roles, setRoles] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("");
   const [departmentOrOrganization, setDepartmentOrOrganization] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { mutate: signUpMutation, isError, isSuccess, error } = api.auth.signUp.useMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login attempt:", { email, password });
+    signUpMutation({
+      email,
+      name,
+      password,
+      role: role as Roles,
+      departmentOrOrganization,
+    });
   };
 
   return (
@@ -133,17 +143,17 @@ export default function SignUpPage() {
               {/* Confirm Password Field */}
               <div className="space-y-1">
                 <Label
-                  htmlFor="password"
+                  htmlFor="confirmPassword"
                   className="text-sm font-medium text-gray-700"
                 >
                   Confirm Password
                 </Label>
                 <div className="relative">
                   <Input
-                    id="password"
+                    id="confirmPassword"
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
                     required
                   />
@@ -169,7 +179,7 @@ export default function SignUpPage() {
                 >
                   Role
                 </Label>
-                <Select value={roles} onValueChange={setRoles}>
+                <Select value={role} onValueChange={setRole}>
                   <SelectTrigger className="w-full border-gray-300">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
