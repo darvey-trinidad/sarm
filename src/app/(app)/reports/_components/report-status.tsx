@@ -7,7 +7,7 @@ export default function reportCards() {
   const InProgress = 2;
   const Completed = 8;
   return (
-    <div className="flex w-full flex-row space-x-5">
+    <div className="flex w-full flex-col space-y-5 space-x-5 sm:flex-row sm:space-y-0">
       {/* Pending */}
       <Card className="w-full max-w-sm gap-0 rounded-md border border-gray-200 bg-white p-4">
         <div className="flex flex-row justify-between justify-items-center pb-7">

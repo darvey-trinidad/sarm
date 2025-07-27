@@ -10,6 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Car } from "lucide-react";
+import ReportForm from "./submit/report-form";
 
 export default function ReportsTabContent() {
   const [tab, setTab] = useState("submit");
@@ -22,17 +24,31 @@ export default function ReportsTabContent() {
         <TabsTrigger value="allReports">All Reports</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="submit" className="space-y-4">
-        Submit Report
-      </TabsContent>
+      <div className="mt-1 w-full">
+        <TabsContent value="submit" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Report a Problem</CardTitle>
+              <CardDescription>
+                {" "}
+                Fill out the form below to report an issue with a room or
+                facility on campus.
+              </CardDescription>
+              <CardContent>
+                <ReportForm />
+              </CardContent>
+            </CardHeader>
+          </Card>
+        </TabsContent>
 
-      <TabsContent value="myReports" className="space-y-4">
-        My Reports
-      </TabsContent>
+        <TabsContent value="myReports" className="space-y-4">
+          My Reports
+        </TabsContent>
 
-      <TabsContent value="allReports" className="space-y-4">
-        All Reports
-      </TabsContent>
+        <TabsContent value="allReports" className="space-y-4">
+          All Reports
+        </TabsContent>
+      </div>
     </Tabs>
   );
 }
