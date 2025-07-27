@@ -19,6 +19,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [roles, setRoles] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -108,17 +109,17 @@ export default function SignUpPage() {
               {/* Confirm Password Field */}
               <div className="space-y-1">
                 <Label
-                  htmlFor="password"
+                  htmlFor="confirm_password"
                   className="text-sm font-medium text-gray-700"
                 >
                   Confirm Password
                 </Label>
                 <div className="relative">
                   <Input
-                    id="password"
+                    id="confirm_password"
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
                     required
                   />
