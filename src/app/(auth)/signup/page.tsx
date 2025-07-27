@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -69,7 +68,7 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            {/* Login Form */}
+            {/* Signup Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name Field */}
               <div className="space-y-1">
