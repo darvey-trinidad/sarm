@@ -30,11 +30,10 @@ export default function ReportsTabContent() {
             <CardHeader>
               <CardTitle>Report a Problem</CardTitle>
               <CardDescription>
-                {" "}
                 Fill out the form below to report an issue with a room or
                 facility on campus.
               </CardDescription>
-              <CardContent>
+              <CardContent className="px-0 pt-3">
                 <ReportForm />
               </CardContent>
             </CardHeader>
