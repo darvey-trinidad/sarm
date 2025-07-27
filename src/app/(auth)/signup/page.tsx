@@ -55,7 +55,7 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            {/* Login Form */}
+            {/* Signup Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <Label
