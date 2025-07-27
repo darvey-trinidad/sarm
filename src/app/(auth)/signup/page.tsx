@@ -20,6 +20,7 @@ import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [roles, setRoles] = useState("");
@@ -60,6 +61,26 @@ export default function SignUpPage() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Name Field */}
+              <div className="space-y-1">
+                <Label
+                  htmlFor="name"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Juan Dela Cruz"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Email Field */}
               <div className="space-y-1">
                 <Label
                   htmlFor="email"
