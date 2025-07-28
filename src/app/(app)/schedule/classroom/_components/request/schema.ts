@@ -11,19 +11,10 @@ export const requestClassroomSchema = z.object({
   date: z.date({
     message: "Please select a date",
   }),
-  startTime: z.string().refine(
-    (value) => {
-      const selectedTime = new Date(
-        `${new Date().toISOString().split("T")[0]}T${value}`,
-      );
-      const currentTime = new Date();
-      return selectedTime >= currentTime;
-    },
-    {
-      message: "Please select a start time that is not before the current time",
-    },
-  ),
+  startTime: z.string({
+    message: "Select start time",
+  }),
   endTime: z.string({
-    message: "Please select an end time",
+    message: "Select end time",
   }),
 });
