@@ -8,11 +8,9 @@ export const requestClassroomSchema = z.object({
   roomType: z.string({
     message: "Please select a room type",
   }),
-  date: z
-    .date()
-    .refine((value) => value >= new Date(new Date().setHours(0, 0, 0, 0)), {
-      message: "Please select a date that is not in the past",
-    }),
+  date: z.date({
+    message: "Please select a date",
+  }),
   startTime: z.string().refine(
     (value) => {
       const selectedTime = new Date(

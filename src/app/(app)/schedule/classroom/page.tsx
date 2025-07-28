@@ -13,7 +13,9 @@ const Classroom = () => {
     <div className="flex w-full flex-col space-y-4">
       <BreadcrumbLayout currentPage="Classroom" parentPage="Schedule" />
 
-      <Header />
+      <div className="flex justify-end">
+        <Header />
+      </div>
       <BuildingDirectory />
     </div>
   );

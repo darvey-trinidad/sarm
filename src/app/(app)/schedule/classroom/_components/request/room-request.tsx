@@ -1,10 +1,20 @@
 "use client";
+
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -22,197 +32,243 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Clock, Calendar as CalendarIcon } from "lucide-react";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
 import { TIME_OPTIONS } from "@/constants/timeslot";
 import { api } from "@/trpc/react";
-import { se } from "date-fns/locale";
-export default function Header() {
-  const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
-  const [selectedBuilding, setSelectedBuilding] = useState("");
-  const [selectedRoomType, setSelectedRoomType] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [startHour, setSelectedHour] = useState<number | undefined>(undefined);
-  const [endHour, setEndHour] = useState("10");
-  const [endMinute, setEndMinute] = useState("00");
-  const [isOpen, setIsOpen] = useState(false);
-  const [open, setOpen] = useState(false);
+import { toast } from "sonner";
+import { requestClassroomSchema } from "./schema";
+import { format } from "date-fns";
+import { z } from "zod";
+import { cn } from "@/lib/utils";
 
-  //hangle submit, change this to api
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({
-      building: selectedBuilding,
-      roomType: selectedRoomType,
-      date: selectedDate.toLocaleDateString(),
-      startTime: `${startHour}`,
-      endTime: `${endHour}`,
-    });
+type RequestClassroomValues = z.infer<typeof requestClassroomSchema>;
+
+export default function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
+
+  const form = useForm<RequestClassroomValues>({
+    resolver: zodResolver(requestClassroomSchema),
+    defaultValues: {
+      building: "",
+      roomType: "",
+      date: new Date(),
+      startTime: "",
+      endTime: "",
+    },
+  });
+
+  const onSubmit = (values: RequestClassroomValues) => {
+    console.log(values);
+    toast.success("Room request sent!");
     setIsOpen(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <form onSubmit={handleSubmit} className="flex justify-end space-y-4">
-        <DialogTrigger asChild>
-          <Button>Request Room</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold">
-              Request Room
-            </DialogTitle>
-            <p className="text-sm text-gray-600">
-              Send notification request to other professors for available room.
-            </p>
-          </DialogHeader>
-          {/* Building Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="building">Building</Label>
-            <Select
-              value={selectedBuilding}
-              onValueChange={setSelectedBuilding}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a building" />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoading ? (
-                  <SelectItem value="loading" disabled>
-                    No buildings available.
-                  </SelectItem>
-                ) : (
-                  data?.map((building) => (
-                    <SelectItem
-                      key={building.buildingId}
-                      value={building.buildingId}
-                    >
-                      {building.name} - {building.description}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Room Type Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="roomType">Room Type</Label>
-            <Select
-              value={selectedRoomType}
-              onValueChange={setSelectedRoomType}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select room type" />
-              </SelectTrigger>
-              <SelectContent>
-                {CLASSROOM_TYPE.map((roomType) => (
-                  <SelectItem key={roomType} value={roomType}>
-                    {roomType.charAt(0).toUpperCase() + roomType.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {/* Date Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
-            <div className="relative">
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    id="date"
-                    className="w-full justify-between font-normal"
-                  >
-                    {selectedDate.toLocaleDateString()}
-                  </Button>
-                </PopoverTrigger>
-                <CalendarIcon className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                <PopoverContent
-                  className="w-auto overflow-hidden p-0"
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    captionLayout="dropdown"
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setOpen(false);
-                      }
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          {/* Time Selection */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Start Time */}
-            <div className="space-y-2">
-              <Label>Start Time</Label>
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1">
-                  <Select
-                    onValueChange={(value) => setSelectedHour(Number(value))}
-                  >
-                    <SelectTrigger className="w-[160px]">
-                      <SelectValue placeholder="Select a time" />
-                    </SelectTrigger>
+      <DialogTrigger asChild>
+        <Button>Request Room</Button>
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold">
+            Request Room
+          </DialogTitle>
+          <p className="text-muted-foreground text-sm">
+            Send a room request to other professors.
+          </p>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Building Field */}
+            <FormField
+              control={form.control}
+              name="building"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Building</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a building" />
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent>
-                      {TIME_OPTIONS.map((opt) => (
-                        <SelectItem
-                          key={opt.value}
-                          value={opt.value.toString()}
-                        >
-                          {opt.label}
+                      {isLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : (
+                        data?.map((building) => (
+                          <SelectItem
+                            key={building.buildingId}
+                            value={building.buildingId}
+                          >
+                            {building.name} - {building.description}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Room Type Field */}
+            <FormField
+              control={form.control}
+              name="roomType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Room Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select room type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CLASSROOM_TYPE.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <Clock className="h-4 w-4 text-gray-400" />
-              </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Date Picker Field */}
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Date</FormLabel>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          if (date) {
+                            field.onChange(date);
+                            setCalendarOpen(false);
+                          }
+                        }}
+                        captionLayout="dropdown"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Start Time Field */}
+              <FormField
+                control={form.control}
+                name="startTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Time</FormLabel>
+                    <div className="flex items-center space-x-2">
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[160px]">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {TIME_OPTIONS.map((opt) => (
+                            <SelectItem
+                              key={opt.value}
+                              value={opt.value.toString()}
+                            >
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Clock className="text-muted-foreground h-4 w-4" />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* End Time Field */}
+              <FormField
+                control={form.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Time</FormLabel>
+                    <div className="flex items-center space-x-2">
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-[160px]">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {TIME_OPTIONS.map((opt) => (
+                            <SelectItem
+                              key={opt.value}
+                              value={opt.value.toString()}
+                            >
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Clock className="text-muted-foreground h-4 w-4" />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* End Time */}
-            <div className="space-y-2">
-              <Label>End Time</Label>
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1">
-                  <Select
-                    onValueChange={(value) => setSelectedHour(Number(value))}
-                  >
-                    <SelectTrigger className="w-[160px]">
-                      <SelectValue placeholder="Select a time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TIME_OPTIONS.map((opt) => (
-                        <SelectItem
-                          key={opt.value}
-                          value={opt.value.toString()}
-                        >
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Clock className="h-4 w-4 text-gray-400" />
-              </div>
+            <div className="flex justify-end">
+              <Button type="submit">Send</Button>
             </div>
-          </div>
-          {/* Submit Button */} {/* Add Sonner here */}
-          <div className="flex justify-end pt-4">
-            <Button type="submit" className="px-6">
-              Send
-            </Button>
-          </div>
-        </DialogContent>
-      </form>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 }
