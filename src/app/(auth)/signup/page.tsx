@@ -53,7 +53,7 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-[calc(100vh)]">
         {/* Left Side - Login Form */}
-        <div className="flex flex-1 items-center justify-center bg-white p-8">
+        <div className="flex flex-1 items-center justify-center bg-white px-8 py-2">
           <div className="w-full max-w-md space-y-6">
             {/* Logo */}
             <div className="mb-2">
