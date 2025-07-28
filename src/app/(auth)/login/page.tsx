@@ -8,6 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { PageRoutes } from "@/constants/page-routes";
+
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,10 +18,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
     console.log("Login attempt:", { email, password, rememberMe });
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+      callbackURL: PageRoutes.DASHBOARD,
+    }, {
+      onError: (error) => {
+        console.log("Login error:", error);
+      },
+      onSuccess: (data) => {
+        console.log("Login successful:", data);
+      }
+    })
   };
 
   return (
