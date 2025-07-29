@@ -7,7 +7,7 @@ export const user = sqliteTable("user", {
 	name: text('name'),
 
 	role: text('role', { enum: ROLES }).notNull(),
-	department_or_organization: text('department_or_organization'),
+	departmentOrOrganization: text('department_or_organization'),
 	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(false),
 
 	email: text('email').notNull().unique(),

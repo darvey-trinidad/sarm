@@ -3,11 +3,10 @@ import { ROLES } from "@/constants/roles";
 
 export const signupSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string(),
   name: z.string(),
   role: z.enum(ROLES),
-  department_or_organization: z.string().optional(),
-  isActive: z.boolean().default(false),
+  departmentOrOrganization: z.string().optional(),
 });
 
 export type SignupInput = z.infer<typeof signupSchema>;
