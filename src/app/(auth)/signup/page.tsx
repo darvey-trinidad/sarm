@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { LoaderCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,7 @@ import { api } from "@/trpc/react";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +30,13 @@ export default function SignUpPage() {
   const [role, setRole] = useState("");
   const [departmentOrOrganization, setDepartmentOrOrganization] = useState("");
 
-  const { mutate: signUpMutation, isError, isSuccess, error } = api.auth.signUp.useMutation();
+  const {
+    mutate: signUpMutation,
+    isError,
+    isSuccess,
+    error,
+    isPending,
+  } = api.auth.signUp.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +53,7 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-[calc(100vh)]">
         {/* Left Side - Login Form */}
-        <div className="flex flex-1 items-center justify-center bg-white p-8">
+        <div className="flex flex-1 items-center justify-center bg-white px-8 py-2">
           <div className="w-full max-w-md space-y-6">
             {/* Logo */}
             <div className="mb-2">
@@ -150,7 +158,7 @@ export default function SignUpPage() {
                 <div className="relative">
                   <Input
                     id="confirmPassword"
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10 focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
@@ -158,10 +166,10 @@ export default function SignUpPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
+                    {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />
                     ) : (
                       <Eye className="h-4 w-4" />
@@ -199,13 +207,19 @@ export default function SignUpPage() {
                 >
                   Department or Organization
                 </Label>
-                <Select value={departmentOrOrganization} onValueChange={setDepartmentOrOrganization}>
+                <Select
+                  value={departmentOrOrganization}
+                  onValueChange={setDepartmentOrOrganization}
+                >
                   <SelectTrigger className="w-full border-gray-300">
                     <SelectValue placeholder="Select a department or organization" />
                   </SelectTrigger>
                   <SelectContent>
                     {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((department) => (
-                      <SelectItem key={department.value} value={department.value}>
+                      <SelectItem
+                        key={department.value}
+                        value={department.value}
+                      >
                         {department.label}
                       </SelectItem>
                     ))}
@@ -216,8 +230,17 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900"
+                disabled={isPending}
               >
-                Sign Up
+                {isPending ? (
+                  <span className="flex items-center gap-2">
+                    {" "}
+                    <LoaderCircle className="h-4 w-4 animate-spin text-white" />
+                    Signing Up
+                  </span>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
             </form>
 
