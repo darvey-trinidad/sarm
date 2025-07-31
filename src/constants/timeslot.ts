@@ -32,7 +32,7 @@ export const TIME_MAP: Record<TimeInt, string> = TIME_ENTRIES.reduce(
 
 export const TIME_KEYS = TIME_ENTRIES.map(([value]) => value) as number[];
 
-export type TimeInt = typeof TIME_ENTRIES[number][0]; 
+export type TimeInt = typeof TIME_ENTRIES[number][0];
 export type TimeString = typeof TIME_ENTRIES[number][1];
 
 export const timeIntSchema = z
@@ -42,8 +42,8 @@ export const timeIntSchema = z
 /* TIME_OPTIONS for dropdowns, etc.
   Example:
   [
-    { value: "7:00 AM", label: "7:00 AM" },
-    { value: "8:00 AM", label: "8:00 AM" },
+    { value: 700, label: "7:00 AM" },
+    { value: 800, label: "8:00 AM" },
   ]
   example usage:
   <select>
