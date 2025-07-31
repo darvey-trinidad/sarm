@@ -1,12 +1,11 @@
 import { z } from "zod";
-import { DAYS } from "@/constants/days";
 import { timeIntSchema } from "@/constants/timeslot";
 
 export const createClassroomScheduleSchema = z.object({
   classroomId: z.string(),
   facultyId: z.string(),
 
-  day: z.enum(DAYS),
+  day: z.number(),
   startTime: timeIntSchema,
   endTime: timeIntSchema,
 
@@ -27,7 +26,7 @@ export const createClassroomVacancySchema = z.object({
   date: z.date(),
   startTime: timeIntSchema,
   endTime: timeIntSchema,
-  reason: z.string().optional(),
+  reason: z.string().optional().nullable(),
 }).refine(
   (data) => {
     return data.endTime > data.startTime;
