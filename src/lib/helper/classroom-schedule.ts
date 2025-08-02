@@ -1,5 +1,5 @@
 import { generateUUID } from "@/lib/utils";
-import type { CreateClassroomScheduleInput } from "@/server/api-utils/validators/classroom-schedule";
+import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput } from "@/server/api-utils/validators/classroom-schedule";
 
 export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInput) {
   const chunks = [];
@@ -19,3 +19,18 @@ export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInpu
   return chunks;
 }
 
+export function splitVacancyToHourlyTimeslot(input: CreateClassroomVacancyInput) {
+  const chunks = [];
+
+  for (let time = input.startTime; time < input.endTime; time += 100) {
+    chunks.push({
+      id: generateUUID(),
+      classroomId: input.classroomId,
+      date: input.date,
+      startTime: time,
+      endTime: time + 100,
+      reason: input.reason,
+    });
+  }
+  return chunks;
+}
