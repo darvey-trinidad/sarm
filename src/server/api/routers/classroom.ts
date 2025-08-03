@@ -9,7 +9,7 @@ import { z } from "zod";
 export const classroomRouter = createTRPCRouter({
   createBuilding: protectedProcedure
     .input(createBuildingSchema)
-    .mutation(({ input }) => {
+    .mutation(({ input, ctx }) => {
       return createBuilding({ id: generateUUID(), ...input });
     }),
   getBuilding: protectedProcedure
@@ -46,7 +46,8 @@ export const classroomRouter = createTRPCRouter({
   getAllClassrooms: protectedProcedure.query(() => {
     return getAllClassrooms();
   }),
-  getClassroomsPerBuilding: protectedProcedure.query(() => {
+  getClassroomsPerBuilding: protectedProcedure.query(({ ctx }) => {
+    console.log(ctx.session);
     return getClassroomsPerBuilding();
   }),
   editClassroom: protectedProcedure

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { timeIntSchema } from "@/constants/timeslot";
+import { requiredDateSchema } from "@/server/api-utils/validators/date";
 
 export const createClassroomScheduleSchema = z.object({
   classroomId: z.string(),
@@ -23,7 +24,7 @@ export const createClassroomScheduleSchema = z.object({
 
 export const createClassroomVacancySchema = z.object({
   classroomId: z.string(),
-  date: z.date(),
+  date: requiredDateSchema(),
   startTime: timeIntSchema,
   endTime: timeIntSchema,
   reason: z.string().optional().nullable(),
