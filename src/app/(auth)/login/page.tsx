@@ -18,22 +18,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Login attempt:", { email, password, rememberMe });
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
-      callbackURL: PageRoutes.DASHBOARD,
-    }, {
-      onError: (error) => {
-        console.log("Login error:", error);
+    const { data, error } = await authClient.signIn.email(
+      {
+        email,
+        password,
+        callbackURL: PageRoutes.DASHBOARD,
       },
-      onSuccess: (data) => {
-        console.log("Login successful:", data);
-      }
-    })
+      {
+        onError: (error) => {
+          console.log("Login error:", error);
+        },
+        onSuccess: (data) => {
+          console.log("Login successful:", data);
+        },
+      },
+    );
   };
 
   return (
