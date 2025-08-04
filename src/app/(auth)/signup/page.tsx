@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
 import {
   Select,
@@ -40,13 +41,23 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    signUpMutation({
-      email,
-      name,
-      password,
-      role: role as Roles,
-      departmentOrOrganization,
-    });
+    signUpMutation(
+      {
+        email,
+        name,
+        password,
+        role: role as Roles,
+        departmentOrOrganization,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Sign up successful!");
+        },
+        onError: (error) => {
+          toast.error(`Sign up failed: ${error.message}`);
+        },
+      },
+    );
   };
 
   return (
