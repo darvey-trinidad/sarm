@@ -1,8 +1,8 @@
 import { db } from "@/server/db";
-import { classroomSchedule, classroomVacancy } from "@/server/db/schema/classroom-schedule";
-import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId } from "@/server/db/types/classroom-schedule";
-import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot } from "@/lib/helper/classroom-schedule";
-import { getClassroomScheduleConflicts, getClassroomVacancyConflicts } from "@/lib/api/classroom-schedule/query";
+import { classroomSchedule, classroomVacancy, classroomBorrowing } from "@/server/db/schema/classroom-schedule";
+import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
+import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot } from "@/lib/helper/classroom-schedule";
+import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts } from "@/lib/api/classroom-schedule/query";
 import type { TimeInt } from "@/constants/timeslot";
 
 export const createClassroomSchedule = async (data: ClassroomScheduleWithoutId) => {
@@ -47,5 +47,27 @@ export const createClassroomVacancy = async (data: ClassroomVacancyWithoutId) =>
   } catch (err) {
     console.error("Failed to create classroom vacancy:", err);
     throw new Error("Could not create classroom vacancy");
+  }
+}
+
+export const createClassroomBorrowing = async (data: ClassroomBorrowingWithoutId) => {
+  try {
+    const splitBorrowings = splitBorrowingToHourlyTimeslot(data);
+
+    const startTimes = splitBorrowings.map((borrowing) => borrowing.startTime as TimeInt);
+    const conflictBorrowings = await getClassroomBorrowingConflicts(data, startTimes);
+
+    if (conflictBorrowings.length > 0) {
+      return {
+        success: false,
+        conflict: true,
+        conflictingBorrowings: conflictBorrowings,
+      };
+    }
+
+    return await db.insert(classroomBorrowing).values(splitBorrowings).run();
+  } catch (err) {
+    console.error("Failed to create classroom borrowing:", err);
+    throw new Error("Could not create classroom borrowing");
   }
 }
