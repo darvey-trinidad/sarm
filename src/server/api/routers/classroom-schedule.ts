@@ -1,8 +1,8 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { createClassroomSchedule } from "@/lib/api/classroom-schedule/mutation";
-import { createClassroomScheduleSchema } from "@/server/api-utils/validators/classroom-schedule";
-import { generateUUID } from "@/lib/utils";
-import { z } from "zod";
+import { createClassroomSchedule, createClassroomVacancy, createClassroomBorrowing } from "@/lib/api/classroom-schedule/mutation";
+import { createClassroomScheduleSchema, createClassroomVacancySchema, createClassroomBorrowingSchema, getClassroomScheduleSchema } from "@/server/api-utils/validators/classroom-schedule";
+import { getClassroomSchedule } from "@/lib/api/classroom-schedule/query";
+import { get } from "http";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -10,4 +10,19 @@ export const classroomScheduleRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return createClassroomSchedule(input);
     }),
+  createClassroomVacancy: protectedProcedure
+    .input(createClassroomVacancySchema)
+    .mutation(({ input }) => {
+      return createClassroomVacancy(input);
+    }),
+  createClassroomBorrowing: protectedProcedure
+    .input(createClassroomBorrowingSchema)
+    .mutation(({ input }) => {
+      return createClassroomBorrowing(input);
+    }),
+  getClassroomSchedule: protectedProcedure
+    .input(getClassroomScheduleSchema)
+    .query(({ input }) => {
+      return getClassroomSchedule(input.classroomId, input.date);
+    })
 });

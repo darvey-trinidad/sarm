@@ -12,6 +12,8 @@ import { ZodError } from "zod";
 
 import { db } from "@/server/db";
 
+import { auth } from "@/lib/auth";
+
 /**
  * 1. CONTEXT
  *
@@ -25,8 +27,11 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const session = await auth.api.getSession({ headers: opts.headers });
+
   return {
     db,
+    session,
     ...opts,
   };
 };

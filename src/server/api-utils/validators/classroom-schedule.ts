@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { DAYS } from "@/constants/days";
 import { timeIntSchema } from "@/constants/timeslot";
+import { requiredDateSchema } from "@/server/api-utils/validators/date";
 
 export const createClassroomScheduleSchema = z.object({
   classroomId: z.string(),
   facultyId: z.string(),
 
-  day: z.enum(DAYS),
+  day: z.number(),
   startTime: timeIntSchema,
   endTime: timeIntSchema,
 
@@ -22,4 +22,43 @@ export const createClassroomScheduleSchema = z.object({
   }
 );
 
+export const createClassroomVacancySchema = z.object({
+  classroomId: z.string(),
+  date: requiredDateSchema(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema,
+  reason: z.string().optional().nullable(),
+}).refine(
+  (data) => {
+    return data.endTime > data.startTime;
+  },
+  {
+    message: "End time must be later than start time",
+    path: ["endTime"],
+  }
+);
+
+export const createClassroomBorrowingSchema = z.object({
+  classroomId: z.string(),
+  facultyId: z.string(),
+
+  date: requiredDateSchema(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema,
+  subject: z.string().optional().nullable(),
+  section: z.string().optional().nullable(),
+});
+
+/*
+* Queries
+*/
+export const getClassroomScheduleSchema = z.object({
+  classroomId: z.string(),
+  date: requiredDateSchema()
+});
+
 export type CreateClassroomScheduleInput = z.infer<typeof createClassroomScheduleSchema>;
+export type CreateClassroomVacancyInput = z.infer<typeof createClassroomVacancySchema>;
+export type CreateClassroomBorrowingInput = z.infer<typeof createClassroomBorrowingSchema>;
+
+export type GetClassroomScheduleInput = z.infer<typeof getClassroomScheduleSchema>;
