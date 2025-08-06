@@ -49,6 +49,16 @@ export const createClassroomBorrowingSchema = z.object({
   section: z.string().optional().nullable(),
 });
 
+/*
+* Queries
+*/
+export const getClassroomScheduleSchema = z.object({
+  classroomId: z.string(),
+  date: requiredDateSchema()
+});
+
 export type CreateClassroomScheduleInput = z.infer<typeof createClassroomScheduleSchema>;
 export type CreateClassroomVacancyInput = z.infer<typeof createClassroomVacancySchema>;
 export type CreateClassroomBorrowingInput = z.infer<typeof createClassroomBorrowingSchema>;
+
+export type GetClassroomScheduleInput = z.infer<typeof getClassroomScheduleSchema>;
