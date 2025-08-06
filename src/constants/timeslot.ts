@@ -21,6 +21,10 @@ export const TIME_ENTRIES = [
   [1900, "7:00 PM"],
 ] as const;
 
+export const START_TIME = TIME_ENTRIES[0][0];
+export const END_TIME = TIME_ENTRIES.at(-1)?.[0];
+export const TIME_INTERVAL = 100;
+
 // TIME_MAP for rendering
 export const TIME_MAP: Record<TimeInt, string> = TIME_ENTRIES.reduce(
   (acc, [key, value]) => {
