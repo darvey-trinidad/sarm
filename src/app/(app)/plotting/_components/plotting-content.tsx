@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Car } from "lucide-react";
+import PlottingForm from "./plot/plotting-form";
 export default function PlottingContent() {
   return (
     <Card>
@@ -16,7 +16,9 @@ export default function PlottingContent() {
           year
         </CardDescription>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <PlottingForm />
+      </CardContent>
     </Card>
   );
 }

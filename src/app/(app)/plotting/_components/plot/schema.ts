@@ -14,8 +14,8 @@ export const PlottingSchema = z.object({
   building: z.string({
     message: "Please select a building",
   }),
-  roomType: z.string({
-    message: "Please select a room type",
+  room: z.string({
+    message: "Please select a room",
   }),
   startTime: z.string({
     message: "Select start time",
