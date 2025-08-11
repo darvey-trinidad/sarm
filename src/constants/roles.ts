@@ -1,9 +1,10 @@
+export const TEACHING_PERSONNEL = ["faculty", "department_head"] as const;
+
 export const ROLES = [
   "facility_manager",
-  "department_head",
-  "faculty",
   "student_organization",
   "classroom_manager",
+  ...TEACHING_PERSONNEL,
 ] as const;
 
 export const ROLES_OPTIONS = ROLES.map((role) => ({

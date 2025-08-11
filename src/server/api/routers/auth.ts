@@ -2,6 +2,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { signupSchema } from "@/server/api-utils/validators/auth";
+import { getAllFaculty } from "@/lib/api/auth/query";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure
@@ -18,4 +19,7 @@ export const authRouter = createTRPCRouter({
       });
       return res;
     }),
+  getAllFaculty: publicProcedure.query(() => {
+    return getAllFaculty();
+  }),
 });
