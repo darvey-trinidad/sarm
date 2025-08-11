@@ -4,6 +4,7 @@ import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBo
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
   try {
@@ -56,7 +57,7 @@ export const getClassroomBorrowing = async (classroomId: string, date: Date) => 
   }
 }
 
-export const getClassroomSchedule = async (classroomId: string, date: Date) => {
+export const getClassroomSchedule = async (classroomId: string, date: Date): Promise<FinalClassroomSchedule[]> => {
   try {
     const day = date.getDay();
 
@@ -118,7 +119,7 @@ export const getClassroomSchedule = async (classroomId: string, date: Date) => {
         section: null,
         date: date,
         startTime: time,
-        endtime: time + TIME_INTERVAL,
+        endTime: time + TIME_INTERVAL,
         source: SCHEDULE_SOURCE.Unoccupied
       };
     })
