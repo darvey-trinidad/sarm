@@ -23,4 +23,7 @@ export const PlottingSchema = z.object({
   endTime: z.string({
     message: "Select end time",
   }),
+  days: z.array(z.string()).refine((days) => days.length > 0, {
+    message: "Please select at least one day of the week",
+  }),
 });
