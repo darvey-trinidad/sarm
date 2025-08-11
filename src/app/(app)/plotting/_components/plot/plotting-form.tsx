@@ -15,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { AutoComplete, type Option } from "@/components/ui/autocomplete";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -35,7 +36,10 @@ export default function PlottingForm() {
   const [schedules, setSchedules] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
+  const { data: faculty } = api.auth.getAllFaculty.useQuery();
   const [selectedBuildingId, setSelectedBuildingId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [value, setValue] = useState<Option>();
 
   const form = useForm<z.infer<typeof PlottingSchema>>({
     resolver: zodResolver(PlottingSchema),
@@ -107,7 +111,21 @@ export default function PlottingForm() {
                 <FormItem>
                   <FormLabel>Proffesor</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Dr. John Doe" {...field} />
+                    <AutoComplete
+                      options={
+                        faculty
+                          ? faculty.map((faculty) => ({
+                              value: faculty.email,
+                              label: faculty.name ?? "",
+                            }))
+                          : []
+                      }
+                      emptyMessage="No proffesor found"
+                      placeholder="Select a proffesor"
+                      isLoading={!faculty}
+                      onValueChange={field.onChange}
+                      value={value}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
