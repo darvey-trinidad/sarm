@@ -95,7 +95,7 @@ export const AutoComplete = ({
       <div
         className={cn(
           // Shadcn Input style
-          "border-input bg-background ring-offset-background flex h-10 w-full rounded-md border py-2 text-sm",
+          "border-input bg-background ring-offset-background flex h-9 w-full rounded-md border py-2 text-sm shadow-xs transition-[color,box-shadow]",
           "placeholder:text-muted-foreground focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
           "place-items-center disabled:cursor-not-allowed disabled:opacity-50",
         )}
