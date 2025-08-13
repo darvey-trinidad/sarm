@@ -16,7 +16,8 @@ export const getInitialClassroomSchedule = async (classroomId: string, date: Dat
           eq(classroomSchedule.classroomId, classroomId),
           eq(classroomSchedule.day, date.getDay())
         )
-      );
+      )
+      .orderBy(classroomSchedule.startTime);
   } catch (error) {
     console.log("Failed to get final classroom schedule:", error);
     throw new Error("Could not get final classroom schedule");
@@ -33,7 +34,8 @@ export const getClassroomVacancy = async (classroomId: string, date: Date) => {
           eq(classroomVacancy.classroomId, classroomId),
           eq(classroomVacancy.date, date)
         )
-      );
+      )
+      .orderBy(classroomVacancy.startTime);
   } catch (error) {
     console.log("Failed to get classroom vacancy:", error);
     throw new Error("Could not get classroom vacancy");
@@ -50,7 +52,8 @@ export const getClassroomBorrowing = async (classroomId: string, date: Date) => 
           eq(classroomBorrowing.classroomId, classroomId),
           eq(classroomBorrowing.date, date)
         )
-      );
+      )
+      .orderBy(classroomBorrowing.startTime);
   } catch (error) {
     console.log("Failed to get classroom borrowing:", error);
     throw new Error("Could not get classroom borrowing");
