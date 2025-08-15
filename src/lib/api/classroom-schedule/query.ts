@@ -5,6 +5,7 @@ import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
   try {
@@ -70,7 +71,7 @@ export const getClassroomSchedule = async (classroomId: string, date: Date): Pro
       getClassroomBorrowing(classroomId, date),
     ]);
 
-    return TIME_ENTRIES.map(([time]) => {
+    const schedule = TIME_ENTRIES.map(([time]) => {
       const initial = initialSchedule.find((schedule) => schedule.startTime === time && schedule.day === day);
       const vacancy = vacancies.find((vacancy) => vacancy.startTime === time);
       const borrowing = borrowings.find((borrowing) => borrowing.startTime === time);
@@ -126,6 +127,8 @@ export const getClassroomSchedule = async (classroomId: string, date: Date): Pro
         source: SCHEDULE_SOURCE.Unoccupied
       };
     })
+
+    return mergeAdjacentTimeslots(schedule);
 
   } catch (error) {
     console.log("Failed to get classroom schedule:", error);
