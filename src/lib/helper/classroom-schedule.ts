@@ -1,5 +1,6 @@
 import { generateUUID } from "@/lib/utils";
 import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 
 export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInput) {
   const chunks = [];
@@ -51,4 +52,35 @@ export const splitBorrowingToHourlyTimeslot = (input: CreateClassroomBorrowingIn
     });
   }
   return chunks;
+}
+
+export function mergeAdjacentTimeslots(slots: FinalClassroomSchedule[]): FinalClassroomSchedule[] {
+  if (slots.length === 0) return [];
+
+  const merged: FinalClassroomSchedule[] = [];
+  let current = slots[0]!;
+
+  for (let i = 1; i < slots.length; i++) {
+    const next = slots[i]!;
+
+    const isAdjacent =
+      current.endTime === next.startTime &&
+      current.classroomId === next.classroomId &&
+      current.facultyId === next.facultyId &&
+      current.subject === next.subject &&
+      current.section === next.section &&
+      current.source === next.source;
+
+    if (isAdjacent) {
+      // Extend the current block
+      current.endTime = next.endTime;
+    } else {
+      // Push current block and start a new one
+      merged.push(current);
+      current = { ...next };
+    }
+  }
+
+  merged.push(current);
+  return merged;
 }
