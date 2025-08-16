@@ -1,6 +1,15 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { createClassroomSchedule, createClassroomVacancy, createClassroomBorrowing } from "@/lib/api/classroom-schedule/mutation";
-import { createClassroomScheduleSchema, createClassroomVacancySchema, createClassroomBorrowingSchema, getClassroomScheduleSchema } from "@/server/api-utils/validators/classroom-schedule";
+import {
+  createClassroomSchedule,
+  createClassroomVacancy,
+  createClassroomBorrowing,
+} from "@/lib/api/classroom-schedule/mutation";
+import {
+  createClassroomScheduleSchema,
+  createClassroomVacancySchema,
+  createClassroomBorrowingSchema,
+  getClassroomScheduleSchema,
+} from "@/server/api-utils/validators/classroom-schedule";
 import { getClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { get } from "http";
 
@@ -24,5 +33,5 @@ export const classroomScheduleRouter = createTRPCRouter({
     .input(getClassroomScheduleSchema)
     .query(({ input }) => {
       return getClassroomSchedule(input.classroomId, input.date);
-    })
+    }),
 });
