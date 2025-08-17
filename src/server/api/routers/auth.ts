@@ -2,7 +2,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { signupSchema } from "@/server/api-utils/validators/auth";
-import { getAllFaculty } from "@/lib/api/auth/query";
+import { getAllFaculty, getAllUsers } from "@/lib/api/auth/query";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(signupSchema).mutation(({ input }) => {
@@ -20,5 +20,8 @@ export const authRouter = createTRPCRouter({
   getAllFaculty: publicProcedure.query(() => {
     return getAllFaculty();
   }),
+  getAllUsers: publicProcedure.query(() => {
+    return getAllUsers();
+  })
   //darvs pagawa ng delete user dito ah labyu
 });

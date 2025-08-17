@@ -11,7 +11,7 @@ import {
   getClassroomScheduleSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
 import { getClassroomSchedule } from "@/lib/api/classroom-schedule/query";
-import { get } from "http";
+import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -31,7 +31,7 @@ export const classroomScheduleRouter = createTRPCRouter({
     }),
   getClassroomSchedule: protectedProcedure
     .input(getClassroomScheduleSchema)
-    .query(({ input }) => {
-      return getClassroomSchedule(input.classroomId, input.date);
+    .query(async ({ input }) => {
+      return getClassroomSchedule(input.classroomId, input.date).then((timeslots) => mergeAdjacentTimeslots(timeslots));
     }),
 });

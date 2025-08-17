@@ -4,6 +4,8 @@ import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBo
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
   try {
@@ -15,7 +17,8 @@ export const getInitialClassroomSchedule = async (classroomId: string, date: Dat
           eq(classroomSchedule.classroomId, classroomId),
           eq(classroomSchedule.day, date.getDay())
         )
-      );
+      )
+      .orderBy(classroomSchedule.startTime);
   } catch (error) {
     console.log("Failed to get final classroom schedule:", error);
     throw new Error("Could not get final classroom schedule");
@@ -32,7 +35,8 @@ export const getClassroomVacancy = async (classroomId: string, date: Date) => {
           eq(classroomVacancy.classroomId, classroomId),
           eq(classroomVacancy.date, date)
         )
-      );
+      )
+      .orderBy(classroomVacancy.startTime);
   } catch (error) {
     console.log("Failed to get classroom vacancy:", error);
     throw new Error("Could not get classroom vacancy");
@@ -49,14 +53,15 @@ export const getClassroomBorrowing = async (classroomId: string, date: Date) => 
           eq(classroomBorrowing.classroomId, classroomId),
           eq(classroomBorrowing.date, date)
         )
-      );
+      )
+      .orderBy(classroomBorrowing.startTime);
   } catch (error) {
     console.log("Failed to get classroom borrowing:", error);
     throw new Error("Could not get classroom borrowing");
   }
 }
 
-export const getClassroomSchedule = async (classroomId: string, date: Date) => {
+export const getClassroomSchedule = async (classroomId: string, date: Date): Promise<FinalClassroomSchedule[]> => {
   try {
     const day = date.getDay();
 
@@ -118,16 +123,24 @@ export const getClassroomSchedule = async (classroomId: string, date: Date) => {
         section: null,
         date: date,
         startTime: time,
-        endtime: time + TIME_INTERVAL,
+        endTime: time + TIME_INTERVAL,
         source: SCHEDULE_SOURCE.Unoccupied
       };
     })
-
   } catch (error) {
     console.log("Failed to get classroom schedule:", error);
     throw new Error("Could not get classroom schedule");
   }
 };
+
+export const getMultipleClassroomSchedules = async (classroomIds: string[], date: Date) => {
+  const results = await Promise.all(
+    classroomIds.map((id) => getClassroomSchedule(id, date))
+  );
+
+  // flatten results since each call returns an array
+  return results.flat();
+}
 
 export const getClassroomScheduleConflicts = async (newSchedule: ClassroomScheduleWithoutId, startTimes: TimeInt[]) => {
   try {
