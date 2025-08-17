@@ -71,7 +71,7 @@ export const getClassroomSchedule = async (classroomId: string, date: Date): Pro
       getClassroomBorrowing(classroomId, date),
     ]);
 
-    const schedule = TIME_ENTRIES.map(([time]) => {
+    return TIME_ENTRIES.map(([time]) => {
       const initial = initialSchedule.find((schedule) => schedule.startTime === time && schedule.day === day);
       const vacancy = vacancies.find((vacancy) => vacancy.startTime === time);
       const borrowing = borrowings.find((borrowing) => borrowing.startTime === time);
@@ -127,14 +127,20 @@ export const getClassroomSchedule = async (classroomId: string, date: Date): Pro
         source: SCHEDULE_SOURCE.Unoccupied
       };
     })
-
-    return mergeAdjacentTimeslots(schedule);
-
   } catch (error) {
     console.log("Failed to get classroom schedule:", error);
     throw new Error("Could not get classroom schedule");
   }
 };
+
+export const getMultipleClassroomSchedules = async (classroomIds: string[], date: Date) => {
+  const results = await Promise.all(
+    classroomIds.map((id) => getClassroomSchedule(id, date))
+  );
+
+  // flatten results since each call returns an array
+  return results.flat();
+}
 
 export const getClassroomScheduleConflicts = async (newSchedule: ClassroomScheduleWithoutId, startTimes: TimeInt[]) => {
   try {
