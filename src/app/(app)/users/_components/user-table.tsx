@@ -1,43 +1,12 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  MoreHorizontal,
-  Search,
-  UserPlus,
-  Mail,
-  Key,
-  Edit,
-  Trash2,
-} from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { columns } from "./columns";
+import { DataTable } from "@/components/table/data-table";
 import { api } from "@/trpc/react";
+import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
 interface User {
   id: string;
@@ -45,47 +14,51 @@ interface User {
   email: string;
   role: string;
   departmentOrOrganization: string;
+  createdAt: Date;
   isActive: boolean;
 }
 
 export function UserTable() {
-  const { data, refetch } = api.auth.getAllFaculty.useQuery();
-  const [users, setUsers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string | null>();
+  const { data, isLoading, isError } = api.auth.getAllFaculty.useQuery();
 
-  useEffect(() => {
-    if (data) {
-      setUsers(data as User[]);
-    }
-  }, [data]);
+  const safeData: User[] =
+    data?.map((u) => ({
+      id: u.id,
+      name: u.name ?? "Unknown",
+      email: u.email,
+      role: u.role.replace(/_/g, " "),
+      departmentOrOrganization: u.departmentOrOrganization ?? "N/A",
+      createdAt: u.createdAt,
+      isActive: u.isActive,
+    })) ?? [];
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch = user.name
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+  const formatRole = (role: string): string => {
+    return role
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
-    const matchesRole = roleFilter ? user.role === roleFilter : true;
-
-    return matchesSearch && matchesRole;
-  });
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Users</h2>
+          <p className="text-muted-foreground">
+            Manage system users and their permissions
+          </p>
+        </div>
+      </div>
+      {!isLoading && data ? (
+        <DataTable
+          columns={columns}
+          data={safeData}
+          searchKey="name"
+          searchPlaceholder="Search users..."
+        />
+      ) : (
+        <DataTableSkeleton />
+      )}
+    </div>
+  );
 }
-
-const getStatusBadge = (status: boolean) => {
-  switch (status) {
-    case true:
-      return (
-        <Badge className="border-green-200 bg-green-100 text-green-700">
-          Active
-        </Badge>
-      );
-    case false:
-      return (
-        <Badge className="border-red-200 bg-red-100 text-yellow-700">
-          Inactive
-        </Badge>
-      );
-    default:
-      return null;
-  }
-};
