@@ -10,3 +10,7 @@ export const getAllFaculty = async () => {
     )
   ).all();
 }
+
+export const getAllUsers = async () => {
+  return await db.select().from(user).orderBy(user.name).all();
+}
