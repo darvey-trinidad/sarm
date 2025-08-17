@@ -49,7 +49,7 @@ export default function ReportsTabContent() {
                 View and manage your submitted reports.
               </CardDescription>
               <CardContent className="px-0 pt-3">
-                <ReportList />
+                <ReportList filter="my-reports" />
               </CardContent>
             </CardHeader>
           </Card>
@@ -63,7 +63,7 @@ export default function ReportsTabContent() {
                 View and manage reports across campus.
               </CardDescription>
               <CardContent className="px-0 pt-3">
-                <ReportList />
+                <ReportList filter="all-reports" />
               </CardContent>
             </CardHeader>
           </Card>
