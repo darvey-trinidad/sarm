@@ -19,7 +19,7 @@ interface User {
 }
 
 export function UserTable() {
-  const { data, isLoading, isError } = api.auth.getAllFaculty.useQuery();
+  const { data, isLoading, isError } = api.auth.getAllUsers.useQuery();
 
   const safeData: User[] =
     data?.map((u) => ({
