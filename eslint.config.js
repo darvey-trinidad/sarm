@@ -11,6 +11,7 @@ export default tseslint.config(
   {
     ignores: [".next"],
   },
+  // @ts-expect-error -- FlatCompat configs aren't typed correctly with tseslint.config
   ...compat.extends("next/core-web-vitals"),
   {
     files: ["**/*.ts", "**/*.tsx"],
