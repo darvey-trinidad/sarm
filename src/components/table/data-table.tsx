@@ -1,6 +1,6 @@
 "use client";
-
 import * as React from "react";
+import type { HeaderContext, Row, Table as TanstackTable } from "@tanstack/react-table";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -153,9 +153,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -227,19 +227,20 @@ export function DataTable<TData, TValue>({
 }
 
 // Helper function to create sortable headers
-export function createSortableHeader(title: string) {
-  return ({ column }: { column: any }) => {
-    return (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-semibold hover:bg-transparent"
-      >
-        {title}
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    );
-  };
+export function createSortableHeader<TData, TValue>(title: string) {
+  const SortableHeader = ({ column }: HeaderContext<TData, TValue>) => (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      className="h-auto p-0 font-semibold hover:bg-transparent"
+    >
+      {title}
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    </Button>
+  );
+
+  SortableHeader.displayName = "SortableHeader";
+  return SortableHeader;
 }
 
 // Helper function to create action columns
@@ -254,7 +255,7 @@ export function createActionColumn<T>(
   return {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }: { row: any }) => {
+    cell: ({ row }: { row: Row<T> }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -294,14 +295,14 @@ export function createActionColumn<T>(
 export function createSelectColumn<T>() {
   return {
     id: "select",
-    header: ({ table }: { table: any }) => (
+    header: ({ table }: { table: TanstackTable<T> }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
-    cell: ({ row }: { row: any }) => (
+    cell: ({ row }: { row: Row<T> }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}

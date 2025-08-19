@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { type Row } from "@tanstack/react-table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +28,7 @@ export function createActionColumn<T>(
   return {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }: { row: any }) => {
+    cell: ({ row }: { row: Row<T> }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
