@@ -71,7 +71,7 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "email",
-    header: createSortableHeader("Email"),
+    header: "Email",
   },
   {
     accessorKey: "role",
@@ -87,7 +87,7 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: createSortableHeader("Date Created"),
+    header: "Date Created",
     cell: ({ row }) => {
       const timestamp = row.getValue("createdAt") as Date;
       const formatted = formatTimestamp(timestamp);
@@ -110,6 +110,14 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "isActive",
     header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("isActive") as boolean;
+      if (isActive) {
+        return getStatusBadge(true);
+      } else {
+        return getStatusBadge(false);
+      }
+    },
   },
 
   //   createActionColumn<User>([

@@ -6,7 +6,7 @@ export function createSortableHeader(title: string) {
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-semibold hover:bg-transparent"
+        className="font- h-auto p-0 hover:bg-transparent"
       >
         {title}
         <ArrowUpDown className="ml-2 h-4 w-4" />
