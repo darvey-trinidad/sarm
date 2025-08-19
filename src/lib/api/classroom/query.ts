@@ -64,14 +64,12 @@ export const getClassroomsPerBuilding = async () => {
       rows.reduce((acc, row) => {
         const { buildingId, buildingName, description, classroomId, classroomName } = row;
 
-        if (!acc[buildingId]) {
-          acc[buildingId] = {
-            buildingId,
-            name: buildingName,
-            description,
-            classrooms: [],
-          };
-        }
+        acc[buildingId] ??= {
+          buildingId,
+          name: buildingName,
+          description,
+          classrooms: [],
+        };
 
         if (classroomId) {
           acc[buildingId].classrooms.push({

@@ -36,8 +36,8 @@ export const AutoComplete = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [isOpen, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Option>(value as Option);
-  const [inputValue, setInputValue] = useState<string>(value?.label || "");
+  const [selected, setSelected] = useState<Option>(value!);
+  const [inputValue, setInputValue] = useState<string>(value?.label ?? "");
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
