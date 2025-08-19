@@ -32,7 +32,7 @@ import { TIME_OPTIONS } from "@/constants/timeslot";
 import { DAYS } from "@/constants/days";
 import { create } from "domain";
 export default function PlottingForm() {
-  const [schedules, setSchedules] = useState<any[]>([]);
+  //  const [schedules, setSchedules] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
   const { data: faculty } = api.auth.getAllFaculty.useQuery();
@@ -114,9 +114,9 @@ export default function PlottingForm() {
                       options={
                         faculty
                           ? faculty.map((faculty) => ({
-                              value: faculty.email,
-                              label: faculty.name ?? "",
-                            }))
+                            value: faculty.email,
+                            label: faculty.name ?? "",
+                          }))
                           : []
                       }
                       emptyMessage="No proffesor found"
@@ -300,7 +300,7 @@ export default function PlottingForm() {
         </form>
       </Form>
 
-      {schedules.length > 0 && (
+      {/*schedules.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Created Schedules</h3>
           <div className="grid gap-4 md:grid-cols-2">
@@ -340,7 +340,7 @@ export default function PlottingForm() {
             ))}
           </div>
         </div>
-      )}
+      )*/}
     </div>
   );
 }
