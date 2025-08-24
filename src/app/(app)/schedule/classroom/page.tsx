@@ -1,7 +1,6 @@
 import React from "react";
 import { type Metadata } from "next";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
-import Header from "./_components/request/room-request";
 import BuildingDirectory from "./_components/building-directory";
 
 export const metadata: Metadata = {
@@ -10,12 +9,9 @@ export const metadata: Metadata = {
 
 const Classroom = () => {
   return (
-    <div className="flex w-full flex-col space-y-4">
+    <div className="flex w-full flex-col space-y-5">
       <BreadcrumbLayout currentPage="Classroom" parentPage="Schedule" />
 
-      <div className="flex justify-end">
-        <Header />
-      </div>
       <BuildingDirectory />
     </div>
   );

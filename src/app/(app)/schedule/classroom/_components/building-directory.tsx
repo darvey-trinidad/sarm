@@ -37,7 +37,9 @@ const BuildingCard = ({ building }: { building: Building }) => {
   const handleRoomClick = (room: string) => {
     const encodedBuildingName = encodeURIComponent(building.name);
     const roomNumber = room.replace("Room ", "");
-    router.push(`/classroom/room/${encodedBuildingName}/${roomNumber}`);
+    router.push(
+      `/schedule/classroom/room/${encodedBuildingName}/${roomNumber}`,
+    );
   };
 
   return (
