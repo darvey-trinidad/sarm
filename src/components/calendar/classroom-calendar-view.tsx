@@ -56,8 +56,9 @@ export default function ScheduleCalendarView({
 
   // Fetch schedule data
   const { data: scheduleData, isLoading } =
-    api.classroomSchedule.getClassroomSchedule.useQuery({
+    api.classroomSchedule.getWeeklyClassroomSchedule.useQuery({
       classroomId: classroomId,
-      date: startDate,
+      startDate: startDate,
+      endDate: endDate,
     });
 }
