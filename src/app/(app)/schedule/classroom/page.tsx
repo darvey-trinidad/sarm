@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const Classroom = () => {
   return (
     <div className="flex w-full flex-col space-y-5">
-      <BreadcrumbLayout currentPage="Classroom" parentPage="Schedule" />
+      <BreadcrumbLayout currentPage="Buildings" parentPage="Schedule" />
 
       <BuildingDirectory />
     </div>
