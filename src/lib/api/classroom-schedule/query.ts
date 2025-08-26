@@ -156,7 +156,7 @@ export const getWeeklyClassroomSchedule = async (
             lte(classroomSchedule.day, endDate.getDay())
           )
         )
-        .orderBy(classroomSchedule.startTime),
+        .orderBy(classroomSchedule.day, classroomSchedule.startTime),
 
       db
         .select()
@@ -168,7 +168,7 @@ export const getWeeklyClassroomSchedule = async (
             lte(classroomVacancy.date, endDate)
           )
         )
-        .orderBy(classroomVacancy.startTime),
+        .orderBy(classroomVacancy.date, classroomVacancy.startTime),
 
       db
         .select()
@@ -180,7 +180,7 @@ export const getWeeklyClassroomSchedule = async (
             lte(classroomBorrowing.date, endDate)
           )
         )
-        .orderBy(classroomBorrowing.startTime),
+        .orderBy(classroomBorrowing.date, classroomBorrowing.startTime),
     ]);
 
     const results: FinalClassroomSchedule[] = [];
