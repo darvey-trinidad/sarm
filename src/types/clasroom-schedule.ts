@@ -4,6 +4,7 @@ export interface FinalClassroomSchedule {
   id: string | null;
   classroomId: string | null;
   facultyId: string | null;
+  facultyName: string | null;
   subject: string | null;
   section: string | null;
   date: Date;
