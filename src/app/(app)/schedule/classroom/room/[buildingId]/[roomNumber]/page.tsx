@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
-import { de } from "date-fns/locale";
 
 interface PageProps {
   params: {
