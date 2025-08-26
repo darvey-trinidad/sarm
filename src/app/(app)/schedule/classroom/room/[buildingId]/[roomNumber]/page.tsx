@@ -21,8 +21,8 @@ export default function RoomSchedule({ params }: PageProps) {
   return (
     <div className="flex w-full flex-col space-y-4">
       <BreadcrumbLayout
-        currentPage="Classroom"
-        subPage="Room"
+        currentPage="Buildings"
+        subPage="Classroom"
         parentPage="Schedule"
       />
 
