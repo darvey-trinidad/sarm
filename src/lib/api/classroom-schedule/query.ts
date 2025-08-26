@@ -1,4 +1,4 @@
-import { db, and, eq, inArray } from "@/server/db";
+import { db, and, eq, inArray, gte, lte } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
@@ -7,6 +7,7 @@ import { TIME_INTERVAL } from "@/constants/timeslot";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 
+// single day schedule
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
   try {
     return await db
@@ -133,15 +134,127 @@ export const getClassroomSchedule = async (classroomId: string, date: Date): Pro
   }
 };
 
-export const getMultipleClassroomSchedules = async (classroomIds: string[], date: Date) => {
-  const results = await Promise.all(
-    classroomIds.map((id) => getClassroomSchedule(id, date))
-  );
 
-  // flatten results since each call returns an array
-  return results.flat();
-}
+/**
+ * Get classroom schedule for a week
+ */
 
+export const getWeeklyClassroomSchedule = async (
+  classroomId: string,
+  startDate: Date, // Monday
+  endDate: Date    // Saturday
+): Promise<FinalClassroomSchedule[]> => {
+  try {
+    const [initialSchedule, vacancies, borrowings] = await Promise.all([
+      db
+        .select()
+        .from(classroomSchedule)
+        .where(
+          and(
+            eq(classroomSchedule.classroomId, classroomId),
+            gte(classroomSchedule.day, startDate.getDay()),
+            lte(classroomSchedule.day, endDate.getDay())
+          )
+        )
+        .orderBy(classroomSchedule.startTime),
+
+      db
+        .select()
+        .from(classroomVacancy)
+        .where(
+          and(
+            eq(classroomVacancy.classroomId, classroomId),
+            gte(classroomVacancy.date, startDate),
+            lte(classroomVacancy.date, endDate)
+          )
+        )
+        .orderBy(classroomVacancy.startTime),
+
+      db
+        .select()
+        .from(classroomBorrowing)
+        .where(
+          and(
+            eq(classroomBorrowing.classroomId, classroomId),
+            gte(classroomBorrowing.date, startDate),
+            lte(classroomBorrowing.date, endDate)
+          )
+        )
+        .orderBy(classroomBorrowing.startTime),
+    ]);
+
+    const results: FinalClassroomSchedule[] = [];
+    let current = new Date(startDate);
+
+    while (current <= endDate) {
+      const day = current.getDay();
+
+      TIME_ENTRIES.forEach(([time]) => {
+        const initial = initialSchedule.find(
+          (s) => s.startTime === time && s.day === day
+        );
+        const vacancy = vacancies.find(
+          (v) =>
+            v.startTime === time &&
+            v.date.toDateString() === current.toDateString()
+        );
+        const borrowing = borrowings.find(
+          (b) =>
+            b.startTime === time &&
+            b.date.toDateString() === current.toDateString()
+        );
+
+        if (borrowing) {
+          results.push({
+            ...borrowing,
+            source: SCHEDULE_SOURCE.Borrowing,
+          });
+        } else if (vacancy) {
+          const { reason, ...rest } = vacancy;
+          results.push({
+            ...rest,
+            facultyId: null,
+            subject: null,
+            section: null,
+            source: SCHEDULE_SOURCE.Vacancy,
+          });
+        } else if (initial) {
+          const { day, ...rest } = initial;
+          results.push({
+            ...rest,
+            date: current,
+            source: SCHEDULE_SOURCE.InitialSchedule,
+          });
+        } else {
+          results.push({
+            id: null,
+            classroomId: classroomId,
+            facultyId: null,
+            subject: null,
+            section: null,
+            date: new Date(current), // clone to avoid mutation issues
+            startTime: time,
+            endTime: time + TIME_INTERVAL,
+            source: SCHEDULE_SOURCE.Unoccupied,
+          });
+        }
+      });
+
+      current.setDate(current.getDate() + 1);
+    }
+
+    return results;
+  } catch (error) {
+    console.log("Failed to get weekly classroom schedule:", error);
+    throw new Error("Could not get weekly classroom schedule");
+  }
+};
+
+
+
+/*
+*** Conflicts
+*/
 export const getClassroomScheduleConflicts = async (newSchedule: ClassroomScheduleWithoutId, startTimes: TimeInt[]) => {
   try {
     return await db
