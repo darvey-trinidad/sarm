@@ -10,11 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Info, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
 import { TIME_OPTIONS } from "@/constants/timeslot";
+import { newDate } from "@/lib/utils";
 
 const DaysofWeek = [
   "Monday",
@@ -25,19 +26,17 @@ const DaysofWeek = [
   "Saturday",
 ];
 
-interface ClassroomCalendarViewProps {
+type ClassroomCalendarViewProps = {
   classroomId: string;
-  buildingName?: string;
-  roomName?: string;
-}
+};
 
 export default function ClassroomCalendarView({
   classroomId,
 }: ClassroomCalendarViewProps) {
   const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
-  const [setSelecteditems, setSelectedItems] = useState<
-    FinalClassroomSchedule[]
-  >([]);
+  const [selectedItems, setSelectedItems] = useState<FinalClassroomSchedule[]>(
+    [],
+  );
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
@@ -51,8 +50,8 @@ export default function ClassroomCalendarView({
     refetch,
   } = api.classroomSchedule.getWeeklyClassroomSchedule.useQuery({
     classroomId: classroomId,
-    startDate: weekStart,
-    endDate: weekEnd,
+    startDate: newDate(weekStart),
+    endDate: newDate(weekEnd),
   });
 
   useEffect(() => {
@@ -142,14 +141,7 @@ export default function ClassroomCalendarView({
   return (
     <div className="space-y-4">
       {/* Header with navigation */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h2 className="text-2xl font-bold">
-            <p>hi</p>
-          </h2>
-          <p className="text-muted-foreground">Classroom Schedule</p>
-        </div>
-
+      <div className="flex flex-col justify-end gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={goToPreviousWeek}>
             <ChevronLeft className="h-4 w-4" />
