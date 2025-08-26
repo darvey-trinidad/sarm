@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "@/trpc/react";
 import { useParams } from "next/navigation";
+import { r } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 interface Building {
   id: string;
   name: string;
   description: string;
-  rooms: string[];
+  rooms: { id: string; name: string }[];
 }
 
 const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
@@ -34,12 +35,8 @@ const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
 const BuildingCard = ({ building }: { building: Building }) => {
   const router = useRouter();
 
-  const handleRoomClick = (room: string) => {
-    const encodedBuildingName = encodeURIComponent(building.name);
-    const roomNumber = room.replace("Room ", "");
-    router.push(
-      `/schedule/classroom/room/${encodedBuildingName}/${roomNumber}`,
-    );
+  const handleRoomClick = (roomId: string) => {
+    router.push(`/schedule/classroom/${roomId}`);
   };
 
   return (
@@ -74,10 +71,10 @@ const BuildingCard = ({ building }: { building: Building }) => {
               key={index}
               variant="outline"
               size="sm"
-              onClick={() => handleRoomClick(room)}
+              onClick={() => handleRoomClick(room.id)}
               className="border-gray-300 px-2 py-1 text-xs transition-colors hover:border-orange-800 hover:text-orange-800"
             >
-              {room}
+              {room.name}
             </Button>
           ))}
         </div>
@@ -99,7 +96,7 @@ export default function BuildingDirectory() {
                 id: building.buildingId,
                 name: building.name,
                 description: building.description ?? "",
-                rooms: building.classrooms.map((classroom) => classroom.name),
+                rooms: building.classrooms,
               }}
             />
           ))}

@@ -14,18 +14,7 @@ import { Info, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
-import { date } from "better-auth";
-import { da } from "date-fns/locale";
-
-//6:00 to 24:00
-const timeSlots = Array.from({ length: 25 }, (_, i) => {
-  const hour = i + 6;
-  const displayHour = hour > 24 ? hour - 24 : hour;
-  return {
-    time: `${displayHour.toString().padStart(2, "0")}:00`,
-    minutes: hour * 60,
-  };
-});
+import { TIME_OPTIONS } from "@/constants/timeslot";
 
 const DaysofWeek = [
   "Monday",
@@ -44,8 +33,6 @@ interface ClassroomCalendarViewProps {
 
 export default function ClassroomCalendarView({
   classroomId,
-  buildingName,
-  roomName = "Room",
 }: ClassroomCalendarViewProps) {
   const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
   const [setSelecteditems, setSelectedItems] = useState<
@@ -53,7 +40,6 @@ export default function ClassroomCalendarView({
   >([]);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 5);
 
@@ -78,10 +64,11 @@ export default function ClassroomCalendarView({
   }, [scheduleData]);
 
   // Time position calculation
-  const timeToPosition = (minutes: number) => {
-    const startMinutes = 6 * 60; // 6:00 AM
-    const relativeMinutes = minutes - startMinutes;
-    return Math.max(0, (relativeMinutes / 60) * 60); // 60px per hour
+  const timeToPosition = (time: number) => {
+    const hour = Math.floor(time / 100);
+    const startHours = 7; // 7:00 AM
+    const relativeHours = hour - startHours;
+    return Math.max(0, relativeHours * 60); // 60px = 1 hour
   };
 
   // Get day of week from date
@@ -158,7 +145,7 @@ export default function ClassroomCalendarView({
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-2xl font-bold">
-            {buildingName} - {roomName}
+            <p>hi</p>
           </h2>
           <p className="text-muted-foreground">Classroom Schedule</p>
         </div>
@@ -219,12 +206,12 @@ export default function ClassroomCalendarView({
             <div className="relative grid min-w-[800px] grid-cols-7">
               {/* Time slots */}
               <div className="bg-muted/20 border-r">
-                {timeSlots.map((slot) => (
+                {TIME_OPTIONS.map((slot) => (
                   <div
-                    key={slot.time}
+                    key={slot.value}
                     className="h-[60px] border-b px-2 py-1 text-right text-xs"
                   >
-                    {slot.time}
+                    {slot.label}
                   </div>
                 ))}
               </div>
@@ -235,7 +222,7 @@ export default function ClassroomCalendarView({
                   key={dayIndex}
                   className="relative border-r last:border-r-0"
                 >
-                  {timeSlots.map((slot, timeIndex) => (
+                  {TIME_OPTIONS.map((slot, timeIndex) => (
                     <div
                       key={`${dayIndex}-${timeIndex}`}
                       className="h-[60px] border-b"
@@ -245,7 +232,7 @@ export default function ClassroomCalendarView({
               ))}
 
               {/* Schedule blocks */}
-              {!loading &&
+              {!isLoading &&
                 schedules.map((schedule) => (
                   <div
                     key={
@@ -265,14 +252,14 @@ export default function ClassroomCalendarView({
                     </div>
                     {schedule.facultyId && (
                       <div className="text-muted-foreground truncate text-xs">
-                        Faculty: {schedule.facultyId}
+                        Faculty: {schedule.facultyName}
                       </div>
                     )}
                   </div>
                 ))}
 
               {/* Loading overlay */}
-              {loading && (
+              {isLoading && (
                 <div className="bg-background/50 absolute inset-0 z-30 flex items-center justify-center">
                   <div className="text-center">
                     <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2"></div>

@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
-
+import ClassroomCalendarView from "@/components/calendar/classroom-calendar-view";
+import { getClassroomWithBuilding } from "@/lib/api/classroom/query";
 interface PageProps {
   params: {
-    buildingId: string;
-    roomNumber: string;
+    roomId: string;
   };
 }
 
@@ -15,8 +15,10 @@ export const metadata: Metadata = {
   title: "Room",
 };
 
-export default function RoomSchedule({ params }: PageProps) {
-  const decodeBuildingName = decodeURIComponent(params.buildingId);
+export default async function RoomSchedule({ params }: PageProps) {
+  const { roomId } = await params;
+  const classrooms = await getClassroomWithBuilding(roomId);
+  const classroom = classrooms[0];
   return (
     <div className="flex w-full flex-col space-y-4">
       <BreadcrumbLayout
@@ -38,14 +40,15 @@ export default function RoomSchedule({ params }: PageProps) {
           </Link>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Room {params.roomNumber}
+              {classroom?.buildingName}
             </h1>
             <p className="text-muted-foreground">
-              {decodeBuildingName} - Room {params.roomNumber} schedule
+              Classroom - {classroom?.classroomName}
             </p>
           </div>
         </div>
       </div>
+      <ClassroomCalendarView classroomId={roomId} />
     </div>
   );
 }
