@@ -4,29 +4,36 @@ import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBo
 import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot } from "@/lib/helper/classroom-schedule";
 import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts } from "@/lib/api/classroom-schedule/query";
 import type { TimeInt } from "@/constants/timeslot";
+import { TRPCError } from "@trpc/server";
 
 export const createClassroomSchedule = async (data: ClassroomScheduleWithoutId) => {
   try {
-    //splitScheduleToHourlyTimeslot generates an id for each split timeslot, hence parameter must not have an id yet
+    // splitScheduleToHourlyTimeslot generates an id for each split timeslot, hence parameter must not have an id yet
     const splitSchedules = splitScheduleToHourlyTimeslot(data);
 
     const startTimes = splitSchedules.map((schedule) => schedule.startTime as TimeInt);
     const conflictSchedules = await getClassroomScheduleConflicts(data, startTimes);
 
     if (conflictSchedules.length > 0) {
-      return {
-        success: false,
-        conflict: true,
-        conflictingSchedules: conflictSchedules,
-      };
+      throw new TRPCError({
+        code: "CONFLICT", // or "BAD_REQUEST", whichever fits best
+        message: "Classroom schedule conflict detected",
+        cause: conflictSchedules,
+      });
     }
 
     return await db.insert(classroomSchedule).values(splitSchedules).run();
   } catch (err) {
     console.error("Failed to create classroom schedule:", err);
-    throw new Error("Could not create classroom schedule");
+
+    if (err instanceof TRPCError) throw err; // rethrow if already handled
+
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Could not create classroom schedule",
+    });
   }
-}
+};
 
 export const createClassroomVacancy = async (data: ClassroomVacancyWithoutId) => {
   try {

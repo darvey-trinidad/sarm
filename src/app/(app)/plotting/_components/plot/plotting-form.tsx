@@ -50,7 +50,7 @@ export default function PlottingForm() {
       room: "",
       startTime: "",
       endTime: "",
-      days: [],
+      days: "",
     },
   });
 
@@ -77,6 +77,30 @@ export default function PlottingForm() {
   //     });
   //   };
 
+  const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
+    setIsSubmitting(true);
+    createClassroomSchedule({
+      subject: data.courseCode,
+      section: data.section,
+      classroomId: data.room,
+      facultyId: data.proffesor,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      day: Number(data.days),
+    }, {
+      onSuccess: () => {
+        toast.success("Classroom schedule created successfully");
+        form.reset();
+        setIsSubmitting(false);
+      },
+      onError: (err) => {
+        console.log(err);
+        toast.error(err.message || "Failed to create schedule");
+        setIsSubmitting(false);
+      },
+    });
+  };
+
   const selectedBuilding = buildings?.find(
     (building) => building.buildingId === form.getValues("building"),
   );
@@ -84,7 +108,9 @@ export default function PlottingForm() {
   return (
     <div>
       <Form {...form}>
-        <form className="space-y-4 px-0 md:space-y-8">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-4 px-0 md:space-y-8">
           <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-3">
             <FormField
               control={form.control}
@@ -114,7 +140,7 @@ export default function PlottingForm() {
                       options={
                         faculty
                           ? faculty.map((faculty) => ({
-                            value: faculty.email,
+                            value: faculty.id,
                             label: faculty.name ?? "",
                           }))
                           : []
@@ -122,7 +148,7 @@ export default function PlottingForm() {
                       emptyMessage="No proffesor found"
                       placeholder="Select a proffesor"
                       isLoading={!faculty}
-                      onValueChange={field.onChange}
+                      onValueChange={(opt) => field.onChange(opt?.value)} // ✅ only store the id
                       value={value}
                     />
                   </FormControl>
