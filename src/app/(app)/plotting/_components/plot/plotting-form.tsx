@@ -29,7 +29,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PlottingSchema } from "./schema";
 import { api } from "@/trpc/react";
 import { TIME_OPTIONS } from "@/constants/timeslot";
-import { DAYS } from "@/constants/days";
+import { DAYS_OPTIONS } from "@/constants/days";
 import { create } from "domain";
 export default function PlottingForm() {
   //  const [schedules, setSchedules] = useState<any[]>([]);
@@ -276,9 +276,9 @@ export default function PlottingForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {DAYS.map((day) => (
-                        <SelectItem key={day} value={day}>
-                          {day}
+                      {DAYS_OPTIONS.map((day) => (
+                        <SelectItem key={day.value} value={day.value.toString()}>
+                          {day.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
