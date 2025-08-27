@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Car } from "lucide-react";
 import ReportForm from "./submit/report-form";
-import ReportList from "./reports-lists/reports-list";
+import ReportTable from "./reports-lists/reports-table";
 
 export default function ReportsTabContent() {
   const [tab, setTab] = useState("submit");
@@ -49,7 +49,7 @@ export default function ReportsTabContent() {
                 View and manage your submitted reports.
               </CardDescription>
               <CardContent className="px-0 pt-3">
-                <ReportList filter="my-reports" />
+                <ReportTable filter="my-reports" />
               </CardContent>
             </CardHeader>
           </Card>
@@ -63,7 +63,7 @@ export default function ReportsTabContent() {
                 View and manage reports across campus.
               </CardDescription>
               <CardContent className="px-0 pt-3">
-                <ReportList filter="all-reports" />
+                <ReportTable filter="all-reports" />
               </CardContent>
             </CardHeader>
           </Card>
