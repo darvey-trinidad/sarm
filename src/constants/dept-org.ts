@@ -17,3 +17,5 @@ export const DEPARTMENT_OR_ORGANIZATION_OPTIONS = DEPARTMENT_OR_ORGANIZATION.map
     .map((word) => word[0]?.toUpperCase() + word.slice(1))
     .join(" "),
 }));
+
+export type DepartmentOrOrganization = typeof DEPARTMENT_OR_ORGANIZATION[number];
