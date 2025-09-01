@@ -38,27 +38,17 @@ import { cn } from "@/lib/utils";
 import { type FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
+import { type BetterAuthSession } from "@/lib/auth-client";
+import { type BorrowingData } from "@/hooks/use-schedule-action";
+import { toTimeInt } from "@/lib/utils";
 
-interface BorrowingData {
-  classroomId: string;
-  facultyId: string;
-  date: Date;
-  startTime: number; // minutes from midnight
-  endTime: number; // minutes from midnight
-  subject: string | null;
-  section: string | null;
-}
+type UserSession = BetterAuthSession["user"] | undefined;
+
 interface ScheduleActionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedItem: FinalClassroomSchedule | null;
-  currentUser: {
-    id: string;
-    name: string;
-    role: "professor" | "student" | "staff";
-    email: string;
-    facultyId?: string;
-  };
+  currentUser: UserSession;
   onMarkVacant: (scheduleId: string, reason: string) => Promise<void>;
   onClaimSlot: (
     scheduleId: string,
@@ -66,7 +56,7 @@ interface ScheduleActionDialogProps {
   ) => Promise<void>;
   onCancelBorrowing: (scheduleId: string) => Promise<void>;
 }
-export default function ScheuleActionDialog({
+export default function ScheduleActionDialog({
   open,
   onOpenChange,
   selectedItem,
@@ -79,10 +69,10 @@ export default function ScheuleActionDialog({
   const [vacancyReason, setVacancyReason] = useState("");
   const [borrowingData, setBorrowingData] = useState<BorrowingData>({
     classroomId: selectedItem?.classroomId || "",
-    facultyId: currentUser.facultyId || currentUser.id,
+    facultyId: currentUser?.id || "",
     date: selectedItem?.date || new Date(),
-    startTime: selectedItem?.startTime || 0,
-    endTime: selectedItem?.endTime || 0,
+    startTime: toTimeInt(selectedItem?.startTime),
+    endTime: toTimeInt(selectedItem?.endTime),
     subject: "",
     section: "",
   });
@@ -91,15 +81,15 @@ export default function ScheuleActionDialog({
 
   // Determine what actions are available
   const isOwnSchedule =
-    currentUser.role === "professor" &&
-    selectedItem.facultyId === currentUser.facultyId &&
+    (currentUser?.role === "faculty" || "department_head") &&
+    selectedItem.facultyId === currentUser?.id &&
     selectedItem.source === SCHEDULE_SOURCE.InitialSchedule;
 
   const isVacantSlot = selectedItem.source === SCHEDULE_SOURCE.Vacancy;
   const isUnoccupiedSlot = selectedItem.source === SCHEDULE_SOURCE.Unoccupied;
   const isBorrowedByUser =
     selectedItem.source === SCHEDULE_SOURCE.Borrowing &&
-    selectedItem.facultyId === currentUser.id;
+    selectedItem.facultyId === currentUser?.id;
 
   const canMarkVacant = isOwnSchedule;
   const canClaim = isVacantSlot || isUnoccupiedSlot;
@@ -111,8 +101,8 @@ export default function ScheuleActionDialog({
   };
 
   const getAvailableStartTimes = () => {
-    const selectedStartTime = selectedItem.startTime as TimeInt;
-    const selectedEndTime = selectedItem.endTime as TimeInt;
+    const selectedStartTime = toTimeInt(selectedItem.startTime);
+    const selectedEndTime = toTimeInt(selectedItem.endTime);
 
     return TIME_OPTIONS.filter(
       (option) =>
@@ -121,8 +111,8 @@ export default function ScheuleActionDialog({
   };
 
   const getAvailableEndTimes = () => {
-    const selectedStartTime = selectedItem.startTime as TimeInt;
-    const selectedEndTime = selectedItem.endTime as TimeInt;
+    const selectedStartTime = toTimeInt(selectedItem.startTime);
+    const selectedEndTime = toTimeInt(selectedItem.endTime);
 
     return TIME_OPTIONS.filter(
       (option) =>
@@ -206,10 +196,10 @@ export default function ScheuleActionDialog({
       onOpenChange(false);
       setBorrowingData({
         classroomId: selectedItem?.classroomId || "",
-        facultyId: currentUser.facultyId || currentUser.id,
+        facultyId: currentUser?.id || "",
         date: selectedItem?.date || new Date(),
-        startTime: (selectedItem?.startTime as TimeInt) || 700,
-        endTime: (selectedItem?.endTime as TimeInt) || 800,
+        startTime: (toTimeInt(selectedItem?.startTime)),
+        endTime: (toTimeInt(selectedItem?.endTime)),
         subject: "",
         section: "",
       });
@@ -252,7 +242,7 @@ export default function ScheuleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                selectedItem.subject
+                  selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
@@ -265,8 +255,8 @@ export default function ScheuleActionDialog({
               <div className="flex items-center gap-2">
                 <Clock className="text-muted-foreground h-3 w-3" />
                 <span>
-                  {formatTime(selectedItem.startTime as TimeInt)} -{" "}
-                  {formatTime(selectedItem.endTime as TimeInt)}
+                  {formatTime(toTimeInt(selectedItem.startTime))} -{" "}
+                  {formatTime(toTimeInt(selectedItem.endTime))}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -322,8 +312,8 @@ export default function ScheuleActionDialog({
               <div className="rounded-md border border-blue-200 bg-blue-50 p-3">
                 <p className="text-sm text-blue-800">
                   <strong>Available Time:</strong>{" "}
-                  {formatTime(selectedItem.startTime as TimeInt)} -{" "}
-                  {formatTime(selectedItem.endTime as TimeInt)}
+                  {formatTime(toTimeInt(selectedItem.startTime))} -{" "}
+                  {formatTime(toTimeInt(selectedItem.endTime))}
                 </p>
                 <p className="mt-1 text-xs text-blue-600">
                   You can borrow any portion of this time slot. The remaining
@@ -374,7 +364,7 @@ export default function ScheuleActionDialog({
                       onValueChange={(value) =>
                         setBorrowingData({
                           ...borrowingData,
-                          startTime: Number(value) as TimeInt,
+                          startTime: toTimeInt(Number(value)),
                         })
                       }
                     >
@@ -400,7 +390,7 @@ export default function ScheuleActionDialog({
                       onValueChange={(value) =>
                         setBorrowingData({
                           ...borrowingData,
-                          endTime: Number(value) as TimeInt,
+                          endTime: toTimeInt(Number(value)),
                         })
                       }
                     >

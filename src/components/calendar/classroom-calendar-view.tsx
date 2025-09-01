@@ -11,7 +11,8 @@ import { TIME_OPTIONS } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
-import ScheuleActionDialog from "./schedule-action-dialog";
+import ScheduleActionDialog from "./schedule-action-dialog";
+import { useScheduleActions } from "@/hooks/use-schedule-action";
 
 const DaysofWeek = [
   "Monday",
@@ -30,21 +31,20 @@ export default function ClassroomCalendarView({
   classroomId,
 }: ClassroomCalendarViewProps) {
   const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
-  const [selectedItems, setSelectedItems] = useState<FinalClassroomSchedule[]>(
-    [],
-  );
+  const [selectedItem, setSelectedItem] = useState<FinalClassroomSchedule | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 5);
   const { data: session, isPending } = authClient.useSession();
 
-  // const { markAsVacant, claimSlot, cancelBorrowing } = useScheduleActions({
-  //   onRefresh: () => {
-  //     // Refresh your schedule data here
-  //     console.log("Refreshing schedule data...");
-  //   },
-  // });
+  const { markAsVacant, claimSlot, cancelBorrowing } = useScheduleActions({
+    onRefresh: () => {
+      refetch();
+      console.log("Refreshing schedule data...");
+    },
+  });
+
   // Fetch schedule data
   const {
     data: scheduleData,
@@ -120,7 +120,7 @@ export default function ClassroomCalendarView({
 
   // Handle schedule item click
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
-    setSelectedItems([schedule]);
+    setSelectedItem(schedule);
     setIsDialogOpen(true);
   };
 
@@ -309,15 +309,15 @@ export default function ClassroomCalendarView({
           </div>
         </ScrollArea>
       </div>
-      {/* <ScheduleActionDialog
+      <ScheduleActionDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        selectedItem={selectedItems}
-        currentUser={session}
+        selectedItem={selectedItem}
+        currentUser={session?.user}
         onMarkVacant={markAsVacant}
         onClaimSlot={claimSlot}
         onCancelBorrowing={cancelBorrowing}
-      /> */}
+      />
     </div>
   );
 }

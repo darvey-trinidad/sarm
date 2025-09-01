@@ -218,7 +218,7 @@ export const getWeeklyClassroomSchedule = async (
     while (current <= endDate) {
       const day = current.getDay();
 
-      TIME_ENTRIES.forEach(([time]) => {
+      TIME_ENTRIES.slice(0, -1).forEach(([time]) => {
         const initial = initialSchedule.find(
           (s) => s.startTime === time && s.day === day
         );
