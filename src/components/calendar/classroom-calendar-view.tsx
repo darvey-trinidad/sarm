@@ -9,6 +9,9 @@ import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
 import { TIME_OPTIONS } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { SCHEDULE_SOURCE } from "@/constants/schedule";
+import ScheuleActionDialog from "./schedule-action-dialog";
 
 const DaysofWeek = [
   "Monday",
@@ -34,7 +37,14 @@ export default function ClassroomCalendarView({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 5);
+  const { data: session, isPending } = authClient.useSession();
 
+  // const { markAsVacant, claimSlot, cancelBorrowing } = useScheduleActions({
+  //   onRefresh: () => {
+  //     // Refresh your schedule data here
+  //     console.log("Refreshing schedule data...");
+  //   },
+  // });
   // Fetch schedule data
   const {
     data: scheduleData,
@@ -114,13 +124,46 @@ export default function ClassroomCalendarView({
     setIsDialogOpen(true);
   };
 
-  // Week navigation
-  const goToPreviousWeek = () => {
-    setCurrentWeek((prev) => subWeeks(prev, 1));
+  const getDisplayTitle = (item: FinalClassroomSchedule) => {
+    if (item.source === SCHEDULE_SOURCE.InitialSchedule && item.subject) {
+      return `${item.subject} - ${item.section}`;
+    }
+    return item.source;
   };
 
-  const goToNextWeek = () => {
-    setCurrentWeek((prev) => addWeeks(prev, 1));
+  //display time
+  const getDisplaySubtitle = (item: FinalClassroomSchedule) => {
+    const formatTime = (minutes: number) => {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+    };
+    return `${formatTime(item.startTime)} - ${formatTime(item.endTime)}`;
+  };
+
+  // Check if item is actionable for current user using constants
+  const isActionable = (item: FinalClassroomSchedule) => {
+    const isOwnSchedule =
+      session?.user.role === "professor" &&
+      item.facultyId === session.user.id &&
+      item.source === SCHEDULE_SOURCE.InitialSchedule;
+
+    const isVacantSlot = item.source === SCHEDULE_SOURCE.Vacancy;
+
+    const isBorrowedByUser =
+      item.source === SCHEDULE_SOURCE.Borrowing &&
+      item.facultyId === session?.user.id;
+
+    return isOwnSchedule || isVacantSlot || isBorrowedByUser;
+  };
+
+  // Week navigation
+  const navigateWeek = (direction: "prev" | "next") => {
+    if (direction === "prev") {
+      setCurrentWeek(subWeeks(currentWeek, 1));
+    } else {
+      setCurrentWeek(addWeeks(currentWeek, 1));
+    }
   };
 
   const goToCurrentWeek = () => {
@@ -136,7 +179,11 @@ export default function ClassroomCalendarView({
       {/* Header with navigation */}
       <div className="flex flex-col justify-end gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToPreviousWeek}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateWeek("prev")}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
@@ -144,7 +191,11 @@ export default function ClassroomCalendarView({
             {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
           </div>
 
-          <Button variant="outline" size="sm" onClick={goToNextWeek}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateWeek("next")}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
 
@@ -258,6 +309,15 @@ export default function ClassroomCalendarView({
           </div>
         </ScrollArea>
       </div>
+      {/* <ScheduleActionDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        selectedItem={selectedItems}
+        currentUser={session}
+        onMarkVacant={markAsVacant}
+        onClaimSlot={claimSlot}
+        onCancelBorrowing={cancelBorrowing}
+      /> */}
     </div>
   );
 }
