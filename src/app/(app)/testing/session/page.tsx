@@ -2,9 +2,8 @@
 import { authClient } from "@/lib/auth-client";
 
 /*
-** sample code only
-*/
-
+ ** sample code only
+ */
 
 export default function TestingPage() {
   // ito tatawagin para makuha yung session (info about currently logged in na user)
@@ -17,14 +16,14 @@ export default function TestingPage() {
   return (
     <div>
       {/*nasa loob ng session.user yung user info, nandon yung role, name, email, etc*/}
-      {
-        isPending ? (<p>Loading session...</p>) : (
-          <>
-            <h1>Welcome {JSON.stringify(session)}</h1>
-            <div className="mt-4 text-xl">{JSON.stringify(session.user)}</div>
-          </>
-        )
-      }
+      {isPending ? (
+        <p>Loading session...</p>
+      ) : (
+        <>
+          <h1>Welcome {JSON.stringify(session.user.name)}</h1>
+          <div className="mt-4 text-xl">{JSON.stringify(session.user)}</div>
+        </>
+      )}
     </div>
   );
 }

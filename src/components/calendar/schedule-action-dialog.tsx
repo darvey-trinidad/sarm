@@ -198,8 +198,8 @@ export default function ScheduleActionDialog({
         classroomId: selectedItem?.classroomId || "",
         facultyId: currentUser?.id || "",
         date: selectedItem?.date || new Date(),
-        startTime: (toTimeInt(selectedItem?.startTime)),
-        endTime: (toTimeInt(selectedItem?.endTime)),
+        startTime: toTimeInt(selectedItem?.startTime),
+        endTime: toTimeInt(selectedItem?.endTime),
         subject: "",
         section: "",
       });
@@ -242,7 +242,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                  selectedItem.subject
+                selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
@@ -322,43 +322,48 @@ export default function ScheduleActionDialog({
               </div>
 
               <div className="space-y-4">
-                {/* Date Selection */}
-                <div className="space-y-2">
-                  <Label>Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !borrowingData.date && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {borrowingData.date ? (
-                          format(borrowingData.date, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={borrowingData.date}
-                        onSelect={(date) =>
-                          date && setBorrowingData({ ...borrowingData, date })
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                {/* Subject and Section */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">
+                      Subject <span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="subject"
+                      placeholder="e.g., IT401"
+                      value={borrowingData.subject || ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          subject: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section">
+                      Section <span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="section"
+                      placeholder="e.g., BSIT 4D"
+                      value={borrowingData.section || ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          section: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
 
                 {/* Time Selection */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="startTime">Start Time</Label>
+                    <Label htmlFor="startTime">
+                      Start Time <span className="text-red-600">*</span>
+                    </Label>
                     <Select
                       value={borrowingData.startTime.toString()}
                       onValueChange={(value) =>
@@ -368,7 +373,7 @@ export default function ScheduleActionDialog({
                         })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select start time" />
                       </SelectTrigger>
                       <SelectContent>
@@ -384,7 +389,9 @@ export default function ScheduleActionDialog({
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="endTime">End Time</Label>
+                    <Label htmlFor="endTime">
+                      End Time <span className="text-red-600">*</span>
+                    </Label>
                     <Select
                       value={borrowingData.endTime.toString()}
                       onValueChange={(value) =>
@@ -394,7 +401,7 @@ export default function ScheduleActionDialog({
                         })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select end time" />
                       </SelectTrigger>
                       <SelectContent>
@@ -408,38 +415,6 @@ export default function ScheduleActionDialog({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                </div>
-
-                {/* Subject and Section */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Subject *</Label>
-                    <Input
-                      id="subject"
-                      placeholder="e.g., IT401"
-                      value={borrowingData.subject || ""}
-                      onChange={(e) =>
-                        setBorrowingData({
-                          ...borrowingData,
-                          subject: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="section">Section *</Label>
-                    <Input
-                      id="section"
-                      placeholder="e.g., BSIT 4D"
-                      value={borrowingData.section || ""}
-                      onChange={(e) =>
-                        setBorrowingData({
-                          ...borrowingData,
-                          section: e.target.value,
-                        })
-                      }
-                    />
                   </div>
                 </div>
 
