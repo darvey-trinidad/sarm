@@ -38,6 +38,7 @@ export const TIME_KEYS = TIME_ENTRIES.map(([value]) => value) as number[];
 
 export type TimeInt = (typeof TIME_ENTRIES)[number][0];
 export type TimeString = (typeof TIME_ENTRIES)[number][1];
+export const TIME_KEY_SET = new Set<number>(TIME_KEYS);
 
 export const timeIntSchema = z
   .enum(TIME_KEYS.map(String) as [string, ...string[]])

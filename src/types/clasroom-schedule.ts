@@ -1,3 +1,5 @@
+import type { TimeInt } from "@/constants/timeslot";
+
 export type ScheduleSource = "Initial Schedule" | "Vacancy" | "Borrowing" | "Unoccupied";
 
 export interface FinalClassroomSchedule {
@@ -8,7 +10,7 @@ export interface FinalClassroomSchedule {
   subject: string | null;
   section: string | null;
   date: Date;
-  startTime: number;
-  endTime: number;
+  startTime: TimeInt;
+  endTime: TimeInt;
   source: ScheduleSource;
 }

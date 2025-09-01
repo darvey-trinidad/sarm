@@ -6,6 +6,7 @@ import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { user } from "@/server/db/schema/auth";
+import { toTimeInt } from "@/lib/utils";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
@@ -234,13 +235,18 @@ export const getWeeklyClassroomSchedule = async (
         );
 
         if (borrowing) {
+          const { startTime, endTime, ...rest } = borrowing;
           results.push({
-            ...borrowing,
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
+            ...rest,
             source: SCHEDULE_SOURCE.Borrowing,
           });
         } else if (vacancy) {
-          const { reason, ...rest } = vacancy;
+          const { startTime, endTime, reason, ...rest } = vacancy;
           results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
             ...rest,
             facultyId: null,
             facultyName: null,
@@ -249,8 +255,10 @@ export const getWeeklyClassroomSchedule = async (
             source: SCHEDULE_SOURCE.Vacancy,
           });
         } else if (initial) {
-          const { day, ...rest } = initial;
+          const { day, startTime, endTime, ...rest } = initial;
           results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
             ...rest,
             date: new Date(current),
             source: SCHEDULE_SOURCE.InitialSchedule,
@@ -265,7 +273,7 @@ export const getWeeklyClassroomSchedule = async (
             section: null,
             date: new Date(current), // clone to avoid mutation issues
             startTime: time,
-            endTime: time + TIME_INTERVAL,
+            endTime: toTimeInt(time + TIME_INTERVAL),
             source: SCHEDULE_SOURCE.Unoccupied,
           });
         }
