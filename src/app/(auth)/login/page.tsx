@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PageRoutes } from "@/constants/page-routes";
-
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
@@ -31,13 +31,13 @@ export default function LoginPage() {
           callbackURL: PageRoutes.DASHBOARD,
         },
         {
+          onSuccess: () => {
+            toast.success("Sign in successful!");
+          },
           onError: (error) => {
-            console.log("Login error:", error);
+            toast.error("Sign in failed!");
           },
-          onSuccess: (data) => {
-            console.log("Login successful:", data);
-          },
-        }
+        },
       );
 
       if (error) {
@@ -48,7 +48,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -143,7 +142,14 @@ export default function LoginPage() {
                 className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900 disabled:opacity-50"
                 disabled={loading}
               >
-                {loading ? "Logging in..." : "Log In"}
+                {loading ? (
+                  <span className="flex items-center">
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />
+                    Logging In
+                  </span>
+                ) : (
+                  "Log In"
+                )}
               </Button>
             </form>
 
