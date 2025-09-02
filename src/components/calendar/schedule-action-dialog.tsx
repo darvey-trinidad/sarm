@@ -169,7 +169,7 @@ export default function ScheduleActionDialog({
   };
 
   const handleClaimSlot = async () => {
-    if (!selectedItem.id || !borrowingData.subject || !borrowingData.section)
+    if (!borrowingData.subject || !borrowingData.section)
       return;
 
     // Validate time range

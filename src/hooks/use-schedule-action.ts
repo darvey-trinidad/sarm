@@ -40,6 +40,13 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     isSuccess: isSuccessCreateBorrowing
   } = api.classroomSchedule.createClassroomBorrowing.useMutation();
 
+  const {
+    mutate: cancelClassroomBorrowing,
+    isPending: isPendingCancelBorrowing,
+    isError: isErrorCancelBorrowing,
+    isSuccess: isSuccessCancelBorrowing
+  } = api.classroomSchedule.cancelClassroomBorrowing.useMutation();
+
   const markAsVacant = async (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => {
     setLoading(true)
     try {
@@ -100,18 +107,22 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
   const cancelBorrowing = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
     setLoading(true)
     try {
-      // Replace with your actual API call
-      // const response = await fetch(`/api/classroom-borrowing/${scheduleId}`, {
-      //   method: 'DELETE'
-      // })
+      cancelClassroomBorrowing({
+        classroomId: schedule.classroomId,
+        date: schedule.date,
+        startTime: schedule.startTime.toString(),
+        endTime: schedule.endTime.toString(),
+      }, {
+        onSuccess: () => {
+          toast("Borrowing canceled");
+          onRefresh?.()
+        },
+        onError: () => { toast("Failed to cancel borrowing") }
+      })
 
       // Mock API delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // toast({
-      //   title: "Borrowing cancelled",
-      //   description: "The room is now available for others to borrow.",
-      // })
 
       onRefresh?.()
     } catch (error) {

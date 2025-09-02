@@ -63,8 +63,17 @@ export const getWeeklyClassroomScheduleSchema = z.object({
   endDate: requiredDateSchema()
 })
 
+export const cancelClassroomBorrowingSchema = z.object({
+  classroomId: z.string(),
+  date: requiredDateSchema(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema
+});
+
 export type CreateClassroomScheduleInput = z.infer<typeof createClassroomScheduleSchema>;
 export type CreateClassroomVacancyInput = z.infer<typeof createClassroomVacancySchema>;
 export type CreateClassroomBorrowingInput = z.infer<typeof createClassroomBorrowingSchema>;
 
 export type GetClassroomScheduleInput = z.infer<typeof getClassroomScheduleSchema>;
+
+export type CancelClassroomBorrowingInput = z.infer<typeof cancelClassroomBorrowingSchema>;
