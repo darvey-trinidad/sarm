@@ -49,12 +49,9 @@ interface ScheduleActionDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedItem: FinalClassroomSchedule | null;
   currentUser: UserSession;
-  onMarkVacant: (scheduleId: string, reason: string) => Promise<void>;
-  onClaimSlot: (
-    scheduleId: string,
-    borrowingData: BorrowingData,
-  ) => Promise<void>;
-  onCancelBorrowing: (scheduleId: string) => Promise<void>;
+  onMarkVacant: (schedule: FinalClassroomSchedule, reason: string) => Promise<void>;
+  onClaimSlot: (schedule: FinalClassroomSchedule) => Promise<void>;
+  onCancelBorrowing: (schedule: FinalClassroomSchedule) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
@@ -161,7 +158,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onMarkVacant(selectedItem.id, vacancyReason);
+      await onMarkVacant(selectedItem, selectedItem.id);
       onOpenChange(false);
       setVacancyReason("");
     } catch (error) {
@@ -192,7 +189,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onClaimSlot(selectedItem.id, borrowingData);
+      await onClaimSlot(selectedItem);
       onOpenChange(false);
       setBorrowingData({
         classroomId: selectedItem?.classroomId || "",
@@ -215,7 +212,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onCancelBorrowing(selectedItem.id);
+      await onCancelBorrowing(selectedItem);
       onOpenChange(false);
     } catch (error) {
       console.error("Error canceling borrowing:", error);
@@ -242,7 +239,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                selectedItem.subject
+                  selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>

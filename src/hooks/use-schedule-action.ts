@@ -4,6 +4,9 @@ import { useState } from "react"
 // import { useToast } from "@/hooks/use-toast"
 import { TIME_MAP } from "@/constants/timeslot"
 import { type TimeInt } from "@/constants/timeslot"
+import { api } from "@/trpc/react"
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule"
+import { toast } from "sonner";
 
 interface BorrowingData {
   classroomId: string
@@ -23,40 +26,40 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
   const [loading, setLoading] = useState(false)
   // const { toast } = useToast()
 
-  const markAsVacant = async (scheduleId: string, reason: string) => {
+  const {
+    mutate: createClassroomVacancy,
+    isPending: isPendingCreateVacancy,
+    isError: isErrorCreateVacancy,
+    isSuccess: isSuccessCreateVacancy
+  } = api.classroomSchedule.createClassroomVacancy.useMutation();
+
+  const markAsVacant = async (schedule: FinalClassroomSchedule, reason: string) => {
     setLoading(true)
     try {
-      // Replace with your actual API call
-      // const response = await fetch(`/api/schedule/${scheduleId}/mark-vacant`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ reason })
-      // })
-
-      // Mock API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      console.log(`Marking schedule ${scheduleId} as vacant with reason: ${reason}`)
-
-      // toast({
-      //   title: "Class marked as vacant",
-      //   description: "Students will be notified about the vacancy.",
-      // })
+      createClassroomVacancy({
+        classroomId: schedule.classroomId,
+        date: schedule.date,
+        startTime: (schedule.startTime).toString(),
+        endTime: (schedule.endTime).toString(),
+        reason
+      }, {
+        onSuccess: () => {
+          toast("Classroom marked as vacant");
+          onRefresh?.()
+        },
+        onError: () => { toast("Failed to mark classroom as vacant") }
+      })
 
       onRefresh?.()
     } catch (error) {
-      // toast({
-      //   title: "Error",
-      //   description: "Failed to mark class as vacant. Please try again.",
-      //   variant: "destructive",
-      // })
+
       throw error
     } finally {
       setLoading(false)
     }
   }
 
-  const claimSlot = async (scheduleId: string, borrowingData: BorrowingData) => {
+  const claimSlot = async (schedule: FinalClassroomSchedule) => {
     setLoading(true)
     try {
       // Replace with your actual API call to create classroom borrowing
@@ -77,40 +80,21 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
       // Mock API delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      console.log(`Creating classroom borrowing:`, {
-        scheduleId,
-        classroomId: borrowingData.classroomId,
-        facultyId: borrowingData.facultyId,
-        date: borrowingData.date.toISOString(),
-        startTime: borrowingData.startTime,
-        endTime: borrowingData.endTime,
-        subject: borrowingData.subject,
-        section: borrowingData.section,
-      })
-
       // Use your TIME_MAP to format the time display
-      const startTimeLabel = TIME_MAP[borrowingData.startTime] || `${borrowingData.startTime}`
-      const endTimeLabel = TIME_MAP[borrowingData.endTime] || `${borrowingData.endTime}`
+      const startTimeLabel = TIME_MAP[schedule.startTime] || `${schedule.startTime}`
+      const endTimeLabel = TIME_MAP[schedule.endTime] || `${schedule.endTime}`
 
-      // toast({
-      //   title: "Room borrowed successfully",
-      //   description: `${borrowingData.subject} - ${borrowingData.section} scheduled for ${startTimeLabel} - ${endTimeLabel}`,
-      // })
+
 
       onRefresh?.()
     } catch (error) {
-      // toast({
-      //   title: "Error",
-      //   description: "Failed to borrow room. Please try again.",
-      //   variant: "destructive",
-      // })
       throw error
     } finally {
       setLoading(false)
     }
   }
 
-  const cancelBorrowing = async (scheduleId: string) => {
+  const cancelBorrowing = async (schedule: FinalClassroomSchedule) => {
     setLoading(true)
     try {
       // Replace with your actual API call
@@ -120,8 +104,6 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
 
       // Mock API delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      console.log(`Cancelling classroom borrowing for schedule ${scheduleId}`)
 
       // toast({
       //   title: "Borrowing cancelled",
