@@ -83,8 +83,9 @@ export default function PlottingForm() {
     );
   };
 
+  const buildingId = form.watch("building"); // always the latest
   const selectedBuilding = buildings?.find(
-    (building) => building.buildingId === form.getValues("building"),
+    (building) => building.buildingId === buildingId,
   );
 
   return (
@@ -177,6 +178,7 @@ export default function PlottingForm() {
                       field.onChange(value);
                       setSelectedBuildingId(value);
                     }}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -288,7 +290,7 @@ export default function PlottingForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Days</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select days" />
