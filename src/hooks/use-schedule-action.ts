@@ -33,14 +33,14 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     isSuccess: isSuccessCreateVacancy
   } = api.classroomSchedule.createClassroomVacancy.useMutation();
 
-  const markAsVacant = async (schedule: FinalClassroomSchedule, reason: string) => {
+  const markAsVacant = async (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => {
     setLoading(true)
     try {
       createClassroomVacancy({
         classroomId: schedule.classroomId,
         date: schedule.date,
-        startTime: (schedule.startTime).toString(),
-        endTime: (schedule.endTime).toString(),
+        startTime: (data.startTime).toString(),
+        endTime: (data.endTime).toString(),
         reason
       }, {
         onSuccess: () => {
@@ -59,7 +59,7 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     }
   }
 
-  const claimSlot = async (schedule: FinalClassroomSchedule) => {
+  const claimSlot = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
     setLoading(true)
     try {
       // Replace with your actual API call to create classroom borrowing
@@ -94,7 +94,7 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     }
   }
 
-  const cancelBorrowing = async (schedule: FinalClassroomSchedule) => {
+  const cancelBorrowing = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
     setLoading(true)
     try {
       // Replace with your actual API call

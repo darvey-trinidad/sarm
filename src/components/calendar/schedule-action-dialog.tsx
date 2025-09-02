@@ -49,9 +49,9 @@ interface ScheduleActionDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedItem: FinalClassroomSchedule | null;
   currentUser: UserSession;
-  onMarkVacant: (schedule: FinalClassroomSchedule, reason: string) => Promise<void>;
-  onClaimSlot: (schedule: FinalClassroomSchedule) => Promise<void>;
-  onCancelBorrowing: (schedule: FinalClassroomSchedule) => Promise<void>;
+  onMarkVacant: (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => Promise<void>;
+  onClaimSlot: (schedule: FinalClassroomSchedule, data: BorrowingData) => Promise<void>;
+  onCancelBorrowing: (schedule: FinalClassroomSchedule, data: BorrowingData) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
@@ -158,7 +158,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onMarkVacant(selectedItem, selectedItem.id);
+      await onMarkVacant(selectedItem, borrowingData, vacancyReason);
       onOpenChange(false);
       setVacancyReason("");
     } catch (error) {
@@ -189,7 +189,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onClaimSlot(selectedItem);
+      await onClaimSlot(selectedItem, borrowingData);
       onOpenChange(false);
       setBorrowingData({
         classroomId: selectedItem?.classroomId || "",
@@ -212,7 +212,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onCancelBorrowing(selectedItem);
+      await onCancelBorrowing(selectedItem, borrowingData);
       onOpenChange(false);
     } catch (error) {
       console.error("Error canceling borrowing:", error);
@@ -279,6 +279,74 @@ export default function ScheduleActionDialog({
                 <AlertTriangle className="h-4 w-4 text-orange-500" />
                 Mark Class as Vacant
               </div>
+
+              {/* Time Selection */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="startTime">
+                    Start Time <span className="text-red-600">*</span>
+                  </Label>
+                  <Select
+                    value={borrowingData.startTime.toString()}
+                    onValueChange={(value) =>
+                      setBorrowingData({
+                        ...borrowingData,
+                        startTime: toTimeInt(Number(value)),
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select start time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableStartTimes().map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={option.value.toString()}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endTime">
+                    End Time <span className="text-red-600">*</span>
+                  </Label>
+                  <Select
+                    value={borrowingData.endTime.toString()}
+                    onValueChange={(value) =>
+                      setBorrowingData({
+                        ...borrowingData,
+                        endTime: toTimeInt(Number(value)),
+                      })
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select end time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableEndTimes().map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={option.value.toString()}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Validation Messages */}
+              {borrowingData.startTime >= borrowingData.endTime && (
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600">
+                  End time must be after start time
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="reason">Reason for vacancy</Label>
                 <Textarea
