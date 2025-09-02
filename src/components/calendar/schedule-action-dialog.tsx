@@ -400,6 +400,7 @@ export default function ScheduleActionDialog({
                       onChange={(e) =>
                         setBorrowingData({
                           ...borrowingData,
+                          facultyId: currentUser?.id ?? "guest",
                           subject: e.target.value,
                         })
                       }

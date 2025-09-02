@@ -33,6 +33,13 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     isSuccess: isSuccessCreateVacancy
   } = api.classroomSchedule.createClassroomVacancy.useMutation();
 
+  const {
+    mutate: createClassroomBorrowing,
+    isPending: isPendingCreateBorrowing,
+    isError: isErrorCreateBorrowing,
+    isSuccess: isSuccessCreateBorrowing
+  } = api.classroomSchedule.createClassroomBorrowing.useMutation();
+
   const markAsVacant = async (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => {
     setLoading(true)
     try {
@@ -49,8 +56,6 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
         },
         onError: () => { toast("Failed to mark classroom as vacant") }
       })
-
-      onRefresh?.()
     } catch (error) {
 
       throw error
@@ -62,20 +67,21 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
   const claimSlot = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
     setLoading(true)
     try {
-      // Replace with your actual API call to create classroom borrowing
-      // const response = await fetch('/api/classroom-borrowing', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     classroomId: borrowingData.classroomId,
-      //     facultyId: borrowingData.facultyId,
-      //     date: borrowingData.date.toISOString(),
-      //     startTime: borrowingData.startTime,
-      //     endTime: borrowingData.endTime,
-      //     subject: borrowingData.subject,
-      //     section: borrowingData.section
-      //   })
-      // })
+      createClassroomBorrowing({
+        classroomId: schedule.classroomId,
+        date: schedule.date,
+        startTime: (data.startTime).toString(),
+        endTime: (data.endTime).toString(),
+        facultyId: data.facultyId,
+        subject: data.subject,
+        section: data.section
+      }, {
+        onSuccess: () => {
+          toast("Slot claimed");
+          onRefresh?.()
+        },
+        onError: () => { toast("Failed to claim slot") }
+      })
 
       // Mock API delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -84,9 +90,6 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
       const startTimeLabel = TIME_MAP[schedule.startTime] || `${schedule.startTime}`
       const endTimeLabel = TIME_MAP[schedule.endTime] || `${schedule.endTime}`
 
-
-
-      onRefresh?.()
     } catch (error) {
       throw error
     } finally {
