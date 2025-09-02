@@ -1,4 +1,4 @@
-import { db } from "@/server/db";
+import { db, eq } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
 import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot } from "@/lib/helper/classroom-schedule";
@@ -76,5 +76,14 @@ export const createClassroomBorrowing = async (data: ClassroomBorrowingWithoutId
   } catch (err) {
     console.error("Failed to create classroom borrowing:", err);
     throw new Error("Could not create classroom borrowing");
+  }
+}
+
+export const deleteClassroomBorrowing = async (id: string) => {
+  try {
+    return await db.delete(classroomBorrowing).where(eq(classroomBorrowing.id, id)).run();
+  } catch (err) {
+    console.error("Failed to delete classroom borrowing:", err);
+    throw new Error("Could not delete classroom borrowing");
   }
 }
