@@ -244,8 +244,7 @@ export default function SignUpPage() {
                 disabled={isPending}
               >
                 {isPending ? (
-                  <span className="flex items-center gap-2">
-                    {" "}
+                  <span className="flex items-center">
                     <LoaderCircle className="h-4 w-4 animate-spin text-white" />
                     Signing Up
                   </span>

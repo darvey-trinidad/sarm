@@ -323,48 +323,6 @@ export default function PlottingForm() {
       </Form>
 
       {ConfirmationDialog}
-
-      {/*schedules.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Created Schedules</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {schedules.map((schedule) => (
-              <Card key={schedule.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full" />
-                        <h4 className="font-medium">{schedule.courseCode}</h4>
-                      </div>
-                      <p className="text-muted-foreground mt-1 text-sm">
-                        Prof. {schedule.professor} • Section {schedule.section}
-                      </p>
-                      <div className="mt-2 text-sm">
-                        <p>
-                          {schedule.building.replace("-", " ")}, Room{" "}
-                          {schedule.room}
-                        </p>
-                        <p>
-                          {schedule.days.join(", ")} • {schedule.startTime} -{" "}
-                          {schedule.endTime}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )*/}
     </div>
   );
 }
