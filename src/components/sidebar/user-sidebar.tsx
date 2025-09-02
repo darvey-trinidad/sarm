@@ -1,6 +1,7 @@
 "use client";
 import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { authClient } from "@/lib/auth-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +18,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { PageRoutes } from "@/constants/page-routes";
 
 export const UserSidebar = () => {
   const { isMobile } = useSidebar();
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <SidebarMenu>
@@ -39,8 +40,12 @@ export const UserSidebar = () => {
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{"Gian Pogi"}</span>
-                <span className="truncate text-xs">{""}</span>
+                <span className="truncate font-semibold">
+                  {session?.user.name || "Gian Pogi"}
+                </span>
+                <span className="truncate text-xs">
+                  {session?.user.role || "pinaka pogi"}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -61,8 +66,12 @@ export const UserSidebar = () => {
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{"Gian Pogi"}</span>
-                  <span className="truncate text-xs">{""}</span>
+                  <span className="truncate font-semibold">
+                    {session?.user.name || "Gian Pogi"}
+                  </span>
+                  <span className="truncate text-xs">
+                    {session?.user.role || "pinaka pogi"}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>

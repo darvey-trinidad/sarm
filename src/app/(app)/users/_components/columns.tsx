@@ -71,7 +71,7 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "email",
-    header: createSortableHeader("Email"),
+    header: "Email",
   },
   {
     accessorKey: "role",
@@ -81,15 +81,15 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "departmentOrOrganization",
     header: createSortableHeader("Department/Organization"),
     cell: ({ row }) => {
-      const val = row.getValue("departmentOrOrganization") as string;
+      const val: string = row.getValue("departmentOrOrganization");
       return val ? val.toUpperCase() : "N/A";
     },
   },
   {
     accessorKey: "createdAt",
-    header: createSortableHeader("Date Created"),
+    header: "Date Created",
     cell: ({ row }) => {
-      const timestamp = row.getValue("createdAt") as Date;
+      const timestamp: Date = row.getValue("createdAt");
       const formatted = formatTimestamp(timestamp);
       const relative = formatRelativeTime(timestamp);
 
@@ -102,14 +102,22 @@ export const columns: ColumnDef<User>[] = [
     },
     sortingFn: (rowA, rowB) => {
       // Sort by timestamp (newest first)
-      const timestampA = rowA.getValue("createdAt") as Date;
-      const timestampB = rowB.getValue("createdAt") as Date;
+      const timestampA: Date = rowA.getValue("createdAt");
+      const timestampB: Date = rowB.getValue("createdAt");
       return timestampB.getTime() - timestampA.getTime();
     },
   },
   {
     accessorKey: "isActive",
     header: "Status",
+    cell: ({ row }) => {
+      const isActive: boolean = row.getValue("isActive");
+      if (isActive) {
+        return getStatusBadge(true);
+      } else {
+        return getStatusBadge(false);
+      }
+    },
   },
 
   //   createActionColumn<User>([

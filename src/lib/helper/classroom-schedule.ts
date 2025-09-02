@@ -1,5 +1,6 @@
+import type { TimeInt } from "@/constants/timeslot";
 import { generateUUID } from "@/lib/utils";
-import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
+import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput, CancelClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 
 export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInput) {
@@ -49,6 +50,20 @@ export const splitBorrowingToHourlyTimeslot = (input: CreateClassroomBorrowingIn
       endTime: time + 100,
       subject: input.subject,
       section: input.section,
+    });
+  }
+  return chunks;
+}
+
+export const splitTimeToHourlyTimeslot = (input: CancelClassroomBorrowingInput) => {
+  const chunks: CancelClassroomBorrowingInput[] = [];
+
+  for (let time = input.startTime; time < input.endTime; time += 100) {
+    chunks.push({
+      classroomId: input.classroomId,
+      date: input.date,
+      startTime: time,
+      endTime: time + 100
     });
   }
   return chunks;

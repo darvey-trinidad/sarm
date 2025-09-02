@@ -1,7 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { columns } from "./columns";
 import { DataTable } from "@/components/table/data-table";
@@ -19,7 +16,7 @@ interface User {
 }
 
 export function UserTable() {
-  const { data, isLoading, isError } = api.auth.getAllFaculty.useQuery();
+  const { data, isLoading, isError } = api.auth.getAllUsers.useQuery();
 
   const safeData: User[] =
     data?.map((u) => ({

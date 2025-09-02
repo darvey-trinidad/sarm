@@ -4,7 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, Trash2, Clock } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,20 +25,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
 import { PlottingSchema } from "./schema";
 import { api } from "@/trpc/react";
 import { TIME_OPTIONS } from "@/constants/timeslot";
-import { DAYS } from "@/constants/days";
-import { create } from "domain";
+import { DAYS_OPTIONS } from "@/constants/days";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
+
 export default function PlottingForm() {
-  const [schedules, setSchedules] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
   const { data: faculty } = api.auth.getAllFaculty.useQuery();
   const [selectedBuildingId, setSelectedBuildingId] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<Option>();
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
   const form = useForm<z.infer<typeof PlottingSchema>>({
     resolver: zodResolver(PlottingSchema),
@@ -50,41 +49,62 @@ export default function PlottingForm() {
       room: "",
       startTime: "",
       endTime: "",
-      days: [],
+      days: "",
     },
   });
 
-  const {
-    mutate: createClassroomSchedule,
-    isSuccess,
-    isError,
-    isPending,
-  } = api.classroomSchedule.createClassroomSchedule.useMutation();
+  const { mutate: createClassroomSchedule } =
+    api.classroomSchedule.createClassroomSchedule.useMutation();
 
-  //   const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
-  //     setIsSubmitting(true);
-  //     createClassroomSchedule(data, {
-  //       onSuccess: () => {
-  //         toast.success("Classroom schedule created successfully");
-  //         setSchedules((prev) => [...prev, schedules]);
-  //         form.reset();
-  //         setIsSubmitting(false);
-  //       },
-  //       onError: (err) => {
-  //         toast.error(err.message || "Failed to create schedule");
-  //         setIsSubmitting(false);
-  //       },
-  //     });
-  //   };
+  const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
+    setIsSubmitting(true);
+    createClassroomSchedule(
+      {
+        subject: data.courseCode,
+        section: data.section,
+        classroomId: data.room,
+        facultyId: data.proffesor,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        day: Number(data.days),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Classroom schedule created successfully");
+          form.reset();
+          setIsSubmitting(false);
+        },
+        onError: (err) => {
+          console.log(err);
+          toast.error(err.message || "Failed to create schedule");
+          setIsSubmitting(false);
+        },
+      },
+    );
+  };
 
+  const buildingId = form.watch("building"); // always the latest
   const selectedBuilding = buildings?.find(
-    (building) => building.buildingId === form.getValues("building"),
+    (building) => building.buildingId === buildingId,
   );
 
   return (
     <div>
       <Form {...form}>
-        <form className="space-y-4 px-0 md:space-y-8">
+        <form
+          onSubmit={form.handleSubmit((data) =>
+            showConfirmation({
+              title: "Confirm Schedule Creation",
+              description:
+                "Are you sure you want to create this classroom schedule?",
+              confirmText: "Create",
+              cancelText: "Cancel",
+              variant: "success",
+              onConfirm: () => handleSubmit(data),
+            }),
+          )}
+          className="space-y-4 px-0 md:space-y-8"
+        >
           <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-3">
             <FormField
               control={form.control}
@@ -114,7 +134,7 @@ export default function PlottingForm() {
                       options={
                         faculty
                           ? faculty.map((faculty) => ({
-                              value: faculty.email,
+                              value: faculty.id,
                               label: faculty.name ?? "",
                             }))
                           : []
@@ -122,7 +142,7 @@ export default function PlottingForm() {
                       emptyMessage="No proffesor found"
                       placeholder="Select a proffesor"
                       isLoading={!faculty}
-                      onValueChange={field.onChange}
+                      onValueChange={(opt) => field.onChange(opt?.value)} // ✅ only store the id
                       value={value}
                     />
                   </FormControl>
@@ -158,6 +178,7 @@ export default function PlottingForm() {
                       field.onChange(value);
                       setSelectedBuildingId(value);
                     }}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -269,16 +290,19 @@ export default function PlottingForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Days</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select days" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {DAYS.map((day) => (
-                        <SelectItem key={day} value={day}>
-                          {day}
+                      {DAYS_OPTIONS.map((day) => (
+                        <SelectItem
+                          key={day.value}
+                          value={day.value.toString()}
+                        >
+                          {day.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -300,47 +324,7 @@ export default function PlottingForm() {
         </form>
       </Form>
 
-      {schedules.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Created Schedules</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {schedules.map((schedule) => (
-              <Card key={schedule.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full" />
-                        <h4 className="font-medium">{schedule.courseCode}</h4>
-                      </div>
-                      <p className="text-muted-foreground mt-1 text-sm">
-                        Prof. {schedule.professor} • Section {schedule.section}
-                      </p>
-                      <div className="mt-2 text-sm">
-                        <p>
-                          {schedule.building.replace("-", " ")}, Room{" "}
-                          {schedule.room}
-                        </p>
-                        <p>
-                          {schedule.days.join(", ")} • {schedule.startTime} -{" "}
-                          {schedule.endTime}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+      {ConfirmationDialog}
     </div>
   );
 }

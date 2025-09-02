@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PageRoutes } from "@/constants/page-routes";
-
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
@@ -17,25 +17,36 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
-    const { data, error } = await authClient.signIn.email(
-      {
-        email,
-        password,
-        callbackURL: PageRoutes.DASHBOARD,
-      },
-      {
-        onError: (error) => {
-          console.log("Login error:", error);
+    setLoading(true);
+
+    try {
+      const { data, error } = await authClient.signIn.email(
+        {
+          email,
+          password,
+          callbackURL: PageRoutes.DASHBOARD,
         },
-        onSuccess: (data) => {
-          console.log("Login successful:", data);
+        {
+          onSuccess: () => {
+            toast.success("Sign in successful!");
+          },
+          onError: (error) => {
+            toast.error("Sign in failed!");
+          },
         },
-      },
-    );
+      );
+
+      if (error) {
+        // maybe show toast or inline error
+        console.error(error);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -128,9 +139,17 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900"
+                className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900 disabled:opacity-50"
+                disabled={loading}
               >
-                Log In
+                {loading ? (
+                  <span className="flex items-center">
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />
+                    Logging In
+                  </span>
+                ) : (
+                  "Log In"
+                )}
               </Button>
             </form>
 

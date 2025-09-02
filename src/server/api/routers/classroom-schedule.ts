@@ -3,15 +3,18 @@ import {
   createClassroomSchedule,
   createClassroomVacancy,
   createClassroomBorrowing,
+  deleteClassroomBorrowing
 } from "@/lib/api/classroom-schedule/mutation";
 import {
   createClassroomScheduleSchema,
   createClassroomVacancySchema,
   createClassroomBorrowingSchema,
-  getClassroomScheduleSchema,
+  getWeeklyClassroomScheduleSchema,
+  cancelClassroomBorrowingSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
-import { getClassroomSchedule } from "@/lib/api/classroom-schedule/query";
+import { getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
+import z from "zod";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -29,9 +32,16 @@ export const classroomScheduleRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return createClassroomBorrowing(input);
     }),
-  getClassroomSchedule: protectedProcedure
-    .input(getClassroomScheduleSchema)
+  getWeeklyClassroomSchedule: protectedProcedure
+    .input(getWeeklyClassroomScheduleSchema)
     .query(async ({ input }) => {
-      return getClassroomSchedule(input.classroomId, input.date).then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      return getWeeklyClassroomSchedule(input.classroomId, input.startDate, input.endDate)
+        .then((timeslots) => mergeAdjacentTimeslots(timeslots));
     }),
+  cancelClassroomBorrowing: protectedProcedure
+    .input(cancelClassroomBorrowingSchema)
+    .mutation(({ input }) => {
+      console.log(input);
+      return deleteClassroomBorrowing(input);
+    })
 });
