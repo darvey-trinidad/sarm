@@ -4,7 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, Trash2, Clock } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,20 +25,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
 import { PlottingSchema } from "./schema";
 import { api } from "@/trpc/react";
 import { TIME_OPTIONS } from "@/constants/timeslot";
 import { DAYS_OPTIONS } from "@/constants/days";
-import { create } from "domain";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
+
 export default function PlottingForm() {
-  //  const [schedules, setSchedules] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
   const { data: faculty } = api.auth.getAllFaculty.useQuery();
   const [selectedBuildingId, setSelectedBuildingId] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<Option>();
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
   const form = useForm<z.infer<typeof PlottingSchema>>({
     resolver: zodResolver(PlottingSchema),
@@ -54,51 +53,34 @@ export default function PlottingForm() {
     },
   });
 
-  const {
-    mutate: createClassroomSchedule,
-    isSuccess,
-    isError,
-    isPending,
-  } = api.classroomSchedule.createClassroomSchedule.useMutation();
-
-  //   const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
-  //     setIsSubmitting(true);
-  //     createClassroomSchedule(data, {
-  //       onSuccess: () => {
-  //         toast.success("Classroom schedule created successfully");
-  //         setSchedules((prev) => [...prev, schedules]);
-  //         form.reset();
-  //         setIsSubmitting(false);
-  //       },
-  //       onError: (err) => {
-  //         toast.error(err.message || "Failed to create schedule");
-  //         setIsSubmitting(false);
-  //       },
-  //     });
-  //   };
+  const { mutate: createClassroomSchedule } =
+    api.classroomSchedule.createClassroomSchedule.useMutation();
 
   const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
     setIsSubmitting(true);
-    createClassroomSchedule({
-      subject: data.courseCode,
-      section: data.section,
-      classroomId: data.room,
-      facultyId: data.proffesor,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      day: Number(data.days),
-    }, {
-      onSuccess: () => {
-        toast.success("Classroom schedule created successfully");
-        form.reset();
-        setIsSubmitting(false);
+    createClassroomSchedule(
+      {
+        subject: data.courseCode,
+        section: data.section,
+        classroomId: data.room,
+        facultyId: data.proffesor,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        day: Number(data.days),
       },
-      onError: (err) => {
-        console.log(err);
-        toast.error(err.message || "Failed to create schedule");
-        setIsSubmitting(false);
+      {
+        onSuccess: () => {
+          toast.success("Classroom schedule created successfully");
+          form.reset();
+          setIsSubmitting(false);
+        },
+        onError: (err) => {
+          console.log(err);
+          toast.error(err.message || "Failed to create schedule");
+          setIsSubmitting(false);
+        },
       },
-    });
+    );
   };
 
   const selectedBuilding = buildings?.find(
@@ -109,8 +91,19 @@ export default function PlottingForm() {
     <div>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-4 px-0 md:space-y-8">
+          onSubmit={form.handleSubmit((data) =>
+            showConfirmation({
+              title: "Confirm Schedule Creation",
+              description:
+                "Are you sure you want to create this classroom schedule?",
+              confirmText: "Create",
+              cancelText: "Cancel",
+              variant: "success",
+              onConfirm: () => handleSubmit(data),
+            }),
+          )}
+          className="space-y-4 px-0 md:space-y-8"
+        >
           <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-3">
             <FormField
               control={form.control}
@@ -140,9 +133,9 @@ export default function PlottingForm() {
                       options={
                         faculty
                           ? faculty.map((faculty) => ({
-                            value: faculty.id,
-                            label: faculty.name ?? "",
-                          }))
+                              value: faculty.id,
+                              label: faculty.name ?? "",
+                            }))
                           : []
                       }
                       emptyMessage="No proffesor found"
@@ -303,7 +296,10 @@ export default function PlottingForm() {
                     </FormControl>
                     <SelectContent>
                       {DAYS_OPTIONS.map((day) => (
-                        <SelectItem key={day.value} value={day.value.toString()}>
+                        <SelectItem
+                          key={day.value}
+                          value={day.value.toString()}
+                        >
                           {day.label}
                         </SelectItem>
                       ))}
@@ -325,6 +321,8 @@ export default function PlottingForm() {
           </div>
         </form>
       </Form>
+
+      {ConfirmationDialog}
 
       {/*schedules.length > 0 && (
         <div className="space-y-4">
