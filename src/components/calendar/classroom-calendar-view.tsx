@@ -7,12 +7,15 @@ import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
-import { TIME_OPTIONS } from "@/constants/timeslot";
+import { TIME_OPTIONS, TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
+
+// ADDED FOR 30-MINUTE BASED TIMESLOTS
+const SLOT_HEIGHT = 45;
 
 const DaysofWeek = [
   "Monday",
@@ -65,12 +68,23 @@ export default function ClassroomCalendarView({
     }
   }, [scheduleData]);
 
+  // ADDED FOR 30-MINUTE BASED TIMESLOTS
+  const timeToIndex = (time: number) => {
+    return TIME_ENTRIES.findIndex(([key]) => key === time);
+  };
+
   // Time position calculation
+  // const timeToPosition = (time: number) => {
+  //   const hour = Math.floor(time / 100);
+  //   const startHours = 7; // 7:00 AM
+  //   const relativeHours = hour - startHours;
+  //   return Math.max(0, relativeHours * 60); // 60px = 1 hour
+  // };
+
+  // ADDED FOR 30-MINUTE BASED TIMESLOTS
   const timeToPosition = (time: number) => {
-    const hour = Math.floor(time / 100);
-    const startHours = 7; // 7:00 AM
-    const relativeHours = hour - startHours;
-    return Math.max(0, relativeHours * 60); // 60px = 1 hour
+    const index = timeToIndex(time);
+    return index >= 0 ? index * SLOT_HEIGHT : 0;
   };
 
   // Get day of week from date
@@ -93,26 +107,47 @@ export default function ClassroomCalendarView({
   };
 
   // Calculate schedule block position and height
+  // const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
+  //   const startPos = timeToPosition(schedule.startTime);
+  //   const endPos = timeToPosition(schedule.endTime);
+  //   const height = Math.max(30, endPos - startPos); // Minimum 30px height
+  //   //const dayOfWeek = getDayOfWeek(schedule.date);
+
+  //   // Account for grid structure: time column (1/7) + day columns (6/7)
+  //   const timeColumnWidth = 100 / 7; // ~14.28%
+  //   const dayColumnWidth = 100 / 7; // ~14.28%
+  //   const leftPosition =
+  //     timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
+
+  //   const color = getScheduleColor(schedule.source);
+
+  //   return {
+  //     top: `${startPos}px`,
+  //     height: `${height}px`,
+  //     left: `${leftPosition}%`,
+  //     width: `${dayColumnWidth - 0.5}%`, // Slightly smaller to show borders
+  //     backgroundColor: `${color}20`, // Add transparency
+  //     borderLeftColor: color,
+  //     zIndex: 10,
+  //   };
+  // };
+  // ADDED FOR 30-MINUTE BASED TIMESLOTS
   const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
     const startPos = timeToPosition(schedule.startTime);
     const endPos = timeToPosition(schedule.endTime);
-    const height = Math.max(30, endPos - startPos); // Minimum 30px height
-    //const dayOfWeek = getDayOfWeek(schedule.date);
+    const height = Math.max(SLOT_HEIGHT, endPos - startPos);
 
-    // Account for grid structure: time column (1/7) + day columns (6/7)
-    const timeColumnWidth = 100 / 7; // ~14.28%
-    const dayColumnWidth = 100 / 7; // ~14.28%
-    const leftPosition =
-      timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
-
+    const timeColumnWidth = 100 / 7;
+    const dayColumnWidth = 100 / 7;
+    const leftPosition = timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
     const color = getScheduleColor(schedule.source);
 
     return {
       top: `${startPos}px`,
       height: `${height}px`,
       left: `${leftPosition}%`,
-      width: `${dayColumnWidth - 0.5}%`, // Slightly smaller to show borders
-      backgroundColor: `${color}20`, // Add transparency
+      width: `${dayColumnWidth - 0.5}%`,
+      backgroundColor: `${color}20`,
       borderLeftColor: color,
       zIndex: 10,
     };
@@ -212,7 +247,7 @@ export default function ClassroomCalendarView({
 
       {/* Calendar Grid */}
       <div className="bg-background rounded-lg border">
-        <ScrollArea className="h-[600px]">
+        <ScrollArea className="h-[75vh]">
           <div className="relative">
             {/* Calendar Header */}
             <div className="bg-background sticky top-0 z-20 border-b">
@@ -242,30 +277,28 @@ export default function ClassroomCalendarView({
             <div className="relative grid min-w-[800px] grid-cols-7">
               {/* Time slots */}
               <div className="bg-muted/20 border-r">
-                {TIME_OPTIONS.map((slot) => (
+                {TIME_ENTRIES.map(([value, label]) => (
                   <div
-                    key={slot.value}
-                    className="h-[60px] border-b px-2 py-1 text-right text-xs"
+                    key={value}
+                    className="h-[45px] border-b px-2 py-1 text-right text-xs"
                   >
-                    {slot.label}
+                    {label}
                   </div>
                 ))}
               </div>
 
               {/* Day columns */}
               {Array.from({ length: 6 }).map((_, dayIndex) => (
-                <div
-                  key={dayIndex}
-                  className="relative border-r last:border-r-0"
-                >
-                  {TIME_OPTIONS.map((slot, timeIndex) => (
+                <div key={dayIndex} className="relative border-r last:border-r-0">
+                  {TIME_ENTRIES.map(([value]) => (
                     <div
-                      key={`${dayIndex}-${timeIndex}`}
-                      className="h-[60px] border-b"
+                      key={`${dayIndex}-${value}`}
+                      className="h-[45px] border-b"
                     ></div>
                   ))}
                 </div>
               ))}
+
 
               {/* Schedule blocks */}
               {!isLoading &&
@@ -284,7 +317,7 @@ export default function ClassroomCalendarView({
                         : schedule.source}
                     </div>
                     <div className="text-muted-foreground truncate text-xs">
-                      {`${schedule.startTime} - ${schedule.endTime}`}
+                      {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
                     </div>
                     {schedule.facultyId && (
                       <div className="text-muted-foreground truncate text-xs">
