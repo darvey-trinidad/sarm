@@ -98,7 +98,7 @@ export default function ClassroomCalendarView({
     const color = getScheduleColor(schedule.source);
 
     if (isMobile) {
-      const headerHeight = 63;
+      const headerHeight = 60;
       const dayOfWeek = getDayOfWeek(schedule.date);
 
       // width handling
@@ -111,8 +111,8 @@ export default function ClassroomCalendarView({
       return {
         top: `${startPos + headerHeight}px`,
         height: `${height}px`,
-        left: `${leftPosition + 8}px`,
-        width: `${dayWidth - 16}px`,
+        left: `${leftPosition}px`,
+        width: `${dayWidth - 8}px`,
         backgroundColor: `${color}20`,
         borderLeftColor: color,
         zIndex: 10,
@@ -164,8 +164,11 @@ export default function ClassroomCalendarView({
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="bg-muted rounded-md px-3 py-1 text-sm font-medium">
-            {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
+          <div className="bg-muted rounded-md px-3 py-1 text-xs font-medium sm:text-sm">
+            {format(weekStart, "MMM d")} -{" "}
+            {isMobile
+              ? format(weekEnd, "MMM d")
+              : format(weekEnd, "MMM d, yyyy")}
           </div>
 
           <Button
