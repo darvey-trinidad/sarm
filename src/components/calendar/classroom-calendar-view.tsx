@@ -220,7 +220,7 @@ export default function ClassroomCalendarView({
                     <div
                       key={day}
                       className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-0" : ""
+                        isMobile ? "w-[280px] flex-shrink-2" : ""
                       }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
@@ -242,7 +242,7 @@ export default function ClassroomCalendarView({
               }
             >
               <div
-                className={`bg-muted/20 border-r ${isMobile ? "w-[100px] flex-shrink-0" : ""}`}
+                className={`bg-muted/20 border-r ${isMobile ? "w-[100px] flex-shrink-0 bg-white" : ""}`}
               >
                 {TIME_ENTRIES.map(([value, label]) => (
                   <div

@@ -14,7 +14,7 @@ export default function Page() {
   return (
     <div className="flex w-full flex-col space-y-4">
       <BreadcrumbLayout currentPage="Schedule" />
-      <div className="flex flex-row space-x-4">
+      <div className="flex flex-col gap-5 sm:flex-row">
         <Link href={PageRoutes.SCHEDULE_CLASSROOM}>
           <ClassroomCard />
         </Link>
