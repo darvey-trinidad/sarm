@@ -1,22 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
-import { TIME_OPTIONS, TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
+import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
-import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
 
-// ADDED FOR 30-MINUTE BASED TIMESLOTS
 const SLOT_HEIGHT = 45;
-
 const DaysofWeek = [
   "Monday",
   "Tuesday",
@@ -34,184 +31,129 @@ export default function ClassroomCalendarView({
   classroomId,
 }: ClassroomCalendarViewProps) {
   const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
-  const [selectedItem, setSelectedItem] = useState<FinalClassroomSchedule | null>(null);
+  const [selectedItem, setSelectedItem] =
+    useState<FinalClassroomSchedule | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 5);
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session } = authClient.useSession();
 
   const { markAsVacant, claimSlot, cancelBorrowing } = useScheduleActions({
-    onRefresh: () => {
-      refetch();
-      console.log("Refreshing schedule data...");
-    },
+    onRefresh: () => refetch(),
   });
 
-  // Fetch schedule data
   const {
     data: scheduleData,
     isLoading,
     isError,
     refetch,
   } = api.classroomSchedule.getWeeklyClassroomSchedule.useQuery({
-    classroomId: classroomId,
+    classroomId,
     startDate: newDate(weekStart),
     endDate: newDate(weekEnd),
   });
 
   useEffect(() => {
-    if (scheduleData) {
-      setSchedules(scheduleData);
-    } else {
-      setSchedules([]);
-    }
+    if (scheduleData) setSchedules(scheduleData);
+    else setSchedules([]);
   }, [scheduleData]);
 
-  // ADDED FOR 30-MINUTE BASED TIMESLOTS
-  const timeToIndex = (time: number) => {
-    return TIME_ENTRIES.findIndex(([key]) => key === time);
-  };
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-  // Time position calculation
-  // const timeToPosition = (time: number) => {
-  //   const hour = Math.floor(time / 100);
-  //   const startHours = 7; // 7:00 AM
-  //   const relativeHours = hour - startHours;
-  //   return Math.max(0, relativeHours * 60); // 60px = 1 hour
-  // };
+  const timeToIndex = (time: number) =>
+    TIME_ENTRIES.findIndex(([key]) => key === time);
 
-  // ADDED FOR 30-MINUTE BASED TIMESLOTS
   const timeToPosition = (time: number) => {
     const index = timeToIndex(time);
     return index >= 0 ? index * SLOT_HEIGHT : 0;
   };
 
-  // Get day of week from date
-  const getDayOfWeek = (date: Date) => {
-    return (date.getDay() + 6) % 7; // Convert to Monday = 0
-  };
+  const getDayOfWeek = (date: Date) => (date.getDay() + 6) % 7;
 
-  // Get schedule color based on source
   const getScheduleColor = (source: string) => {
     switch (source) {
       case "Vacancy":
-        return "#10b981"; // green
+        return "#10b981";
       case "Borrowing":
-        return "#f59e0b"; // orange
+        return "#f59e0b";
       case "Unoccupied":
-        return "#6b7280"; // gray
+        return "#6b7280";
       default:
-        return "#3b82f6"; // blue for classes
+        return "#3b82f6";
     }
   };
 
-  // Calculate schedule block position and height
-  // const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
-  //   const startPos = timeToPosition(schedule.startTime);
-  //   const endPos = timeToPosition(schedule.endTime);
-  //   const height = Math.max(30, endPos - startPos); // Minimum 30px height
-  //   //const dayOfWeek = getDayOfWeek(schedule.date);
-
-  //   // Account for grid structure: time column (1/7) + day columns (6/7)
-  //   const timeColumnWidth = 100 / 7; // ~14.28%
-  //   const dayColumnWidth = 100 / 7; // ~14.28%
-  //   const leftPosition =
-  //     timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
-
-  //   const color = getScheduleColor(schedule.source);
-
-  //   return {
-  //     top: `${startPos}px`,
-  //     height: `${height}px`,
-  //     left: `${leftPosition}%`,
-  //     width: `${dayColumnWidth - 0.5}%`, // Slightly smaller to show borders
-  //     backgroundColor: `${color}20`, // Add transparency
-  //     borderLeftColor: color,
-  //     zIndex: 10,
-  //   };
-  // };
-  // ADDED FOR 30-MINUTE BASED TIMESLOTS
   const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
     const startPos = timeToPosition(schedule.startTime);
     const endPos = timeToPosition(schedule.endTime);
     const height = Math.max(SLOT_HEIGHT, endPos - startPos);
-
-    const timeColumnWidth = 100 / 7;
-    const dayColumnWidth = 100 / 7;
-    const leftPosition = timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
     const color = getScheduleColor(schedule.source);
 
-    return {
-      top: `${startPos}px`,
-      height: `${height}px`,
-      left: `${leftPosition}%`,
-      width: `${dayColumnWidth - 0.5}%`,
-      backgroundColor: `${color}20`,
-      borderLeftColor: color,
-      zIndex: 10,
-    };
+    if (isMobile) {
+      const headerHeight = 60;
+      const dayOfWeek = getDayOfWeek(schedule.date);
+
+      // width handling
+      const timeColumnWidth = 100;
+      const dayWidth = 280;
+
+      // horizontal position
+      const leftPosition = dayWidth * dayOfWeek + timeColumnWidth;
+
+      return {
+        top: `${startPos + headerHeight}px`,
+        height: `${height}px`,
+        left: `${leftPosition}px`,
+        width: `${dayWidth - 8}px`,
+        backgroundColor: `${color}20`,
+        borderLeftColor: color,
+        zIndex: 10,
+      };
+    } else {
+      const timeColumnWidth = 100 / 7;
+      const dayColumnWidth = 100 / 7;
+      const leftPosition =
+        timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
+      return {
+        top: `${startPos}px`,
+        height: `${height}px`,
+        left: `${leftPosition}%`,
+        width: `${dayColumnWidth - 0.5}%`,
+        backgroundColor: `${color}20`,
+        borderLeftColor: color,
+        zIndex: 10,
+      };
+    }
   };
 
-  // Handle schedule item click
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
     setSelectedItem(schedule);
     setIsDialogOpen(true);
   };
 
-  const getDisplayTitle = (item: FinalClassroomSchedule) => {
-    if (item.source === SCHEDULE_SOURCE.InitialSchedule && item.subject) {
-      return `${item.subject} - ${item.section}`;
-    }
-    return item.source;
-  };
-
-  //display time
-  const getDisplaySubtitle = (item: FinalClassroomSchedule) => {
-    const formatTime = (minutes: number) => {
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-    };
-    return `${formatTime(item.startTime)} - ${formatTime(item.endTime)}`;
-  };
-
-  // Check if item is actionable for current user using constants
-  const isActionable = (item: FinalClassroomSchedule) => {
-    const isOwnSchedule =
-      session?.user.role === "professor" &&
-      item.facultyId === session.user.id &&
-      item.source === SCHEDULE_SOURCE.InitialSchedule;
-
-    const isVacantSlot = item.source === SCHEDULE_SOURCE.Vacancy;
-
-    const isBorrowedByUser =
-      item.source === SCHEDULE_SOURCE.Borrowing &&
-      item.facultyId === session?.user.id;
-
-    return isOwnSchedule || isVacantSlot || isBorrowedByUser;
-  };
-
-  // Week navigation
   const navigateWeek = (direction: "prev" | "next") => {
-    if (direction === "prev") {
-      setCurrentWeek(subWeeks(currentWeek, 1));
-    } else {
-      setCurrentWeek(addWeeks(currentWeek, 1));
-    }
+    setCurrentWeek(
+      direction === "prev"
+        ? subWeeks(currentWeek, 1)
+        : addWeeks(currentWeek, 1),
+    );
   };
 
-  const goToCurrentWeek = () => {
-    setCurrentWeek(new Date());
-  };
+  const goToCurrentWeek = () => setCurrentWeek(new Date());
 
-  if (isError) {
-    return <p>Failed to load schedule.</p>;
-  }
+  if (isError) return <p>Failed to load schedule.</p>;
 
   return (
     <div className="space-y-4">
-      {/* Header with navigation */}
+      {/* Header */}
       <div className="flex flex-col justify-end gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
           <Button
@@ -222,8 +164,11 @@ export default function ClassroomCalendarView({
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="bg-muted rounded-md px-3 py-1 text-sm font-medium">
-            {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
+          <div className="bg-muted rounded-md px-3 py-1 text-xs font-medium sm:text-sm">
+            {format(weekStart, "MMM d")} -{" "}
+            {isMobile
+              ? format(weekEnd, "MMM d")
+              : format(weekEnd, "MMM d, yyyy")}
           </div>
 
           <Button
@@ -245,23 +190,38 @@ export default function ClassroomCalendarView({
         </div>
       </div>
 
-      {/* Calendar Grid */}
+      {/* Calendar */}
       <div className="bg-background rounded-lg border">
         <ScrollArea className="h-[75vh]">
+          {isMobile ? (
+            <>
+              <ScrollBar orientation="horizontal" />
+              <ScrollBar orientation="vertical" />
+            </>
+          ) : (
+            <ScrollBar orientation="vertical" />
+          )}
           <div className="relative">
-            {/* Calendar Header */}
+            {/* Header */}
             <div className="bg-background sticky top-0 z-20 border-b">
-              <div className="grid min-w-[800px] grid-cols-7">
-                {/* Empty cell for time column */}
-                <div className="bg-muted/50 border-r p-3"></div>
-
-                {/* Day headers */}
-                {DaysofWeek.map((day: string, index: number) => {
+              <div
+                className={
+                  isMobile
+                    ? "relative flex min-w-[1780px]"
+                    : "relative grid min-w-[800px] grid-cols-7"
+                }
+              >
+                <div
+                  className={`bg-muted/50 border-r p-3 ${isMobile ? "w-[100px] flex-shrink-0" : ""}`}
+                />
+                {DaysofWeek.map((day, index) => {
                   const dayDate = addDays(weekStart, index);
                   return (
                     <div
                       key={day}
-                      className="bg-muted/50 border-r p-3 last:border-r-0"
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
+                        isMobile ? "w-[280px] flex-shrink-2" : ""
+                      }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -273,10 +233,17 @@ export default function ClassroomCalendarView({
               </div>
             </div>
 
-            {/* Calendar Body */}
-            <div className="relative grid min-w-[800px] grid-cols-7">
-              {/* Time slots */}
-              <div className="bg-muted/20 border-r">
+            {/* Body */}
+            <div
+              className={
+                isMobile
+                  ? "flex min-w-[1780px]"
+                  : "relative grid min-w-[800px] grid-cols-7"
+              }
+            >
+              <div
+                className={`bg-muted/20 border-r ${isMobile ? "w-[100px] flex-shrink-0 bg-white" : ""}`}
+              >
                 {TIME_ENTRIES.map(([value, label]) => (
                   <div
                     key={value}
@@ -287,26 +254,24 @@ export default function ClassroomCalendarView({
                 ))}
               </div>
 
-              {/* Day columns */}
               {Array.from({ length: 6 }).map((_, dayIndex) => (
-                <div key={dayIndex} className="relative border-r last:border-r-0">
+                <div
+                  key={dayIndex}
+                  className={`relative border-r last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-0" : ""}`}
+                >
                   {TIME_ENTRIES.map(([value]) => (
                     <div
                       key={`${dayIndex}-${value}`}
                       className="h-[45px] border-b"
-                    ></div>
+                    />
                   ))}
                 </div>
               ))}
 
-
-              {/* Schedule blocks */}
               {!isLoading &&
                 schedules.map((schedule) => (
                   <div
-                    key={
-                      schedule.id || `${schedule.date}-${schedule.startTime}`
-                    }
+                    key={`${schedule.date}-${schedule.startTime}`}
                     className="absolute cursor-pointer rounded-md border-l-4 p-2 transition-all hover:z-20 hover:shadow-md"
                     style={getScheduleStyle(schedule)}
                     onClick={() => handleScheduleClick(schedule)}
@@ -319,7 +284,7 @@ export default function ClassroomCalendarView({
                     <div className="text-muted-foreground truncate text-xs">
                       {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
                     </div>
-                    {schedule.facultyId && (
+                    {schedule.facultyName && (
                       <div className="text-muted-foreground truncate text-xs">
                         Faculty: {schedule.facultyName}
                       </div>
@@ -327,11 +292,10 @@ export default function ClassroomCalendarView({
                   </div>
                 ))}
 
-              {/* Loading overlay */}
               {isLoading && (
                 <div className="bg-background/50 absolute inset-0 z-30 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+                    <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2" />
                     <p className="text-muted-foreground text-sm">
                       Loading schedule...
                     </p>
@@ -342,6 +306,13 @@ export default function ClassroomCalendarView({
           </div>
         </ScrollArea>
       </div>
+
+      {isMobile && (
+        <div className="text-muted-foreground text-center text-xs">
+          Scroll horizontally to view different days
+        </div>
+      )}
+
       <ScheduleActionDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
