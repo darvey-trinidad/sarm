@@ -1,4 +1,4 @@
-import { db, eq } from "@/server/db";
+import { db, eq, and } from "@/server/db";
 import { venueReservation } from "@/server/db/schema/venue";
 
 import type { VenueReservationWithoutId } from "@/server/db/types/venue";
@@ -12,12 +12,14 @@ export const getAllVenueReservations = async () => {
   }
 }
 
-export const getVenueReservationsByDate = async (date: Date) => {
+export const getVenueReservationsByDate = async (venueId: string, date: Date) => {
   try {
     return await db
       .select()
       .from(venueReservation)
-      .where(eq(venueReservation.date, date))
+      .where(and(
+        eq(venueReservation.venueId, venueId),
+        eq(venueReservation.date, date)))
       .all();
   } catch (error) {
     console.error(error);
@@ -27,7 +29,7 @@ export const getVenueReservationsByDate = async (date: Date) => {
 
 export const checkVenueReservationConflicts = async (newReservation: VenueReservationWithoutId) => {
   try {
-    const currentReservations = await getVenueReservationsByDate(newReservation.date);
+    const currentReservations = await getVenueReservationsByDate(newReservation.venueId, newReservation.date);
 
     if (currentReservations.length === 0) {
       return [];
