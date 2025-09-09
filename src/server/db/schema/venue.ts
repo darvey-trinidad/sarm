@@ -6,23 +6,23 @@ import { RESERVATION_STATUS } from "@/constants/reservation-status";
 
 export const venue = sqliteTable("venue", {
   id: text('id').primaryKey(),
-  
+
   name: text('name').notNull(),
   description: text('description'),
   capacity: integer('capacity', { mode: 'number' }),
-  
+
   usability: text('usability', { enum: USABILITY }).default(DEFAULT_USABILITY).notNull(),
 });
 
 export const venueReservation = sqliteTable("venue_reservation", {
   id: text('id').primaryKey(),
 
-  venueId: text('venue_id').notNull().references(()=> venue.id, { onDelete: 'cascade' }),
-  reserverId: text('reserver_id').notNull().references(()=> user.id, { onDelete: 'cascade' }),
-  
+  venueId: text('venue_id').notNull().references(() => venue.id, { onDelete: 'cascade' }),
+  reserverId: text('reserver_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+
   date: integer('date', { mode: 'timestamp' }).notNull(),
-  startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
-  endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
+  startTime: integer('start_time').notNull(),
+  endTime: integer('end_time').notNull(),
   purpose: text('purpose').notNull(),
   status: text('status', { enum: RESERVATION_STATUS }).notNull(),
 

@@ -1,6 +1,7 @@
 import z from "zod";
 import { USABILITY } from "@/constants/usability";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
+import { requiredDateSchema } from "@/server/api-utils/validators/date";
 
 export const createVenueSchema = z.object({
   name: z.string(),
@@ -12,9 +13,9 @@ export const createVenueSchema = z.object({
 export const createVenueReservationSchema = z.object({
   venueId: z.string(),
   reserverId: z.string(),
-  date: z.date(),
-  startTime: z.date(),
-  endTime: z.date(),
+  date: requiredDateSchema(),
+  startTime: z.number(),
+  endTime: z.number(),
   purpose: z.string(),
-  status: z.enum(RESERVATION_STATUS),
+  status: z.enum(RESERVATION_STATUS).nullable(),
 });

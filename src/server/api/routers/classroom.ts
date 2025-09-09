@@ -47,7 +47,6 @@ export const classroomRouter = createTRPCRouter({
     return getAllClassrooms();
   }),
   getClassroomsPerBuilding: protectedProcedure.query(({ ctx }) => {
-    console.log(ctx.session);
     return getClassroomsPerBuilding();
   }),
   editClassroom: protectedProcedure
