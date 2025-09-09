@@ -2,15 +2,31 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { api } from "@/trpc/react";
+import { Skeleton } from "@/components/ui/skeleton";
+import ClassroomCard from "./classroom-card";
+import { PageRoutes } from "@/constants/page-routes";
 import Link from "next/link";
 type Venue = {
   id: string;
   name: string;
 };
 export default function VenueCard() {
-  const { data: venues } = api.venue.getAllVenues.useQuery();
+  const { data: venues, isLoading } = api.venue.getAllVenues.useQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-5 sm:flex-row">
+        <Skeleton className="h-85 w-85 rounded-sm" />
+        <Skeleton className="h-85 w-85 rounded-sm" />
+        <Skeleton className="h-85 w-85 rounded-sm" />
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-5 sm:flex-row">
+      <Link href={PageRoutes.SCHEDULE_CLASSROOM}>
+        <ClassroomCard />
+      </Link>
       {venues?.map((venue) => (
         <Link href={`/schedule/${venue.id}`} key={venue.id}>
           <Card
