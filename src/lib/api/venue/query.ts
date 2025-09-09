@@ -1,7 +1,16 @@
 import { db, eq, and } from "@/server/db";
-import { venueReservation } from "@/server/db/schema/venue";
+import { venue, venueReservation } from "@/server/db/schema/venue";
 
 import type { VenueReservationWithoutId } from "@/server/db/types/venue";
+
+export const getAllVenues = async () => {
+  try {
+    return await db.select().from(venue).all();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export const getAllVenueReservations = async () => {
   try {
