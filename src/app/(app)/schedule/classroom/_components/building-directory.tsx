@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "@/trpc/react";
+import { Skeleton } from "@/components/ui/skeleton";
 interface Building {
   id: string;
   name: string;
@@ -83,6 +84,17 @@ const BuildingCard = ({ building }: { building: Building }) => {
 
 export default function BuildingDirectory() {
   const { data, isLoading } = api.classroom.getClassroomsPerBuilding.useQuery();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <Skeleton key={idx} className="h-100 w-95 rounded-sm" />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl">
