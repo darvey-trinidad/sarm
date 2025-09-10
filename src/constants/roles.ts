@@ -16,3 +16,12 @@ export const ROLES_OPTIONS = ROLES.map((role) => ({
 }));
 
 export type Roles = (typeof ROLES)[number];
+
+export const ROLE_LABELS: Record<string, string> = {
+  facility_manager: "Facility Manager",
+  student_organization: "Student Organization",
+  classroom_manager: "Classroom Manager",
+  faculty: "Faculty",
+  department_head: "Department Head",
+  pe_instructor: "P.E. Instructor",
+};
