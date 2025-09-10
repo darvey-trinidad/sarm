@@ -7,6 +7,8 @@ export const ROLES = [
   ...TEACHING_PERSONNEL,
 ] as const;
 
+export const ADMIN_ROLE = ROLES[0];
+
 export const ROLES_OPTIONS = ROLES.map((role) => ({
   value: role,
   label: role

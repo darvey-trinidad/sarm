@@ -91,7 +91,8 @@ export const getClassroomsPerBuilding = async () => {
         classroomName: classroom.name,
       })
       .from(building)
-      .innerJoin(classroom, eq(classroom.buildingId, building.id));
+      .innerJoin(classroom, eq(classroom.buildingId, building.id))
+      .orderBy(building.name, classroom.name);
 
     const grouped = Object.values(
       rows.reduce(

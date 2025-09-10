@@ -30,11 +30,17 @@ import { api } from "@/trpc/react";
 import { TIME_OPTIONS } from "@/constants/timeslot";
 import { DAYS_OPTIONS } from "@/constants/days";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
+import { authClient } from "@/lib/auth-client";
 
 export default function PlottingForm() {
+  const { data: session } = authClient.useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
-  const { data: faculty } = api.auth.getAllFaculty.useQuery();
+  // const { data: faculty } = api.auth.getAllFaculty.useQuery();
+  const { data: faculty } = api.auth.getAllSchedulableFaculty.useQuery({
+    role: session?.user.role || "facility_manager",
+    departmentOrOrganization: session?.user.departmentOrOrganization || "itds",
+  });
   const [selectedBuildingId, setSelectedBuildingId] = useState("");
   const [value, setValue] = useState<Option>();
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
@@ -134,9 +140,9 @@ export default function PlottingForm() {
                       options={
                         faculty
                           ? faculty.map((faculty) => ({
-                              value: faculty.id,
-                              label: faculty.name ?? "",
-                            }))
+                            value: faculty.id,
+                            label: faculty.name ?? "",
+                          }))
                           : []
                       }
                       emptyMessage="No proffesor found"
