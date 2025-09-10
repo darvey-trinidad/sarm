@@ -48,6 +48,7 @@ import { Input } from "@/components/ui/input";
 import { TIME_OPTIONS } from "@/constants/timeslot";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
 import { authClient } from "@/lib/auth-client";
+import { newDate } from "@/lib/utils";
 
 type VenuePageProps = {
   venueId: string;
@@ -59,7 +60,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const form = useForm<z.infer<typeof VenueSchema>>({
     resolver: zodResolver(VenueSchema),
     defaultValues: {
-      date: new Date(),
+      date: newDate(new Date()),
       startTime: 0,
       endTime: 0,
       purpose: "",
@@ -77,7 +78,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
       {
         venueId: venueId,
         reserverId: session?.user.id || "",
-        date: data.date,
+        date: newDate(data.date),
         startTime: data.startTime,
         endTime: data.endTime,
         purpose: data.purpose,
