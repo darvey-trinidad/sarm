@@ -49,9 +49,19 @@ interface ScheduleActionDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedItem: FinalClassroomSchedule | null;
   currentUser: UserSession;
-  onMarkVacant: (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => Promise<void>;
-  onClaimSlot: (schedule: FinalClassroomSchedule, data: BorrowingData) => Promise<void>;
-  onCancelBorrowing: (schedule: FinalClassroomSchedule, data: BorrowingData) => Promise<void>;
+  onMarkVacant: (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+    reason: string,
+  ) => Promise<void>;
+  onClaimSlot: (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => Promise<void>;
+  onCancelBorrowing: (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
@@ -169,8 +179,7 @@ export default function ScheduleActionDialog({
   };
 
   const handleClaimSlot = async () => {
-    if (!borrowingData.subject || !borrowingData.section)
-      return;
+    if (!borrowingData.subject || !borrowingData.section) return;
 
     // Validate time range
     if (borrowingData.startTime >= borrowingData.endTime) {
@@ -239,7 +248,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                  selectedItem.subject
+                selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>

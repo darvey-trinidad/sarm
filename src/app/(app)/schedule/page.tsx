@@ -1,6 +1,5 @@
 import { type Metadata } from "next";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
-import Link from "next/link";
 import VenueCard from "./_components/venue-card";
 
 export const metadata: Metadata = {

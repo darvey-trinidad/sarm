@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getVenueById } from "@/lib/api/classroom/query";
+import VenueCalendarView from "@/components/calendar/venue-calendar-view";
+import RequestReservationModal from "./_components/request-reservation";
 
 export const metadata: Metadata = {
   title: "Venue",
@@ -42,6 +44,10 @@ export default async function Venue({ params }: VenuePageProps) {
             </h1>
           </div>
         </div>
+      </div>
+      <VenueCalendarView venueId={venueId} />
+      <div className="flex justify-end">
+        <RequestReservationModal venueId={venueId} />
       </div>
     </div>
   );
