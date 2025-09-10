@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "@/trpc/react";
-import { useParams } from "next/navigation";
-import { r } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 interface Building {
   id: string;
   name: string;

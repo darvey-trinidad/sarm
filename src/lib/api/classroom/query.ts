@@ -1,5 +1,6 @@
 import { db, eq } from "@/server/db";
 import { classroom, building } from "@/server/db/schema/classroom";
+import { venue } from "@/server/db/schema/venue";
 
 export const getBuilding = async (id: string) => {
   try {
@@ -43,6 +44,19 @@ export async function getClassroomWithBuilding(id: string) {
     .from(classroom)
     .leftJoin(building, eq(classroom.buildingId, building.id))
     .where(eq(classroom.id, id));
+}
+
+export async function getVenueById(id: string) {
+  return await db
+    .select({
+      venueId: venue.id,
+      venueName: venue.name,
+      venueDescription: venue.description,
+      venueCapacity: venue.capacity,
+      venueUsability: venue.usability,
+    })
+    .from(venue)
+    .where(eq(venue.id, id));
 }
 
 export const getAllClassrooms = async () => {
