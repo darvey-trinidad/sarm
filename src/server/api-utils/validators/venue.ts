@@ -17,5 +17,11 @@ export const createVenueReservationSchema = z.object({
   startTime: z.number(),
   endTime: z.number(),
   purpose: z.string(),
-  status: z.enum(RESERVATION_STATUS).nullable(),
+  status: z.enum(RESERVATION_STATUS),
 });
+
+export const getVenueScheduleSchema = z.object({
+  venueId: z.string(),
+  startDate: requiredDateSchema(),
+  endDate: requiredDateSchema(),
+})

@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation } from "@/lib/api/venue/mutation";
-import { getAllVenues } from "@/lib/api/venue/query";
-import { createVenueSchema, createVenueReservationSchema } from "@/server/api-utils/validators/venue";
+import { getAllVenues, getVenueSchedule } from "@/lib/api/venue/query";
+import { createVenueSchema, createVenueReservationSchema, getVenueScheduleSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
 
@@ -22,4 +22,10 @@ export const venueRouter = createTRPCRouter({
   getAllVenueReservations: protectedProcedure.query(() => {
     return getAllVenueReservations();
   }),
+  getVenueSchedule: protectedProcedure
+    .input(getVenueScheduleSchema)
+    .query(({ input }) => {
+      console.log(input);
+      return getVenueSchedule(input.venueId, input.startDate, input.endDate);
+    }),
 });
