@@ -9,7 +9,7 @@ export const resource = sqliteTable("resource", {
   name: text('name').notNull(),
   category: text('category', { enum: RESOURCE_CATEGORY }).notNull(),
   description: text('description'),
-  stock: integer('stock', { mode: 'number' }).notNull(),
+  stock: integer('stock', { mode: 'number' }).$defaultFn(() => 0).notNull(),
 });
 
 export const resourceBorrowing = sqliteTable("resource_borrowing", {
@@ -18,7 +18,7 @@ export const resourceBorrowing = sqliteTable("resource_borrowing", {
   resourceId: text('resource_id').notNull().references(() => resource.id, { onDelete: 'cascade' }),
 
   purpose: text('purpose').notNull(),
-  status: text('status', { enum: BORROWING_STATUS }).notNull().default(DEFAULT_BORROWING_STATUS),
+  status: text('status', { enum: BORROWING_STATUS }).$defaultFn(() => DEFAULT_BORROWING_STATUS).notNull(),
   representativeBorrower: text('representative_borrower').notNull(),
 
   dateRequested: integer('date_requested', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),

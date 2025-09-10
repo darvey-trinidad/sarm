@@ -1,4 +1,4 @@
-export const TEACHING_PERSONNEL = ["faculty", "department_head"] as const;
+export const TEACHING_PERSONNEL = ["faculty", "department_head", "pe_instructor"] as const;
 
 export const ROLES = [
   "facility_manager",

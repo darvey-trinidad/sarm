@@ -2,7 +2,7 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { user } from "@/server/db/schema/auth";
 
 import { USABILITY, DEFAULT_USABILITY } from "@/constants/usability";
-import { RESERVATION_STATUS } from "@/constants/reservation-status";
+import { RESERVATION_STATUS, DEFAULT_RESERVATION_STATUS } from "@/constants/reservation-status";
 
 export const venue = sqliteTable("venue", {
   id: text('id').primaryKey(),
@@ -11,7 +11,7 @@ export const venue = sqliteTable("venue", {
   description: text('description'),
   capacity: integer('capacity', { mode: 'number' }),
 
-  usability: text('usability', { enum: USABILITY }).default(DEFAULT_USABILITY).notNull(),
+  usability: text('usability', { enum: USABILITY }).$defaultFn(() => DEFAULT_USABILITY).notNull(),
 });
 
 export const venueReservation = sqliteTable("venue_reservation", {
@@ -24,7 +24,8 @@ export const venueReservation = sqliteTable("venue_reservation", {
   startTime: integer('start_time').notNull(),
   endTime: integer('end_time').notNull(),
   purpose: text('purpose').notNull(),
-  status: text('status', { enum: RESERVATION_STATUS }).notNull(),
+  status: text('status', { enum: RESERVATION_STATUS }).$defaultFn(() => DEFAULT_RESERVATION_STATUS).notNull(),
 
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 });
