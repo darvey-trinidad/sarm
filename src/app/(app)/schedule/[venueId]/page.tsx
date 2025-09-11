@@ -38,17 +38,21 @@ export default async function Venue({ params }: VenuePageProps) {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {venue?.venueName}
-            </h1>
+          <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold tracking-tight">
+                {venue?.venueName}
+              </h1>
+              <p className="text-muted-foreground">
+                Capacity - <strong>({venue?.venueCapacity})</strong>
+              </p>
+            </div>
+
+            <RequestReservationModal venueId={venueId} />
           </div>
         </div>
       </div>
       <VenueCalendarView venueId={venueId} />
-      <div className="flex justify-end">
-        <RequestReservationModal venueId={venueId} />
-      </div>
     </div>
   );
 }
