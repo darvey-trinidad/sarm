@@ -135,6 +135,16 @@ export default function ClassroomCalendarView({
   };
 
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
+    const now = new Date();
+    const dateToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const schedDate = new Date(schedule.date.getFullYear(), schedule.date.getMonth(), schedule.date.getDate());
+
+    const schedIsPast =
+      (schedDate < dateToday) ||
+      (schedDate.getTime() === dateToday.getTime() && schedule.endTime < now.getHours() * 100 + now.getMinutes() * 100 / 60);
+
+    if (schedIsPast) return;
+
     setSelectedItem(schedule);
     setIsDialogOpen(true);
   };
@@ -219,9 +229,8 @@ export default function ClassroomCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
+                        }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
