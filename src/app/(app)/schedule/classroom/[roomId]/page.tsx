@@ -43,7 +43,8 @@ export default async function RoomSchedule({ params }: PageProps) {
               {classroom?.buildingName}
             </h1>
             <p className="text-muted-foreground">
-              Classroom - {classroom?.classroomName}
+              Classroom - {classroom?.classroomName}{" "}
+              <strong>({classroom?.classroomType}</strong>)
             </p>
           </div>
         </div>

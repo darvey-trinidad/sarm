@@ -2,6 +2,8 @@
 import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { ROLE_LABELS } from "@/constants/roles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +23,7 @@ import {
 
 export const UserSidebar = () => {
   const { isMobile } = useSidebar();
+  const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
   return (
@@ -41,10 +44,10 @@ export const UserSidebar = () => {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {session?.user.name || "Gian Pogi"}
+                  {session?.user.name || "Login"}
                 </span>
                 <span className="truncate text-xs">
-                  {session?.user.role || "pinaka pogi"}
+                  {session?.user.role ? ROLE_LABELS[session?.user.role] : ""}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -67,10 +70,10 @@ export const UserSidebar = () => {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {session?.user.name || "Gian Pogi"}
+                    {session?.user.name || "Login"}
                   </span>
                   <span className="truncate text-xs">
-                    {session?.user.role || "pinaka pogi"}
+                    {session?.user.role ? ROLE_LABELS[session?.user.role] : ""}
                   </span>
                 </div>
               </div>
@@ -83,9 +86,13 @@ export const UserSidebar = () => {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              {" "}
-              {/* TODO: Add logout action */}
+            <DropdownMenuItem onClick={async () => await authClient.signOut({
+              fetchOptions: {
+                onSuccess: () => {
+                  router.push("/login"); // redirect to login page
+                },
+              },
+            })}>
               <LogOut />
               Log out
             </DropdownMenuItem>

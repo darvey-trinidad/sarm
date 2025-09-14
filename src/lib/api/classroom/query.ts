@@ -1,5 +1,6 @@
 import { db, eq } from "@/server/db";
 import { classroom, building } from "@/server/db/schema/classroom";
+import { venue } from "@/server/db/schema/venue";
 
 export const getBuilding = async (id: string) => {
   try {
@@ -45,6 +46,19 @@ export async function getClassroomWithBuilding(id: string) {
     .where(eq(classroom.id, id));
 }
 
+export async function getVenueById(id: string) {
+  return await db
+    .select({
+      venueId: venue.id,
+      venueName: venue.name,
+      venueDescription: venue.description,
+      venueCapacity: venue.capacity,
+      venueUsability: venue.usability,
+    })
+    .from(venue)
+    .where(eq(venue.id, id));
+}
+
 export const getAllClassrooms = async () => {
   try {
     return await db
@@ -77,7 +91,8 @@ export const getClassroomsPerBuilding = async () => {
         classroomName: classroom.name,
       })
       .from(building)
-      .innerJoin(classroom, eq(classroom.buildingId, building.id));
+      .innerJoin(classroom, eq(classroom.buildingId, building.id))
+      .orderBy(building.name, classroom.name);
 
     const grouped = Object.values(
       rows.reduce(

@@ -1,6 +1,7 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { classroomRouter } from "@/server/api/routers/classroom";
 import { classroomScheduleRouter } from "@/server/api/routers/classroom-schedule";
+import { venueRouter } from "@/server/api/routers/venue";
 import { authRouter } from "@/server/api/routers/auth";
 import { auth } from "@/lib/auth";
 /**
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   classroom: classroomRouter,
   classroomSchedule: classroomScheduleRouter,
+  venue: venueRouter,
 });
 
 // export type definition of API

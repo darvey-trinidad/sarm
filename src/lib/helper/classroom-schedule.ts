@@ -2,18 +2,19 @@ import type { TimeInt } from "@/constants/timeslot";
 import { generateUUID } from "@/lib/utils";
 import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput, CancelClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import { TIME_INTERVAL } from "@/constants/timeslot";
 
 export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInput) {
   const chunks = [];
 
-  for (let time = input.startTime; time < input.endTime; time += 100) {
+  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
     chunks.push({
       id: generateUUID(),
       classroomId: input.classroomId,
       facultyId: input.facultyId,
       day: input.day,
       startTime: time,
-      endTime: time + 100,
+      endTime: time + TIME_INTERVAL,
       subject: input.subject,
       section: input.section,
     });
@@ -24,13 +25,13 @@ export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInpu
 export function splitVacancyToHourlyTimeslot(input: CreateClassroomVacancyInput) {
   const chunks = [];
 
-  for (let time = input.startTime; time < input.endTime; time += 100) {
+  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
     chunks.push({
       id: generateUUID(),
       classroomId: input.classroomId,
       date: input.date,
       startTime: time,
-      endTime: time + 100,
+      endTime: time + TIME_INTERVAL,
       reason: input.reason,
     });
   }
@@ -40,14 +41,14 @@ export function splitVacancyToHourlyTimeslot(input: CreateClassroomVacancyInput)
 export const splitBorrowingToHourlyTimeslot = (input: CreateClassroomBorrowingInput) => {
   const chunks = [];
 
-  for (let time = input.startTime; time < input.endTime; time += 100) {
+  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
     chunks.push({
       id: generateUUID(),
       classroomId: input.classroomId,
       facultyId: input.facultyId,
       date: input.date,
       startTime: time,
-      endTime: time + 100,
+      endTime: time + TIME_INTERVAL,
       subject: input.subject,
       section: input.section,
     });
@@ -58,12 +59,12 @@ export const splitBorrowingToHourlyTimeslot = (input: CreateClassroomBorrowingIn
 export const splitTimeToHourlyTimeslot = (input: CancelClassroomBorrowingInput) => {
   const chunks: CancelClassroomBorrowingInput[] = [];
 
-  for (let time = input.startTime; time < input.endTime; time += 100) {
+  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
     chunks.push({
       classroomId: input.classroomId,
       date: input.date,
       startTime: time,
-      endTime: time + 100
+      endTime: time + TIME_INTERVAL
     });
   }
   return chunks;

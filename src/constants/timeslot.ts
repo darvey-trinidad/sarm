@@ -7,23 +7,39 @@ import { z } from "zod";
  */
 export const TIME_ENTRIES = [
   [700, "7:00 AM"],
+  [750, "7:30 AM"],
   [800, "8:00 AM"],
+  [850, "8:30 AM"],
   [900, "9:00 AM"],
+  [950, "9:30 AM"],
   [1000, "10:00 AM"],
+  [1050, "10:30 AM"],
   [1100, "11:00 AM"],
+  [1150, "11:30 AM"],
   [1200, "12:00 PM"],
+  [1250, "12:30 PM"],
   [1300, "1:00 PM"],
+  [1350, "1:30 PM"],
   [1400, "2:00 PM"],
+  [1450, "2:30 PM"],
   [1500, "3:00 PM"],
+  [1550, "3:30 PM"],
   [1600, "4:00 PM"],
+  [1650, "4:30 PM"],
   [1700, "5:00 PM"],
+  [1750, "5:30 PM"],
   [1800, "6:00 PM"],
+  [1850, "6:30 PM"],
   [1900, "7:00 PM"],
+  [1950, "7:30 PM"],
+  [2000, "8:00 PM"],
+  [2050, "8:30 PM"],
+  [2100, "9:00 PM"],
 ] as const;
 
 export const START_TIME = TIME_ENTRIES[0][0];
 export const END_TIME = TIME_ENTRIES.at(-1)?.[0];
-export const TIME_INTERVAL = 100;
+export const TIME_INTERVAL = 50;
 
 // TIME_MAP for rendering
 export const TIME_MAP: Record<TimeInt, string> = TIME_ENTRIES.reduce(

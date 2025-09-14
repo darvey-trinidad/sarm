@@ -5,13 +5,10 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
-import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
-import { api } from "@/trpc/react";
 import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
-import { authClient } from "@/lib/auth-client";
-import ScheduleActionDialog from "./schedule-action-dialog";
-import { useScheduleActions } from "@/hooks/use-schedule-action";
+import { toTimeInt } from "@/lib/utils";
+import { api } from "@/trpc/react";
 
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
@@ -23,43 +20,26 @@ const DaysofWeek = [
   "Saturday",
 ];
 
-type ClassroomCalendarViewProps = {
-  classroomId: string;
+type VenueCalendarViewProps = {
+  venueId: string;
 };
 
-export default function ClassroomCalendarView({
-  classroomId,
-}: ClassroomCalendarViewProps) {
-  const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
-  const [selectedItem, setSelectedItem] =
-    useState<FinalClassroomSchedule | null>(null);
+export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 5);
-  const { data: session } = authClient.useSession();
-
-  const { markAsVacant, claimSlot, cancelBorrowing } = useScheduleActions({
-    onRefresh: () => refetch(),
-  });
 
   const {
-    data: scheduleData,
+    data: reservations,
     isLoading,
     isError,
-    refetch,
-  } = api.classroomSchedule.getWeeklyClassroomSchedule.useQuery({
-    classroomId,
+  } = api.venue.getVenueSchedule.useQuery({
+    venueId,
     startDate: newDate(weekStart),
     endDate: newDate(weekEnd),
   });
-
-  useEffect(() => {
-    if (scheduleData) setSchedules(scheduleData);
-    else setSchedules([]);
-  }, [scheduleData]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -78,34 +58,20 @@ export default function ClassroomCalendarView({
 
   const getDayOfWeek = (date: Date) => (date.getDay() + 6) % 7;
 
-  const getScheduleColor = (source: string) => {
-    switch (source) {
-      case "Vacancy":
-        return "#10b981";
-      case "Borrowing":
-        return "#f59e0b";
-      case "Unoccupied":
-        return "#6b7280";
-      default:
-        return "#3b82f6";
-    }
-  };
-
-  const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
-    const startPos = timeToPosition(schedule.startTime);
-    const endPos = timeToPosition(schedule.endTime);
+  const getReservationStyle = (res: any) => {
+    const startPos = timeToPosition(res.startTime);
+    const endPos = timeToPosition(res.endTime);
     const height = Math.max(SLOT_HEIGHT, endPos - startPos);
-    const color = getScheduleColor(schedule.source);
+
+    const color = "#3b82f6"; // blue for reservations
 
     if (isMobile) {
       const headerHeight = 60;
-      const dayOfWeek = getDayOfWeek(schedule.date);
+      const dayOfWeek = getDayOfWeek(new Date(res.date));
 
-      // width handling
       const timeColumnWidth = 100;
       const dayWidth = 280;
 
-      // horizontal position
       const leftPosition = dayWidth * dayOfWeek + timeColumnWidth;
 
       return {
@@ -121,7 +87,8 @@ export default function ClassroomCalendarView({
       const timeColumnWidth = 100 / 7;
       const dayColumnWidth = 100 / 7;
       const leftPosition =
-        timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
+        timeColumnWidth + getDayOfWeek(new Date(res.date)) * dayColumnWidth;
+
       return {
         top: `${startPos}px`,
         height: `${height}px`,
@@ -134,21 +101,6 @@ export default function ClassroomCalendarView({
     }
   };
 
-  const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
-    const now = new Date();
-    const dateToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const schedDate = new Date(schedule.date.getFullYear(), schedule.date.getMonth(), schedule.date.getDate());
-
-    const schedIsPast =
-      (schedDate < dateToday) ||
-      (schedDate.getTime() === dateToday.getTime() && schedule.endTime < now.getHours() * 100 + now.getMinutes() * 100 / 60);
-
-    if (schedIsPast) return;
-
-    setSelectedItem(schedule);
-    setIsDialogOpen(true);
-  };
-
   const navigateWeek = (direction: "prev" | "next") => {
     setCurrentWeek(
       direction === "prev"
@@ -159,7 +111,7 @@ export default function ClassroomCalendarView({
 
   const goToCurrentWeek = () => setCurrentWeek(new Date());
 
-  if (isError) return <p>Failed to load schedule.</p>;
+  if (isError) return <p>Failed to load reservations.</p>;
 
   return (
     <div className="space-y-4">
@@ -229,8 +181,9 @@ export default function ClassroomCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
-                        }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
+                        isMobile ? "w-[280px] flex-shrink-2" : ""
+                      }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -278,26 +231,21 @@ export default function ClassroomCalendarView({
               ))}
 
               {!isLoading &&
-                schedules.map((schedule) => (
+                reservations?.map((schedule) => (
                   <div
-                    key={`${schedule.date}-${schedule.startTime}`}
+                    key={schedule.venueReservationId}
                     className="absolute cursor-pointer rounded-md border-l-4 p-2 transition-all hover:z-20 hover:shadow-md"
-                    style={getScheduleStyle(schedule)}
-                    onClick={() => handleScheduleClick(schedule)}
+                    style={getReservationStyle(schedule)}
                   >
                     <div className="truncate text-xs font-medium">
-                      {schedule.source === "Initial Schedule"
-                        ? `${schedule.subject} - ${schedule.section}`
-                        : schedule.source}
+                      {schedule.purpose}
                     </div>
                     <div className="text-muted-foreground truncate text-xs">
-                      {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
+                      {`${TIME_MAP[toTimeInt(schedule.startTime)]} - ${TIME_MAP[toTimeInt(schedule.endTime)]}`}
                     </div>
-                    {schedule.facultyName && (
-                      <div className="text-muted-foreground truncate text-xs">
-                        Faculty: {schedule.facultyName}
-                      </div>
-                    )}
+                    <div className="text-muted-foreground truncate text-xs">
+                      Reserved by: {schedule.reserverName}
+                    </div>
                   </div>
                 ))}
 
@@ -306,7 +254,7 @@ export default function ClassroomCalendarView({
                   <div className="text-center">
                     <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2" />
                     <p className="text-muted-foreground text-sm">
-                      Loading schedule...
+                      Loading reservations...
                     </p>
                   </div>
                 </div>
@@ -321,16 +269,6 @@ export default function ClassroomCalendarView({
           Scroll horizontally to view different days
         </div>
       )}
-
-      <ScheduleActionDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        selectedItem={selectedItem}
-        currentUser={session?.user}
-        onMarkVacant={markAsVacant}
-        onClaimSlot={claimSlot}
-        onCancelBorrowing={cancelBorrowing}
-      />
     </div>
   );
 }

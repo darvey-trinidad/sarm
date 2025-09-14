@@ -1,8 +1,8 @@
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
-import { signupSchema } from "@/server/api-utils/validators/auth";
-import { getAllFaculty, getAllUsers } from "@/lib/api/auth/query";
+import { signupSchema, getAllSchedulableFacultySchema } from "@/server/api-utils/validators/auth";
+import { getAllFaculty, getAllSchedulableFaculty, getAllUsers } from "@/lib/api/auth/query";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(signupSchema).mutation(({ input }) => {
@@ -20,6 +20,13 @@ export const authRouter = createTRPCRouter({
   getAllFaculty: publicProcedure.query(() => {
     return getAllFaculty();
   }),
+  getAllSchedulableFaculty: publicProcedure
+    .input(getAllSchedulableFacultySchema)
+    .query(({ input }) => {
+      const data = getAllSchedulableFaculty(input.role, input.departmentOrOrganization);
+      console.log("INSIDE TRPC", data, "INPUT", input);
+      return data;
+    }),
   getAllUsers: publicProcedure.query(() => {
     return getAllUsers();
   })
