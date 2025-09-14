@@ -1,8 +1,7 @@
 "use clients";
 import { createSortableHeader } from "@/components/table/data-table";
-import { createActionColumn } from "@/components/table/action-column";
 import { type ColumnDef } from "@tanstack/react-table";
-import { UserCheck, UserX, Mail, Edit, Key, Trash2 } from "lucide-react";
+import { UserCheck, UserX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const getStatusBadge = (isActive: boolean) => {
@@ -54,10 +53,10 @@ const formatRelativeTime = (timestamp: Date): string => {
 
 interface User {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
   role: string;
-  departmentOrOrganization: string;
+  departmentOrOrganization: string | null;
   isActive: boolean;
 }
 

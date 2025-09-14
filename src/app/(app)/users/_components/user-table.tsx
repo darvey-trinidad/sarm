@@ -1,33 +1,11 @@
 "use client";
-import { toast } from "sonner";
 import { columns } from "./columns";
 import { DataTable } from "@/components/table/data-table";
 import { api } from "@/trpc/react";
 import { DataTableSkeleton } from "@/components/table/data-table-skeleton";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  departmentOrOrganization: string;
-  createdAt: Date;
-  isActive: boolean;
-}
-
 export function UserTable() {
   const { data, isLoading, isError } = api.auth.getAllUsers.useQuery();
-
-  const safeData: User[] =
-    data?.map((u) => ({
-      id: u.id,
-      name: u.name ?? "Unknown",
-      email: u.email,
-      role: u.role.replace(/_/g, " "),
-      departmentOrOrganization: u.departmentOrOrganization ?? "N/A",
-      createdAt: u.createdAt,
-      isActive: u.isActive,
-    })) ?? [];
 
   const formatRole = (role: string): string => {
     return role
@@ -49,7 +27,7 @@ export function UserTable() {
       {!isLoading && data ? (
         <DataTable
           columns={columns}
-          data={safeData}
+          data={data}
           searchKey="name"
           searchPlaceholder="Search users..."
         />
