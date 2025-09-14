@@ -34,7 +34,6 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -129,7 +128,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
               name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel>
+                    Date<p className="text-destructive">*</p>
+                  </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -175,7 +176,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                 name="startTime"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Time</FormLabel>
+                    <FormLabel>
+                      Start Time<p className="text-destructive">*</p>
+                    </FormLabel>
                     <Select
                       onValueChange={(val) => field.onChange(Number(val))}
                       value={String(field.value)}
@@ -209,7 +212,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                 name="endTime"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>End Time</FormLabel>
+                    <FormLabel>
+                      End Time <p className="text-destructive">*</p>
+                    </FormLabel>
                     <Select
                       onValueChange={(val) => field.onChange(Number(val))}
                       value={String(field.value)}

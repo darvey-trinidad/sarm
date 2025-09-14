@@ -9,10 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import BuildingManagement from "./buildings/page";
+import BuildingFormButton from "./buildings/submit/building-form-button";
 export default function ManageTabContent() {
   const [tab, setTab] = useState("resources");
   return (
-    <Tabs value={tab} onValueChange={setTab}>
+    <Tabs value={tab} onValueChange={setTab} className="space-y-2">
       <TabsList>
         <TabsTrigger value="resources">Resources</TabsTrigger>
         <TabsTrigger value="venue">Venue</TabsTrigger>
@@ -22,59 +23,64 @@ export default function ManageTabContent() {
 
       <div className="mt-1 w-full">
         <TabsContent value="resources">
-          <Card>
-            <CardHeader>
-              <CardTitle>Resource List</CardTitle>
-              <CardDescription>
-                Manage facility resources and equipment
-              </CardDescription>
-              <CardContent className="px-0 pt-3">
-                <h1 className="text-2xl font-bold">RESOURCES</h1>
-              </CardContent>
-            </CardHeader>
-          </Card>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Resources</h2>
+                <p className="text-muted-foreground">
+                  Manage campus buildings and facilities
+                </p>
+              </div>
+            </div>
+            <h1>resources</h1>
+          </div>
         </TabsContent>
 
         <TabsContent value="venue">
-          <Card>
-            <CardHeader>
-              <CardTitle>Venue List</CardTitle>
-              <CardDescription>
-                Manage campus venues and event spaces
-              </CardDescription>
-              <CardContent className="px-0 pt-3">
-                <h1 className="text-2xl font-bold">VENUES</h1>
-              </CardContent>
-            </CardHeader>
-          </Card>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Venue</h2>
+                <p className="text-muted-foreground">
+                  Manage campus buildings and facilities
+                </p>
+              </div>
+            </div>
+            <h1>venue</h1>
+          </div>
         </TabsContent>
 
         <TabsContent value="buildings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Buildings List</CardTitle>
-              <CardDescription>
-                Manage campus buildings and infrastructure
-              </CardDescription>
-              <CardContent className="px-0 pt-3">
-                <BuildingManagement />
-              </CardContent>
-            </CardHeader>
-          </Card>
+          <div className="space-y-4">
+            <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Buildings</h2>
+                <p className="text-muted-foreground">
+                  Manage campus buildings and facilities
+                </p>
+              </div>
+              <div>
+                <BuildingFormButton />
+              </div>
+            </div>
+            <BuildingManagement />
+          </div>
         </TabsContent>
 
         <TabsContent value="rooms">
-          <Card>
-            <CardHeader>
-              <CardTitle>Classrooms List</CardTitle>
-              <CardDescription>
-                Manage classrooms and learning spaces
-              </CardDescription>
-              <CardContent className="px-0 pt-3">
-                <h1 className="text-2xl font-bold">CLASSROOMS</h1>
-              </CardContent>
-            </CardHeader>
-          </Card>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">
+                  Classrooms
+                </h2>
+                <p className="text-muted-foreground">
+                  Manage campus buildings and facilities
+                </p>
+              </div>
+            </div>
+            <h1>rooms</h1>
+          </div>
         </TabsContent>
       </div>
     </Tabs>
