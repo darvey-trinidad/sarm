@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import BuildingManagement from "./buildings/page";
 import BuildingFormButton from "./buildings/submit/building-form-button";
+import RoomManagement from "./rooms/page";
 export default function ManageTabContent() {
   const [tab, setTab] = useState("resources");
   return (
@@ -79,7 +80,7 @@ export default function ManageTabContent() {
                 </p>
               </div>
             </div>
-            <h1>rooms</h1>
+            <RoomManagement />
           </div>
         </TabsContent>
       </div>

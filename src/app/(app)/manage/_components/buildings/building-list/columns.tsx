@@ -1,7 +1,6 @@
 "use clients";
 import { createSortableHeader } from "@/components/table/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
-import { int } from "better-auth";
 
 interface Building {
   id: string;

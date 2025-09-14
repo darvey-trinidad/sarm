@@ -1,6 +1,7 @@
 import { db, eq } from "@/server/db";
 import { classroom, building } from "@/server/db/schema/classroom";
 import { venue } from "@/server/db/schema/venue";
+import { float } from "drizzle-orm/mysql-core";
 
 export const getBuilding = async (id: string) => {
   try {
@@ -68,6 +69,8 @@ export const getAllClassrooms = async () => {
         buildingId: classroom.buildingId,
         buildingName: building.name,
         classroomName: classroom.name,
+        type: classroom.type,
+        floor: classroom.floor,
         capacity: classroom.capacity,
         usability: classroom.usability,
       })

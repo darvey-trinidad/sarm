@@ -1,16 +1,15 @@
 import { z } from "zod";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
 import { USABILITY } from "@/constants/usability";
+import { FLOORS } from "@/constants/floors";
 
 export const createBuildingSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
 });
 
-export const editBuildingSchema = createBuildingSchema
-  .partial()
-  .extend({
-    id: z.string(),
+export const editBuildingSchema = createBuildingSchema.partial().extend({
+  id: z.string(),
 });
 
 export const createClassroomSchema = z.object({
@@ -19,6 +18,7 @@ export const createClassroomSchema = z.object({
   type: z.enum(CLASSROOM_TYPE),
   capacity: z.number(),
   usability: z.enum(USABILITY).optional(),
+  floor: z.enum(FLOORS),
 });
 
 export const editClassroomSchema = createClassroomSchema
@@ -26,7 +26,7 @@ export const editClassroomSchema = createClassroomSchema
   .partial()
   .extend({
     id: z.string(),
-});
+  });
 
 export const changeClassroomUsabilitySchema = z.object({
   id: z.string(),
@@ -38,4 +38,6 @@ export type EditBuildingInput = z.infer<typeof editBuildingSchema>;
 
 export type CreateClassroomInput = z.infer<typeof createClassroomSchema>;
 export type EditClassroomInput = z.infer<typeof editClassroomSchema>;
-export type ChangeClassroomUsability = z.infer<typeof changeClassroomUsabilitySchema>;
+export type ChangeClassroomUsability = z.infer<
+  typeof changeClassroomUsabilitySchema
+>;
