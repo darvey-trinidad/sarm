@@ -1,6 +1,6 @@
 "use client";
 import { api } from "@/trpc/react";
-import { use, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { BuildingSchema } from "./schema";
@@ -70,7 +70,9 @@ export default function BuildingFormButton() {
           <DialogHeader>
             <DialogTitle>Add Building</DialogTitle>
           </DialogHeader>
-          <DialogDescription>Add a new building</DialogDescription>
+          <DialogDescription>
+            Add a new building to the campus.
+          </DialogDescription>
 
           <Form {...form}>
             <form
@@ -79,8 +81,8 @@ export default function BuildingFormButton() {
                 showConfirmation({
                   title: "Create Building",
                   description: "Are you sure you want to create this building?",
-                  confirmText: "Submit",
-                  variant: "warning",
+                  confirmText: "Create",
+                  variant: "default",
                   onConfirm: () => handleSubmit(data),
                 }),
               )}
@@ -116,7 +118,7 @@ export default function BuildingFormButton() {
                   {isSubmitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {isSubmitting ? "Submitting..." : "Submit Request"}
+                  {isSubmitting ? "Creating..." : "Create Building"}
                 </Button>
               </DialogFooter>
             </form>

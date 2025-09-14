@@ -36,7 +36,7 @@ const getTypeBadge = (type: string | null) => {
           variant="outline"
           className="border-yellow-200 bg-yellow-50 text-yellow-700"
         >
-          Classroom
+          Lecture
         </Badge>
       );
     case "laboratory":
@@ -64,7 +64,7 @@ interface Classroom {
 export const columns: ColumnDef<Classroom>[] = [
   {
     accessorKey: "name",
-    header: createSortableHeader("Name"),
+    header: createSortableHeader("Classroom"),
   },
   {
     accessorKey: "building",

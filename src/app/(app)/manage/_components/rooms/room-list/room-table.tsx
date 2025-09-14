@@ -13,7 +13,7 @@ export default function RoomTable() {
           columns={columns}
           data={data}
           searchKey="name"
-          searchPlaceholder="Search by name..."
+          searchPlaceholder="Search by classroom..."
         />
       ) : (
         <DataTableSkeleton />

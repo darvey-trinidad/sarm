@@ -11,7 +11,7 @@ interface Building {
 export const columns: ColumnDef<Building>[] = [
   {
     accessorKey: "name",
-    header: createSortableHeader("Name"),
+    header: createSortableHeader("Building"),
   },
   {
     accessorKey: "description",

@@ -14,7 +14,7 @@ export default function BuildingTable() {
           columns={columns}
           data={data}
           searchKey="name"
-          searchPlaceholder="Search by name..."
+          searchPlaceholder="Search by building..."
         />
       ) : (
         <DataTableSkeleton />
