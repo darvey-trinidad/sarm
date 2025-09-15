@@ -23,6 +23,11 @@ export const resourceBorrowing = sqliteTable("resource_borrowing", {
   status: text('status', { enum: BORROWING_STATUS }).$defaultFn(() => DEFAULT_BORROWING_STATUS).notNull(),
   representativeBorrower: text('representative_borrower').notNull(),
 
+  startTime: integer('start_time').notNull(),
+  endTime: integer('end_time').notNull(),
+
+  fileUrl: text("file_url"),
+
   dateRequested: integer('date_requested', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   dateBorrowed: integer('date_borrowed', { mode: 'timestamp' }),
   dateReturned: integer('date_returned', { mode: 'timestamp' }),
