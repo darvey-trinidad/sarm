@@ -26,6 +26,8 @@ export const venueReservation = sqliteTable("venue_reservation", {
   purpose: text('purpose').notNull(),
   status: text('status', { enum: RESERVATION_STATUS }).$defaultFn(() => DEFAULT_RESERVATION_STATUS).notNull(),
 
+  fileUrl: text("file_url"),
+
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 });
