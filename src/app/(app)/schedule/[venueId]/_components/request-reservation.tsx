@@ -82,6 +82,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
         endTime: data.endTime,
         purpose: data.purpose,
         status: data.status,
+        fileUrl: "",
       },
       {
         onSuccess: () => {
