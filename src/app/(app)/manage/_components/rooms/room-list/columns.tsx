@@ -1,5 +1,5 @@
 "use client";
-import type { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { createSortableHeader } from "@/components/table/data-table";
 import { Badge } from "@/components/ui/badge";
 

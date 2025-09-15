@@ -109,14 +109,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "isActive",
     header: "Status",
-    cell: ({ row }) => {
-      const isActive: boolean = row.getValue("isActive");
-      if (isActive) {
-        return getStatusBadge(true);
-      } else {
-        return getStatusBadge(false);
-      }
-    },
+    cell: ({ row }) => getStatusBadge(row.original.isActive),
   },
 
   //   createActionColumn<User>([

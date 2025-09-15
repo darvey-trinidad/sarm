@@ -3,9 +3,9 @@ import { api } from "@/trpc/react";
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { ResourceSchema } from "./schema";
+import { VenueSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RESOURCE_OPTIONS } from "@/constants/resource-category";
+import { USABILITY_OPTIONS } from "@/constants/usability";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,35 +36,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-export default function ResourceFormButton() {
-  const [open, setOpen] = useState(false);
+export default function venueFormButton() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [Open, setOpen] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
-  const form = useForm<z.infer<typeof ResourceSchema>>({
-    resolver: zodResolver(ResourceSchema),
+  const form = useForm<z.infer<typeof VenueSchema>>({
+    resolver: zodResolver(VenueSchema),
     defaultValues: {
       name: "",
       description: "",
-      category: undefined,
-      stock: 0,
+      capacity: 0,
+      usability: "operational",
     },
   });
 
-  const { mutate: createResource } = api.resource.createResource.useMutation();
+  const { mutate: createVenue } = api.venue.createVenue.useMutation();
 
-  const handleSubmit = (data: z.infer<typeof ResourceSchema>) => {
+  const handleSubmit = (data: z.infer<typeof VenueSchema>) => {
     setIsSubmitting(true);
-    createResource(data, {
+    createVenue(data, {
       onSuccess: () => {
-        toast.success("Resource created successfully");
+        toast.success("Venue created successfully");
         form.reset();
         setOpen(false);
         setIsSubmitting(false);
       },
       onError: () => {
-        toast.error("Failed to create resource");
+        toast.error("Failed to create venue");
         setIsSubmitting(false);
       },
     });
@@ -72,39 +71,40 @@ export default function ResourceFormButton() {
 
   return (
     <div>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={Open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="default">Add Resource</Button>
+          <Button>Add Venue</Button>
         </DialogTrigger>
+
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add a new resource</DialogTitle>
+            <DialogTitle>Add Venue</DialogTitle>
           </DialogHeader>
-          <DialogDescription>
-            Add a new resource to the inventory.
-          </DialogDescription>
+          <DialogDescription>Add a venue to the campus.</DialogDescription>
 
           <Form {...form}>
             <form
               className="space-y-6"
-              onSubmit={form.handleSubmit((data) =>
+              onSubmit={form.handleSubmit((data) => {
                 showConfirmation({
-                  title: "Create Resource",
-                  description: "Are you sure you want to create this resource?",
-                  confirmText: "Create",
+                  title: "Add Venue",
+                  description: "Are you sure you want to add this venue?",
+                  confirmText: "Add Venue",
                   variant: "default",
-                  onConfirm: () => handleSubmit(data),
-                }),
-              )}
+                  onConfirm: () => {
+                    handleSubmit(data);
+                  },
+                });
+              })}
             >
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Resource Name</FormLabel>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Sound System" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,10 +118,7 @@ export default function ResourceFormButton() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. This is a sound system"
-                        {...field}
-                      />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -130,13 +127,14 @@ export default function ResourceFormButton() {
 
               <FormField
                 control={form.control}
-                name="stock"
+                name="capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stock</FormLabel>
+                    <FormLabel>Capacity</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
+                        {...field}
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value)}
                       />
@@ -148,21 +146,21 @@ export default function ResourceFormButton() {
 
               <FormField
                 control={form.control}
-                name="category"
+                name="usability"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Usability</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a category" />
+                          <SelectValue placeholder="Select a usability" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {RESOURCE_OPTIONS.map((option) => (
+                        {USABILITY_OPTIONS.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -179,7 +177,7 @@ export default function ResourceFormButton() {
                   {isSubmitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  {isSubmitting ? "Creating..." : "Create"}
+                  {isSubmitting ? "Creating..." : "Create Venue"}
                 </Button>
               </DialogFooter>
             </form>
