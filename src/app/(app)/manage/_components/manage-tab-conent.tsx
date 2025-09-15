@@ -1,17 +1,12 @@
 "use client";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import BuildingManagement from "./buildings/page";
+import BuildingTable from "./buildings/building-list/building-table";
 import BuildingFormButton from "./buildings/submit/building-form-button";
-import RoomManagement from "./rooms/page";
+import RoomTable from "./rooms/room-list/room-table";
 import RoomFormButton from "./rooms/submit/room-form-button";
+import ResourceTable from "./resources/resource-list/resource-table";
+import ResourceFormButton from "./resources/submit/resource-form-button";
 export default function ManageTabContent() {
   const [tab, setTab] = useState("resources");
   return (
@@ -26,15 +21,18 @@ export default function ManageTabContent() {
       <div className="mt-1 w-full">
         <TabsContent value="resources">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Resources</h2>
                 <p className="text-muted-foreground">
                   Manage campus buildings and facilities
                 </p>
               </div>
+              <div>
+                <ResourceFormButton />
+              </div>
             </div>
-            <h1>resources</h1>
+            <ResourceTable />
           </div>
         </TabsContent>
 
@@ -65,7 +63,7 @@ export default function ManageTabContent() {
                 <BuildingFormButton />
               </div>
             </div>
-            <BuildingManagement />
+            <BuildingTable />
           </div>
         </TabsContent>
 
@@ -77,14 +75,14 @@ export default function ManageTabContent() {
                   Classrooms
                 </h2>
                 <p className="text-muted-foreground">
-                  Manage campus buildings and facilities
+                  Manage campus classrooms and learning facilities
                 </p>
               </div>
               <div>
                 <RoomFormButton />
               </div>
             </div>
-            <RoomManagement />
+            <RoomTable />
           </div>
         </TabsContent>
       </div>
