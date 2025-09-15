@@ -23,7 +23,7 @@ export default function VenueCard() {
     );
   }
   return (
-    <div className="flex flex-col gap-5 sm:flex-row">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
       <Link href={PageRoutes.SCHEDULE_CLASSROOM}>
         <ClassroomCard />
       </Link>
