@@ -41,7 +41,7 @@ export default function ClassroomCalendarView({
   const weekEnd = addDays(weekStart, 5);
   const { data: session } = authClient.useSession();
 
-  const { markAsVacant, claimSlot, cancelBorrowing } = useScheduleActions({
+  const { markAsVacant, claimSlot, cancelBorrowing, requestToBorrow } = useScheduleActions({
     onRefresh: () => refetch(),
   });
 
@@ -330,6 +330,7 @@ export default function ClassroomCalendarView({
         onMarkVacant={markAsVacant}
         onClaimSlot={claimSlot}
         onCancelBorrowing={cancelBorrowing}
+        onRequestToBorrow={requestToBorrow}
       />
     </div>
   );
