@@ -8,13 +8,15 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z
-          .enum(["development", "test", "production"])
-          .default("development"),
+      .enum(["development", "test", "production"])
+      .default("development"),
 
     TURSO_DATABASE_URL: z.string().url(),
     TURSO_AUTH_TOKEN: z.string(),
-    
+
     BETTER_AUTH_SECRET: z.string(),
+
+    RESEND_API_KEY: z.string(),
   },
 
   /**
@@ -37,6 +39,7 @@ export const env = createEnv({
     TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL,
     TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
 
     // Client
     NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,

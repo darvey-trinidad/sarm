@@ -15,6 +15,11 @@ import {
 import { getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 import z from "zod";
+import { env } from "@/env";
+import { Resend } from "resend";
+import { RequestRoomEmail } from "@/emails/room-request";
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -43,5 +48,22 @@ export const classroomScheduleRouter = createTRPCRouter({
     .mutation(({ input }) => {
       console.log(input);
       return deleteClassroomBorrowing(input);
-    })
+    }),
+  sendRoomRequest: protectedProcedure
+    .input(z.object({ email: z.string() }))
+    .mutation(async ({ input }) => {
+      const { data, error } = await resend.emails.send({
+        from: "SARM Notification <onboarding@resend.dev>",
+        to: input.email,
+        subject: "Room Request",
+        react: RequestRoomEmail(),
+      })
+
+      if (error) {
+        console.error(error);
+        return { error, status: 500 };
+      }
+
+      return { data, status: 200 };
+    }),
 });
