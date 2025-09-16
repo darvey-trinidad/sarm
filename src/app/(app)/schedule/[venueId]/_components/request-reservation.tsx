@@ -406,6 +406,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       console.log("File uploaded:", res);
                       setPdfUrl(res[0]?.ufsUrl || "");
                       setPdfName(res[0]?.name || "");
+                      toast.success("File uploaded successfully!");
                     }}
                     onUploadError={(error: Error) =>
                       console.log("Error uploading:", error.message)
