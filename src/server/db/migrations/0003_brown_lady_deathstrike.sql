@@ -1,0 +1,1 @@
+ALTER TABLE `resource_borrowing` ADD `quantity` integer NOT NULL;
