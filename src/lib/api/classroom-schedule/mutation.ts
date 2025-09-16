@@ -1,6 +1,6 @@
 import { db, eq, and, or } from "@/server/db";
-import { classroomSchedule, classroomVacancy, classroomBorrowing } from "@/server/db/schema/classroom-schedule";
-import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
+import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
+import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId, RoomRequest } from "@/server/db/types/classroom-schedule";
 import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot } from "@/lib/helper/classroom-schedule";
 import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts } from "@/lib/api/classroom-schedule/query";
 import type { TimeInt } from "@/constants/timeslot";
@@ -103,5 +103,14 @@ export const deleteClassroomBorrowing = async (records: CancelClassroomBorrowing
   } catch (err) {
     console.error("Failed to delete classroom borrowing:", err);
     throw new Error("Could not delete classroom borrowing");
+  }
+}
+
+export const createRoomRequest = async (data: RoomRequest) => {
+  try {
+    return await db.insert(roomRequests).values(data).returning({ id: roomRequests.id }).get();
+  } catch (err) {
+    console.error("Failed to create room request:", err);
+    throw new Error("Could not create room request");
   }
 }

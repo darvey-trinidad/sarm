@@ -1,5 +1,6 @@
 import { db, and, eq, inArray, gte, lte } from "@/server/db";
-import { classroomSchedule, classroomVacancy, classroomBorrowing } from "@/server/db/schema/classroom-schedule";
+import { classroom } from "@/server/db/schema/classroom";
+import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
@@ -7,6 +8,7 @@ import { TIME_INTERVAL } from "@/constants/timeslot";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { user } from "@/server/db/schema/auth";
 import { toTimeInt } from "@/lib/utils";
+import { alias } from "drizzle-orm/sqlite-core";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
@@ -63,78 +65,40 @@ export const getClassroomBorrowing = async (classroomId: string, date: Date) => 
   }
 }
 
-// export const getClassroomSchedule = async (classroomId: string, date: Date): Promise<FinalClassroomSchedule[]> => {
-//   try {
-//     const day = date.getDay();
+export const getRoomRequestById = async (id: string) => {
+  try {
+    const requestor = alias(user, "requestor");
+    const responder = alias(user, "responder");
 
-//     const [initialSchedule, vacancies, borrowings] = await Promise.all([
-//       getInitialClassroomSchedule(classroomId, date),
-//       getClassroomVacancy(classroomId, date),
-//       getClassroomBorrowing(classroomId, date),
-//     ]);
-
-//     return TIME_ENTRIES.map(([time]) => {
-//       const initial = initialSchedule.find((schedule) => schedule.startTime === time && schedule.day === day);
-//       const vacancy = vacancies.find((vacancy) => vacancy.startTime === time);
-//       const borrowing = borrowings.find((borrowing) => borrowing.startTime === time);
-
-//       if (borrowing) {
-//         return {
-//           id: borrowing.id,
-//           classroomId: borrowing.classroomId,
-//           facultyId: borrowing.facultyId,
-//           subject: borrowing.subject,
-//           section: borrowing.section,
-//           date: borrowing.date,
-//           startTime: borrowing.startTime,
-//           endTime: borrowing.endTime,
-//           source: SCHEDULE_SOURCE.Borrowing,
-//         }
-//       }
-//       if (vacancy) {
-//         return {
-//           id: vacancy.id,
-//           classroomId: vacancy.classroomId,
-//           facultyId: null,
-//           subject: null,
-//           section: null,
-//           date: vacancy.date,
-//           startTime: vacancy.startTime,
-//           endTime: vacancy.endTime,
-//           source: SCHEDULE_SOURCE.Vacancy
-//         }
-//       }
-//       if (initial) {
-//         return {
-//           id: initial.id,
-//           classroomId: initial.classroomId,
-//           facultyId: initial.facultyId,
-//           subject: initial.subject,
-//           section: initial.section,
-//           date: date,
-//           startTime: initial.startTime,
-//           endTime: initial.endTime,
-//           source: SCHEDULE_SOURCE.InitialSchedule
-//         }
-//       }
-//       return {
-//         id: null,
-//         classroomId: null,
-//         facultyId: null,
-//         subject: null,
-//         section: null,
-//         date: date,
-//         startTime: time,
-//         endTime: time + TIME_INTERVAL,
-//         source: SCHEDULE_SOURCE.Unoccupied
-//       };
-//     })
-//   } catch (error) {
-//     console.log("Failed to get classroom schedule:", error);
-//     throw new Error("Could not get classroom schedule");
-//   }
-// };
-
+    return await db.select(
+      {
+        id: roomRequests.id,
+        classroomId: roomRequests.classroomId,
+        classroomName: classroom.name,
+        date: roomRequests.date,
+        startTime: roomRequests.startTime,
+        endTime: roomRequests.endTime,
+        subject: roomRequests.subject,
+        section: roomRequests.section,
+        requestorId: requestor.id,
+        requestorName: requestor.name,
+        requestorEmail: requestor.email,
+        responderId: responder.id,
+        responderName: responder.name,
+        responderEmail: responder.email,
+      }
+    )
+      .from(roomRequests)
+      .where(eq(roomRequests.id, id))
+      .leftJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .leftJoin(responder, eq(roomRequests.responderId, responder.id))
+      .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
+      .get();
+  } catch (error) {
+    console.log("Failed to get room request:", error);
+    throw new Error("Could not get room request");
+  }
+}
 
 /**
  * Get classroom schedule for a week
