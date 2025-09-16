@@ -11,6 +11,7 @@ import {
   createClassroomBorrowingSchema,
   getWeeklyClassroomScheduleSchema,
   cancelClassroomBorrowingSchema,
+  createRoomRequestSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
 import { getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
@@ -48,6 +49,11 @@ export const classroomScheduleRouter = createTRPCRouter({
     .mutation(({ input }) => {
       console.log(input);
       return deleteClassroomBorrowing(input);
+    }),
+  createRoomRequest: protectedProcedure
+    .input(createRoomRequestSchema)
+    .mutation(async ({ input }) => {
+      console.log("Received Request to Borrow Classroom: ", input);
     }),
   sendRoomRequest: protectedProcedure
     .input(z.object({ email: z.string() }))

@@ -62,6 +62,10 @@ interface ScheduleActionDialogProps {
     schedule: FinalClassroomSchedule,
     data: BorrowingData,
   ) => Promise<void>;
+  onRequestToBorrow: (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
@@ -71,6 +75,7 @@ export default function ScheduleActionDialog({
   onMarkVacant,
   onClaimSlot,
   onCancelBorrowing,
+  onRequestToBorrow,
 }: ScheduleActionDialogProps) {
   const [loading, setLoading] = useState(false);
   const [vacancyReason, setVacancyReason] = useState("");
@@ -228,6 +233,29 @@ export default function ScheduleActionDialog({
       onOpenChange(false);
     } catch (error) {
       console.error("Error canceling borrowing:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestToBorrow = async () => {
+    if (!borrowingData.subject || !borrowingData.section) return;
+
+    setLoading(true);
+    try {
+      await onRequestToBorrow(selectedItem, borrowingData);
+      onOpenChange(false);
+      setBorrowingData({
+        classroomId: selectedItem?.classroomId || "",
+        facultyId: currentUser?.id || "",
+        date: selectedItem?.date || new Date(),
+        startTime: toTimeInt(selectedItem?.startTime),
+        endTime: toTimeInt(selectedItem?.endTime),
+        subject: "",
+        section: "",
+      });
+    } catch (error) {
+      console.error("Error requesting to borrow:", error);
     } finally {
       setLoading(false);
     }
@@ -650,20 +678,7 @@ export default function ScheduleActionDialog({
               </div>
 
               <Button
-                onClick={async () => {
-                  if (!borrowingData.subject || !borrowingData.section) return;
-
-                  setLoading(true);
-                  try {
-                    // Call your borrow request handler (e.g., send email to owner)
-                    await onClaimSlot(selectedItem, borrowingData);
-                    onOpenChange(false);
-                  } catch (error) {
-                    console.error("Error requesting to borrow:", error);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onClick={handleRequestToBorrow}
                 disabled={
                   loading ||
                   !borrowingData.subject ||

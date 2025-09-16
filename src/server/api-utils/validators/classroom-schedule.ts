@@ -70,6 +70,33 @@ export const cancelClassroomBorrowingSchema = z.object({
   endTime: timeIntSchema
 });
 
+export const createRoomRequestSchema = z.object({
+  classroomId: z.string(),
+  date: requiredDateSchema(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema,
+  subject: z.string(),
+  section: z.string(),
+
+  requesterId: z.string(),
+  responderId: z.string(),
+});
+
+// classroomId: text("classroom_id").references(() => classroom.id).notNull(),
+
+// date: integer("date", { mode: "timestamp" }).notNull(),
+// startTime: integer("start_time").notNull(),
+// endTime: integer("end_time").notNull(),
+// subject: text("subject").notNull(),
+// section: text("section").notNull(),
+
+// requesterId: text("requester_id").references(() => user.id).notNull(), // the prof with no room
+// responderId: integer("responder_id").references(() => user.id).notNull(), // who needs to respond (the current room owner)
+
+// status: text("status", { enum: ROOM_REQUEST_STATUS }).$defaultFn(() => DEFAULT_ROOM_REQUEST_STATUS).notNull(),
+// createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
+// respondedAt: integer("responded_at", { mode: "timestamp" }),
+
 export type CreateClassroomScheduleInput = z.infer<typeof createClassroomScheduleSchema>;
 export type CreateClassroomVacancyInput = z.infer<typeof createClassroomVacancySchema>;
 export type CreateClassroomBorrowingInput = z.infer<typeof createClassroomBorrowingSchema>;
