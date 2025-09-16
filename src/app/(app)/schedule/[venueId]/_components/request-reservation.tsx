@@ -52,6 +52,7 @@ import { newDate } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { UploadButton } from "@/utils/uploadthing";
 
 type VenuePageProps = {
   venueId: string;
@@ -61,6 +62,8 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = authClient.useSession();
   const [borrowItems, setBorrowItems] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfName, setPdfName] = useState<string>("");
   const form = useForm<z.infer<typeof VenueSchema>>({
     resolver: zodResolver(VenueSchema),
     defaultValues: {
@@ -382,19 +385,33 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                   </div>
                 )}
 
-                <FormField
-                  control={form.control}
-                  name="fileUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>File</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Input file" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-col gap-2">
+                  <Label>Attachments</Label>
+                  {pdfUrl.length ? (
+                    <a
+                      className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="">{pdfName || "pdf"}</div>
+                    </a>
+                  ) : null}
+
+                  <UploadButton
+                    className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                    endpoint="pdfUploader"
+                    onClientUploadComplete={(res) => {
+                      // Do something with the response
+                      console.log("File uploaded:", res);
+                      setPdfUrl(res[0]?.ufsUrl || "");
+                      setPdfName(res[0]?.name || "");
+                    }}
+                    onUploadError={(error: Error) =>
+                      console.log("Error uploading:", error.message)
+                    }
+                  />
+                </div>
               </div>
             </ScrollArea>
 
