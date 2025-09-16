@@ -102,7 +102,9 @@ export default function ResourceFormButton() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Resource Name</FormLabel>
+                    <FormLabel>
+                      Resource Name <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Sound System" {...field} />
                     </FormControl>
@@ -116,7 +118,9 @@ export default function ResourceFormButton() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>
+                      Description <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="e.g. This is a sound system"
@@ -133,7 +137,9 @@ export default function ResourceFormButton() {
                 name="stock"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stock</FormLabel>
+                    <FormLabel>
+                      Stock <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -151,7 +157,9 @@ export default function ResourceFormButton() {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>
+                      Category <p className="text-destructive">*</p>
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
