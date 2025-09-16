@@ -85,22 +85,5 @@ export const classroomScheduleRouter = createTRPCRouter({
       }
       console.log("Email Sent: ", data);
       return { data, status: 200 };
-    }),
-  sendRoomRequest: protectedProcedure
-    .input(z.object({ email: z.string() }))
-    .mutation(async ({ input }) => {
-      const { data, error } = await resend.emails.send({
-        from: "SARM Notification <onboarding@resend.dev>",
-        to: input.email,
-        subject: "Room Request",
-        react: RequestRoomEmail(),
-      })
-
-      if (error) {
-        console.error(error);
-        return { error, status: 500 };
-      }
-
-      return { data, status: 200 };
-    }),
+    })
 });
