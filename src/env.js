@@ -17,6 +17,8 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string(),
 
     RESEND_API_KEY: z.string(),
+
+    UPLOADTHING_TOKEN: z.string(),
   },
 
   /**
@@ -40,6 +42,8 @@ export const env = createEnv({
     TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+
+    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
 
     // Client
     NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
