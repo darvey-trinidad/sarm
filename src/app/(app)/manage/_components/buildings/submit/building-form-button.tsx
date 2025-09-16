@@ -92,7 +92,9 @@ export default function BuildingFormButton() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>
+                      Building Name <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -105,7 +107,9 @@ export default function BuildingFormButton() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>
+                      Description <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>

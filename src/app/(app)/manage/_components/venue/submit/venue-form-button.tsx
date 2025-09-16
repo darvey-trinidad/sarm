@@ -102,7 +102,9 @@ export default function venueFormButton() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>
+                      Venue Name <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -116,7 +118,9 @@ export default function venueFormButton() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>
+                      Description <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -130,7 +134,9 @@ export default function venueFormButton() {
                 name="capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Capacity</FormLabel>
+                    <FormLabel>
+                      Capacity <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"

@@ -111,7 +111,9 @@ export default function RoomFormButton() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Classroom Name</FormLabel>
+                      <FormLabel>
+                        Classroom Name <p className="text-destructive">*</p>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., 101" {...field} />
                       </FormControl>
@@ -124,7 +126,9 @@ export default function RoomFormButton() {
                   name="buildingId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Building</FormLabel>
+                      <FormLabel>
+                        Building <p className="text-destructive">*</p>
+                      </FormLabel>
                       <Select
                         onValueChange={(value) => {
                           field.onChange(value);
@@ -156,7 +160,9 @@ export default function RoomFormButton() {
                 name="capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Capacity</FormLabel>
+                    <FormLabel>
+                      Capacity <p className="text-destructive">*</p>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Capacity"
@@ -176,7 +182,9 @@ export default function RoomFormButton() {
                 name="floor"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Floor</FormLabel>
+                    <FormLabel>
+                      Floor <p className="text-destructive">*</p>
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -201,7 +209,9 @@ export default function RoomFormButton() {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Type</FormLabel>
+                    <FormLabel>
+                      Type <p className="text-destructive">*</p>
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full">
