@@ -16,13 +16,11 @@ import {
 } from "@/server/api-utils/validators/classroom-schedule";
 import { getRoomRequestById, getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
-import z from "zod";
 import { env } from "@/env";
-import { Resend } from "resend";
 import { RequestRoomEmail } from "@/emails/room-request";
 import { generateUUID } from "@/lib/utils";
-
-const resend = new Resend(env.RESEND_API_KEY);
+import nodemailer from "nodemailer";
+import { render } from "@react-email/render";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -55,35 +53,47 @@ export const classroomScheduleRouter = createTRPCRouter({
   createRoomRequest: protectedProcedure
     .input(createRoomRequestSchema)
     .mutation(async ({ input }) => {
-      console.log("Received Request to Borrow Classroom: ", input);
-      const { id: roomRequestId } = await createRoomRequest({ id: generateUUID(), ...input });
-      console.log("Room Request ID: ", roomRequestId);
+      try {
+        console.log("Received Request to Borrow Classroom: ", input);
+        const { id: roomRequestId } = await createRoomRequest({ id: generateUUID(), ...input });
+        console.log("Room Request ID: ", roomRequestId);
 
-      const roomRequestRecord = await getRoomRequestById(roomRequestId);
-      console.log("Room Request Record: ", roomRequestRecord);
+        const roomRequestRecord = await getRoomRequestById(roomRequestId);
+        console.log("Room Request Record: ", roomRequestRecord);
 
-      const { data, error } = await resend.emails.send({
-        from: "SARM Notification <onboarding@resend.dev>",
-        to: roomRequestRecord?.responderEmail || "",
-        subject: "Room Request",
-        react: RequestRoomEmail({
-          classroomName: roomRequestRecord?.classroomName || "",
-          date: roomRequestRecord?.date || new Date(),
-          startTime: roomRequestRecord?.startTime || 700,
-          endTime: roomRequestRecord?.endTime || 2000,
-          subject: roomRequestRecord?.subject || "",
-          section: roomRequestRecord?.section || "",
-          requestorName: roomRequestRecord?.requestorName || "",
-          lendUrl: `facebook.com`,
-          declineUrl: `facebook.com`,
-        }),
-      })
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: env.GOOGLE_EMAIL_USER,
+            pass: env.GOOGLE_APP_PASSWORD,
+          },
+        });
 
-      if (error) {
+        const emailHtml = await render(
+          RequestRoomEmail({
+            classroomName: roomRequestRecord?.classroomName || "",
+            date: roomRequestRecord?.date || new Date(),
+            startTime: roomRequestRecord?.startTime || 700,
+            endTime: roomRequestRecord?.endTime || 2000,
+            subject: roomRequestRecord?.subject || "",
+            section: roomRequestRecord?.section || "",
+            requestorName: roomRequestRecord?.requestorName || "",
+            respondUrl: `youtube.com`,
+          })
+        );
+
+        const info = await transporter.sendMail({
+          from: `"SARM Notification" <${env.GOOGLE_EMAIL_USER}>`,
+          to: roomRequestRecord?.responderEmail || "",
+          subject: "Room Request",
+          html: emailHtml,
+        });
+
+        console.log("Email Sent: ", info);
+        return { info, status: 200 };
+      } catch (error) {
         console.error(error);
         return { error, status: 500 };
       }
-      console.log("Email Sent: ", data);
-      return { data, status: 200 };
     })
 });
