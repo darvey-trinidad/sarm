@@ -18,7 +18,6 @@ export const env = createEnv({
 
     GOOGLE_EMAIL_USER: z.string(),
     GOOGLE_APP_PASSWORD: z.string(),
-    RESEND_API_KEY: z.string(),
 
     UPLOADTHING_TOKEN: z.string(),
   },
@@ -43,7 +42,6 @@ export const env = createEnv({
     TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL,
     TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
 
     GOOGLE_EMAIL_USER: process.env.GOOGLE_EMAIL_USER,
     GOOGLE_APP_PASSWORD: process.env.GOOGLE_APP_PASSWORD,
