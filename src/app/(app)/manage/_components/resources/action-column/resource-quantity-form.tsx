@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogDescription,
   DialogTitle,
   DialogTrigger,
   DialogFooter,
@@ -78,12 +79,15 @@ export default function ResourceQuantityForm({
     <div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost">Add Quantity</Button>
+          <Button variant="ghost">Edit Quantity</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add Quantity</DialogTitle>
+            <DialogTitle>Edit Quantity</DialogTitle>
           </DialogHeader>
+          <DialogDescription>
+            Update the quantity of <strong>{resourceName}</strong>
+          </DialogDescription>
           <Form {...form}>
             <form
               className="space-y-6"
@@ -124,7 +128,7 @@ export default function ResourceQuantityForm({
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        value={field.value}
+                        value={field.value ?? "add"}
                         className="flex gap-6"
                       >
                         <div className="flex items-center gap-2">
