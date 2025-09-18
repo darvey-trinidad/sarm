@@ -8,13 +8,18 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z
-          .enum(["development", "test", "production"])
-          .default("development"),
+      .enum(["development", "test", "production"])
+      .default("development"),
 
     TURSO_DATABASE_URL: z.string().url(),
     TURSO_AUTH_TOKEN: z.string(),
-    
+
     BETTER_AUTH_SECRET: z.string(),
+
+    GOOGLE_EMAIL_USER: z.string(),
+    GOOGLE_APP_PASSWORD: z.string(),
+
+    UPLOADTHING_TOKEN: z.string(),
   },
 
   /**
@@ -25,6 +30,7 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_BETTER_AUTH_URL: z.string(),
+    NEXT_PUBLIC_APP_URL: z.string(),
   },
 
   /**
@@ -38,8 +44,14 @@ export const env = createEnv({
     TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
 
+    GOOGLE_EMAIL_USER: process.env.GOOGLE_EMAIL_USER,
+    GOOGLE_APP_PASSWORD: process.env.GOOGLE_APP_PASSWORD,
+
+    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
+
     // Client
     NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

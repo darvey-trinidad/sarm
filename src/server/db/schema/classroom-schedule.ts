@@ -48,7 +48,7 @@ export const roomRequests = sqliteTable("room_requests", {
   section: text("section").notNull(),
 
   requesterId: text("requester_id").references(() => user.id).notNull(), // the prof with no room
-  responderId: integer("responder_id").references(() => user.id).notNull(), // who needs to respond (the current room owner)
+  responderId: text("responder_id").references(() => user.id).notNull(), // who needs to respond (the current room owner)
 
   status: text("status", { enum: ROOM_REQUEST_STATUS }).$defaultFn(() => DEFAULT_ROOM_REQUEST_STATUS).notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),

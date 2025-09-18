@@ -47,6 +47,36 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     isSuccess: isSuccessCancelBorrowing
   } = api.classroomSchedule.cancelClassroomBorrowing.useMutation();
 
+  const { mutate: createRoomRequest } = api.classroomSchedule.createRoomRequest.useMutation();
+
+  const requestToBorrow = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
+    setLoading(true)
+    try {
+      createRoomRequest({
+        classroomId: schedule.classroomId,
+        date: schedule.date,
+        startTime: (data.startTime).toString(),
+        endTime: (data.endTime).toString(),
+
+        requesterId: data.facultyId,
+        responderId: schedule.facultyId || "",
+
+        subject: data.subject || "",
+        section: data.section || ""
+      }, {
+        onSuccess: () => {
+          toast("Room request sent");
+          onRefresh?.()
+        },
+        onError: () => { toast("Failed to send room request") }
+      })
+    } catch (error) {
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const markAsVacant = async (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => {
     setLoading(true)
     try {
@@ -64,7 +94,6 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
         onError: () => { toast("Failed to mark classroom as vacant") }
       })
     } catch (error) {
-
       throw error
     } finally {
       setLoading(false)
@@ -141,6 +170,7 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     markAsVacant,
     claimSlot,
     cancelBorrowing,
+    requestToBorrow,
     loading,
   }
 }

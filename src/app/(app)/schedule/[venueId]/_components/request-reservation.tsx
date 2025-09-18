@@ -30,11 +30,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { useFieldArray } from "react-hook-form";
+import { CalendarIcon, Loader2, Plus } from "lucide-react";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -49,6 +49,10 @@ import { TIME_OPTIONS } from "@/constants/timeslot";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
 import { authClient } from "@/lib/auth-client";
 import { newDate } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { UploadButton } from "@/utils/uploadthing";
 
 type VenuePageProps = {
   venueId: string;
@@ -57,6 +61,9 @@ type VenuePageProps = {
 export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = authClient.useSession();
+  const [borrowItems, setBorrowItems] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfName, setPdfName] = useState<string>("");
   const form = useForm<z.infer<typeof VenueSchema>>({
     resolver: zodResolver(VenueSchema),
     defaultValues: {
@@ -65,7 +72,20 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
       endTime: 0,
       purpose: "",
       status: "pending",
+      fileUrl: "",
+      borrowItems: [],
     },
+  });
+
+  const DUMMY_DATA = [
+    { id: "1", name: "Sound System" },
+    { id: "2", name: "Projector" },
+    { id: "3", name: "Whiteboard" },
+  ];
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "borrowItems", // must exist in your schema
   });
 
   const { mutate: createVenueReservation } =
@@ -83,6 +103,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
         endTime: data.endTime,
         purpose: data.purpose,
         status: data.status,
+        fileUrl: "",
       },
       {
         onSuccess: () => {
@@ -123,169 +144,286 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            {/* Date */}
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
+            <ScrollArea className="h-75">
+              <div className="space-y-4">
+                {/* Date */}
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>
+                        Date<p className="text-destructive">*</p>
+                      </FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+
+                        <PopoverContent
+                          className="pointer-events-auto z-50 w-auto p-0"
+                          align="start"
+                          forceMount
                         >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            captionLayout="dropdown"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <PopoverContent
-                      className="pointer-events-auto z-50 w-auto p-0"
-                      align="start"
-                      forceMount
-                    >
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        captionLayout="dropdown"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {/* Start Time */}
+                  <FormField
+                    control={form.control}
+                    name="startTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Start Time<p className="text-destructive">*</p>
+                        </FormLabel>
+                        <Select
+                          onValueChange={(val) => field.onChange(Number(val))}
+                          value={String(field.value)}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select start time" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              {TIME_OPTIONS.map((opt) => (
+                                <SelectItem
+                                  key={opt.value}
+                                  value={opt.value.toString()}
+                                >
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Start Time */}
-              <FormField
-                control={form.control}
-                name="startTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Start Time</FormLabel>
-                    <Select
-                      onValueChange={(val) => field.onChange(Number(val))}
-                      value={String(field.value)}
-                    >
+                  {/* End Time */}
+                  <FormField
+                    control={form.control}
+                    name="endTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          End Time <p className="text-destructive">*</p>
+                        </FormLabel>
+                        <Select
+                          onValueChange={(val) => field.onChange(Number(val))}
+                          value={String(field.value)}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select end time" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              {TIME_OPTIONS.map((opt) => (
+                                <SelectItem
+                                  key={opt.value}
+                                  value={opt.value.toString()}
+                                >
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Purpose */}
+                <FormField
+                  control={form.control}
+                  name="purpose"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Purpose</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select start time" />
-                        </SelectTrigger>
+                        <Input placeholder="Enter purpose" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectGroup>
-                          {TIME_OPTIONS.map((opt) => (
-                            <SelectItem
-                              key={opt.value}
-                              value={opt.value.toString()}
-                            >
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* End Time */}
-              <FormField
-                control={form.control}
-                name="endTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>End Time</FormLabel>
-                    <Select
-                      onValueChange={(val) => field.onChange(Number(val))}
-                      value={String(field.value)}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select end time" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectGroup>
-                          {TIME_OPTIONS.map((opt) => (
-                            <SelectItem
-                              key={opt.value}
-                              value={opt.value.toString()}
-                            >
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                {/* Status */}
+                {session?.user?.role === "facility_manager" && (
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          disabled={session?.user?.role !== "facility_manager"}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectGroup>
+                              {RESERVATION_STATUS.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
+
+                {borrowItems && (
+                  <div>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Borrow Items</h3>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => append({ id: "", quantity: 1 })}
+                      >
+                        <Plus className="mr-1 h-4 w-4" />
+                        Add Item
+                      </Button>
+
+                      {fields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="grid grid-cols-1 items-end gap-4 md:grid-cols-2"
+                        >
+                          {/* Item Name */}
+                          <FormField
+                            control={form.control}
+                            name={`borrowItems.${index}.id`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Item Name</FormLabel>
+                                <Select
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select item" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {DUMMY_DATA.map((item) => (
+                                      <SelectItem key={item.id} value={item.id}>
+                                        {item.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Quantity */}
+                          <FormField
+                            control={form.control}
+                            name={`borrowItems.${index}.quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Quantity</FormLabel>
+                                <FormControl>
+                                  <Input type="number" min="1" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2">
+                  <Label>Attachments</Label>
+                  {pdfUrl.length ? (
+                    <a
+                      className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="">{pdfName || "pdf"}</div>
+                    </a>
+                  ) : null}
+
+                  <UploadButton
+                    className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                    endpoint="pdfUploader"
+                    onClientUploadComplete={(res) => {
+                      // Do something with the response
+                      console.log("File uploaded:", res);
+                      setPdfUrl(res[0]?.ufsUrl || "");
+                      setPdfName(res[0]?.name || "");
+                      toast.success("File uploaded successfully!");
+                    }}
+                    onUploadError={(error: Error) =>
+                      console.log("Error uploading:", error.message)
+                    }
+                  />
+                </div>
+              </div>
+            </ScrollArea>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="borrowItems"
+                checked={borrowItems}
+                onCheckedChange={(checked) => setBorrowItems(!!checked)}
               />
+              <Label>Borrow Items</Label>
             </div>
-
-            {/* Purpose */}
-            <FormField
-              control={form.control}
-              name="purpose"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Purpose</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter purpose" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Status */}
-            {session?.user?.role === "facility_manager" && (
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={session?.user?.role !== "facility_manager"}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectGroup>
-                          {RESERVATION_STATUS.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             {/* Validation Messages */}
             {startTime >= endTime && (

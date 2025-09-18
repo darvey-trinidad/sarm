@@ -62,6 +62,10 @@ interface ScheduleActionDialogProps {
     schedule: FinalClassroomSchedule,
     data: BorrowingData,
   ) => Promise<void>;
+  onRequestToBorrow: (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
@@ -71,6 +75,7 @@ export default function ScheduleActionDialog({
   onMarkVacant,
   onClaimSlot,
   onCancelBorrowing,
+  onRequestToBorrow,
 }: ScheduleActionDialogProps) {
   const [loading, setLoading] = useState(false);
   const [vacancyReason, setVacancyReason] = useState("");
@@ -97,10 +102,13 @@ export default function ScheduleActionDialog({
   const isBorrowedByUser =
     selectedItem.source === SCHEDULE_SOURCE.Borrowing &&
     selectedItem.facultyId === currentUser?.id;
+  const isOthersSchedule =
+    !isOwnSchedule && !isVacantSlot && !isUnoccupiedSlot && !isBorrowedByUser;
 
   const canMarkVacant = isOwnSchedule;
   const canClaim = isVacantSlot || isUnoccupiedSlot;
   const canCancel = isBorrowedByUser;
+  const canRequestToBorrow = isOthersSchedule;
 
   // Helper functions
   const formatTime = (timeInt: TimeInt) => {
@@ -230,6 +238,29 @@ export default function ScheduleActionDialog({
     }
   };
 
+  const handleRequestToBorrow = async () => {
+    if (!borrowingData.subject || !borrowingData.section) return;
+
+    setLoading(true);
+    try {
+      await onRequestToBorrow(selectedItem, borrowingData);
+      onOpenChange(false);
+      setBorrowingData({
+        classroomId: selectedItem?.classroomId || "",
+        facultyId: currentUser?.id || "",
+        date: selectedItem?.date || new Date(),
+        startTime: toTimeInt(selectedItem?.startTime),
+        endTime: toTimeInt(selectedItem?.endTime),
+        subject: "",
+        section: "",
+      });
+    } catch (error) {
+      console.error("Error requesting to borrow:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const scheduleTypeInfo = getScheduleTypeInfo();
 
   return (
@@ -248,7 +279,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                selectedItem.subject
+                  selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
@@ -539,7 +570,129 @@ export default function ScheduleActionDialog({
             </div>
           )}
 
-          {!canMarkVacant && !canClaim && !canCancel && (
+          {canRequestToBorrow && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <User className="h-4 w-4 text-purple-500" />
+                Request to Borrow Room
+              </div>
+
+              <div className="rounded-md border border-purple-200 bg-purple-50 p-3">
+                <p className="text-sm text-purple-800">
+                  <strong>Current Owner:</strong> {selectedItem.facultyName}
+                </p>
+                <p className="mt-1 text-xs text-purple-600">
+                  You can request to borrow this time slot. The owner will be notified.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Subject and Section */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject <span className="text-red-600">*</span></Label>
+                    <Input
+                      id="subject"
+                      placeholder="e.g., IT401"
+                      value={borrowingData.subject || ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          subject: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section">Section <span className="text-red-600">*</span></Label>
+                    <Input
+                      id="section"
+                      placeholder="e.g., BSIT 4D"
+                      value={borrowingData.section || ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          section: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Time Selection */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="startTime">Start Time <span className="text-red-600">*</span></Label>
+                    <Select
+                      value={borrowingData.startTime.toString()}
+                      onValueChange={(value) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          startTime: toTimeInt(Number(value)),
+                        })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select start time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAvailableStartTimes().map((option) => (
+                          <SelectItem key={option.value} value={option.value.toString()}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endTime">End Time <span className="text-red-600">*</span></Label>
+                    <Select
+                      value={borrowingData.endTime.toString()}
+                      onValueChange={(value) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          endTime: toTimeInt(Number(value)),
+                        })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select end time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAvailableEndTimes().map((option) => (
+                          <SelectItem key={option.value} value={option.value.toString()}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Validation Messages */}
+                {borrowingData.startTime >= borrowingData.endTime && (
+                  <div className="rounded bg-red-50 p-2 text-sm text-red-600">
+                    End time must be after start time
+                  </div>
+                )}
+              </div>
+
+              <Button
+                onClick={handleRequestToBorrow}
+                disabled={
+                  loading ||
+                  !borrowingData.subject ||
+                  !borrowingData.section ||
+                  borrowingData.startTime >= borrowingData.endTime
+                }
+                className="w-full"
+              >
+                {loading ? "Requesting..." : "Request to Borrow"}
+              </Button>
+            </div>
+          )}
+
+          {!canMarkVacant && !canClaim && !canCancel && !canRequestToBorrow && (
             <div className="py-4 text-center">
               <p className="text-muted-foreground text-sm">
                 No actions available for this schedule item.
