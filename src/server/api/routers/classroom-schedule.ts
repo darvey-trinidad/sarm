@@ -78,7 +78,7 @@ export const classroomScheduleRouter = createTRPCRouter({
             subject: roomRequestRecord?.subject || "",
             section: roomRequestRecord?.section || "",
             requestorName: roomRequestRecord?.requestorName || "",
-            respondUrl: `youtube.com`,
+            respondUrl: `${env.NEXT_PUBLIC_APP_URL}/respond/${roomRequestId}`,
           })
         );
 
