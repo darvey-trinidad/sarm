@@ -4,7 +4,8 @@ import {
   createClassroomVacancy,
   createClassroomBorrowing,
   deleteClassroomBorrowing,
-  createRoomRequest
+  createRoomRequest,
+  updateRoomRequestStatus
 } from "@/lib/api/classroom-schedule/mutation";
 import {
   createClassroomScheduleSchema,
@@ -13,6 +14,7 @@ import {
   getWeeklyClassroomScheduleSchema,
   cancelClassroomBorrowingSchema,
   createRoomRequestSchema,
+  respondToRoomRequestSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
 import { getRoomRequestById, getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
@@ -21,6 +23,9 @@ import { RequestRoomEmail } from "@/emails/room-request";
 import { generateUUID } from "@/lib/utils";
 import nodemailer from "nodemailer";
 import { render } from "@react-email/render";
+import { RoomRequestStatus } from "@/constants/room-request-status";
+import { TRPCError } from "@trpc/server";
+import z from "zod";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -95,5 +100,45 @@ export const classroomScheduleRouter = createTRPCRouter({
         console.error(error);
         return { error, status: 500 };
       }
-    })
+    }),
+  respondToRoomRequest: protectedProcedure
+    .input(respondToRoomRequestSchema)
+    .mutation(async ({ input }) => {
+      try {
+        const roomRequestRecord = await getRoomRequestById(input.roomRequestId);
+
+        if (!roomRequestRecord) {
+          return { error: "Room Request not found", status: 404 };
+        }
+
+        if (input.status === RoomRequestStatus.Accepted) {
+          createClassroomVacancy({
+            classroomId: roomRequestRecord.classroomId,
+            date: roomRequestRecord.date,
+            startTime: roomRequestRecord.startTime,
+            endTime: roomRequestRecord.endTime
+          });
+          createClassroomBorrowing({
+            classroomId: roomRequestRecord.classroomId,
+            date: roomRequestRecord.date,
+            startTime: roomRequestRecord.startTime,
+            endTime: roomRequestRecord.endTime,
+            facultyId: roomRequestRecord.requestorId,
+            subject: roomRequestRecord.subject,
+            section: roomRequestRecord.section
+          })
+        }
+        updateRoomRequestStatus(input.roomRequestId, input.status);
+
+        return { info: "Room Request Responded", status: 200 };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not respond to room request" });
+      }
+    }),
+  getRoomRequestById: protectedProcedure
+    .input(z.object({ roomRequestId: z.string() }))
+    .query(async ({ input }) => {
+      return getRoomRequestById(input.roomRequestId);
+    }),
 });

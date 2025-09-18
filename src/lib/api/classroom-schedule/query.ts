@@ -86,12 +86,15 @@ export const getRoomRequestById = async (id: string) => {
         responderId: responder.id,
         responderName: responder.name,
         responderEmail: responder.email,
+        status: roomRequests.status,
+        createdAt: roomRequests.createdAt,
+        respondedAt: roomRequests.respondedAt,
       }
     )
       .from(roomRequests)
       .where(eq(roomRequests.id, id))
-      .leftJoin(requestor, eq(roomRequests.requesterId, requestor.id))
-      .leftJoin(responder, eq(roomRequests.responderId, responder.id))
+      .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
       .get();
   } catch (error) {

@@ -6,6 +6,7 @@ import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassro
 import type { TimeInt } from "@/constants/timeslot";
 import { TRPCError } from "@trpc/server";
 import type { CancelClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
+import { type RoomRequestStatusType } from "@/constants/room-request-status";
 
 export const createClassroomSchedule = async (data: ClassroomScheduleWithoutId) => {
   try {
@@ -112,5 +113,14 @@ export const createRoomRequest = async (data: RoomRequest) => {
   } catch (err) {
     console.error("Failed to create room request:", err);
     throw new Error("Could not create room request");
+  }
+}
+
+export const updateRoomRequestStatus = async (id: string, status: RoomRequestStatusType) => {
+  try {
+    return await db.update(roomRequests).set({ status, respondedAt: new Date() }).where(eq(roomRequests.id, id)).run();
+  } catch (err) {
+    console.error("Failed to update room request status:", err);
+    throw new Error("Could not update room request status");
   }
 }

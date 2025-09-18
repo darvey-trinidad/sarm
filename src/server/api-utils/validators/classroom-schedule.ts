@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { timeIntSchema } from "@/constants/timeslot";
 import { requiredDateSchema } from "@/server/api-utils/validators/date";
+import { ROOM_REQUEST_STATUS } from "@/constants/room-request-status";
 
 export const createClassroomScheduleSchema = z.object({
   classroomId: z.string(),
@@ -81,6 +82,11 @@ export const createRoomRequestSchema = z.object({
   requesterId: z.string(),
   responderId: z.string(),
 });
+
+export const respondToRoomRequestSchema = z.object({
+  roomRequestId: z.string(),
+  status: z.enum(ROOM_REQUEST_STATUS),
+})
 
 // classroomId: text("classroom_id").references(() => classroom.id).notNull(),
 
