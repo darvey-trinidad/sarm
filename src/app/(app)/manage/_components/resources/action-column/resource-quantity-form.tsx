@@ -128,7 +128,7 @@ export default function ResourceQuantityForm({
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        value={field.value ?? "add"}
+                        value={field.value ?? ""}
                         className="flex gap-6"
                       >
                         <div className="flex items-center gap-2">
