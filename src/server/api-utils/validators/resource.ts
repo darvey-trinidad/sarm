@@ -17,6 +17,12 @@ export const addResourceQuantitySchema = z.object({
   quantity: z.number(),
 });
 
+export const getAllAvailableResourcesSchema = z.object({
+  requestedDate: requiredDateSchema(),
+  requestedStartTime: timeIntSchema,
+  requestedEndTime: timeIntSchema
+})
+
 export const createResourceBorrowingSchema = z.object({
   borrowerId: z.string(),
   startTime: timeIntSchema,
