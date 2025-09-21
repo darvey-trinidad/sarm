@@ -20,9 +20,11 @@ export const resourceRouter = createTRPCRouter({
   }),
   getAllAvailableResources: protectedProcedure
     .input(getAllAvailableResourcesSchema)
-    .query(({ input }) => {
+    .query(async ({ input }) => {
       console.log(input);
-      return getAllAvailableResources(input.requestedDate, toTimeInt(input.requestedStartTime), toTimeInt(input.requestedEndTime));
+      const res = await getAllAvailableResources(input.requestedDate, toTimeInt(input.requestedStartTime), toTimeInt(input.requestedEndTime));
+      console.log(res);
+      return res;
     }),
   createResourceBorrowing: protectedProcedure
     .input(createResourceBorrowingSchema)

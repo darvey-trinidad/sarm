@@ -3,16 +3,19 @@ import { api } from "@/trpc/react";
 import { newDate } from "@/lib/utils";
 
 export default function TestingPage() {
-  const { data, isLoading } = api.resource.getAllAvailableResources.useQuery({
+  const queryParams = {
     requestedDate: newDate(new Date("2025-09-25")),
-    requestedStartTime: "1500",
+    requestedStartTime: "1200",
     requestedEndTime: "1600"
-  });
+  }
+
+  const { data, isLoading } = api.resource.getAllAvailableResources.useQuery(queryParams);
 
   if (isLoading) return <div className="mt-4 text-xl">Loading...</div>;
 
   return (
     <div className="mt-4 space-y-4">
+      <div className="text-2xl font-bold">Available Resources on {queryParams.requestedDate.toString()}</div>
       {data?.map((item) => (
         <div
           key={item.id}

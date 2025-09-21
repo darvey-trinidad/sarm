@@ -31,7 +31,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useFieldArray } from "react-hook-form";
-import { CalendarIcon, Loader2, Plus } from "lucide-react";
+import { CalendarIcon, Loader2, Plus, Minus } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -61,15 +61,15 @@ type VenuePageProps = {
 export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = authClient.useSession();
-  const [borrowItems, setBorrowItems] = useState(false);
+  const [isBorrowingItems, setIsBorrowingItems] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string>("");
   const [pdfName, setPdfName] = useState<string>("");
   const form = useForm<z.infer<typeof VenueSchema>>({
     resolver: zodResolver(VenueSchema),
     defaultValues: {
       date: newDate(new Date()),
-      startTime: 0,
-      endTime: 0,
+      startTime: 700,
+      endTime: 2000,
       purpose: "",
       status: "pending",
       fileUrl: "",
@@ -77,11 +77,11 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
     },
   });
 
-  const DUMMY_DATA = [
-    { id: "1", name: "Sound System" },
-    { id: "2", name: "Projector" },
-    { id: "3", name: "Whiteboard" },
-  ];
+  const { data: availableResources, refetch: refetchAvailableResources } = api.resource.getAllAvailableResources.useQuery({
+    requestedDate: newDate(form.watch("date")),
+    requestedStartTime: form.watch("startTime").toString(),
+    requestedEndTime: form.watch("endTime").toString(),
+  });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -94,30 +94,36 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const handleSubmit = async (data: z.infer<typeof VenueSchema>) => {
     setIsSubmitting(true);
     console.log("Data", data);
-    createVenueReservation(
-      {
-        venueId: venueId,
-        reserverId: session?.user.id || "",
-        date: newDate(data.date),
-        startTime: data.startTime,
-        endTime: data.endTime,
-        purpose: data.purpose,
-        status: data.status,
-        fileUrl: "",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Venue reservation created successfully");
-          form.reset();
-          setIsSubmitting(false);
+
+    if (isBorrowingItems && data.borrowItems && data.borrowItems.length > 0) {
+
+    } else {
+      createVenueReservation(
+        {
+          venueId: venueId,
+          reserverId: session?.user.id || "",
+          date: newDate(data.date),
+          startTime: data.startTime,
+          endTime: data.endTime,
+          purpose: data.purpose,
+          status: data.status,
+          fileUrl: data.fileUrl || "",
         },
-        onError: (err) => {
-          console.log(err);
-          toast.error(err.message || "Failed to create schedule");
-          setIsSubmitting(false);
+        {
+          onSuccess: () => {
+            toast.success("Venue reservation created successfully");
+            form.reset();
+            setIsSubmitting(false);
+          },
+          onError: (err) => {
+            console.log(err);
+            toast.error(err.message || "Failed to create reservation");
+            setIsSubmitting(false);
+          },
         },
-      },
-    );
+      );
+    }
+
   };
 
   const startTime = form.watch("startTime");
@@ -316,7 +322,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                   />
                 )}
 
-                {borrowItems && (
+                {isBorrowingItems && (
                   <div>
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Borrow Items</h3>
@@ -331,56 +337,94 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                         Add Item
                       </Button>
 
-                      {fields.map((field, index) => (
-                        <div
-                          key={field.id}
-                          className="grid grid-cols-1 items-end gap-4 md:grid-cols-2"
-                        >
-                          {/* Item Name */}
-                          <FormField
-                            control={form.control}
-                            name={`borrowItems.${index}.id`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Item Name</FormLabel>
-                                <Select
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger className="w-full">
-                                      <SelectValue placeholder="Select item" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {DUMMY_DATA.map((item) => (
-                                      <SelectItem key={item.id} value={item.id}>
-                                        {item.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                      {fields.map((field, index) => {
+                        // get the selected resource details
+                        const selectedResource = availableResources?.find(
+                          (r) => r.id === form.watch(`borrowItems.${index}.id`)
+                        );
 
-                          {/* Quantity */}
-                          <FormField
-                            control={form.control}
-                            name={`borrowItems.${index}.quantity`}
-                            render={({ field }) => (
+                        return (
+                          <div
+                            key={field.id}
+                            className="flex flex-col gap-4 md:flex-row md:items-end"
+                          >
+                            {/* Item Name */}
+                            <div className="flex-1">
+                              <FormField
+                                control={form.control}
+                                name={`borrowItems.${index}.id`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Item Name</FormLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue placeholder="Select item" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {availableResources?.map((item) => (
+                                          <SelectItem key={item.id} value={item.id}>
+                                            {item.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            {/* Available (read-only, aligned like other fields) */}
+                            <div className="w-20">
                               <FormItem>
-                                <FormLabel>Quantity</FormLabel>
+                                <FormLabel>Available</FormLabel>
                                 <FormControl>
-                                  <Input type="number" min="1" {...field} />
+                                  <Input
+                                    value={selectedResource ? selectedResource.available : ""}
+                                    readOnly
+                                    className="bg-muted text-muted-foreground"
+                                  />
                                 </FormControl>
-                                <FormMessage />
                               </FormItem>
-                            )}
-                          />
-                        </div>
-                      ))}
+                            </div>
+
+                            {/* Quantity */}
+                            <div className="w-24">
+                              <FormField
+                                control={form.control}
+                                name={`borrowItems.${index}.quantity`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Quantity</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="1"
+                                        max={selectedResource?.available || 1}
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            {/* Remove button */}
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => remove(index)}
+                              className="self-center"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -419,8 +463,8 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="borrowItems"
-                checked={borrowItems}
-                onCheckedChange={(checked) => setBorrowItems(!!checked)}
+                checked={isBorrowingItems}
+                onCheckedChange={(checked) => setIsBorrowingItems(!!checked)}
               />
               <Label>Borrow Items</Label>
             </div>
