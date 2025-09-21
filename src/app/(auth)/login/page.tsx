@@ -24,7 +24,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await authClient.signIn.email(
+      const { error } = await authClient.signIn.email(
         {
           email,
           password,
@@ -34,15 +34,11 @@ export default function LoginPage() {
           onSuccess: () => {
             toast.success("Sign in successful!");
           },
-          onError: (error) => {
-            toast.error("Sign in failed!");
-          },
         },
       );
 
       if (error) {
-        // maybe show toast or inline error
-        console.error(error);
+        toast.error(error.message || "Sign in failed!");
       }
     } finally {
       setLoading(false);
@@ -124,33 +120,22 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) =>
-                    setRememberMe(checked as boolean)
-                  }
-                />
-                <Label htmlFor="remember" className="text-sm text-gray-600">
-                  Remember me
-                </Label>
+              <div className="space-y-1">
+                <Button
+                  type="submit"
+                  className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900 disabled:opacity-50"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center">
+                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />
+                      Logging In
+                    </span>
+                  ) : (
+                    "Log In"
+                  )}
+                </Button>
               </div>
-
-              <Button
-                type="submit"
-                className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900 disabled:opacity-50"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />
-                    Logging In
-                  </span>
-                ) : (
-                  "Log In"
-                )}
-              </Button>
             </form>
 
             {/* Additional Links */}
@@ -174,7 +159,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right Side - University Gate Illustration */}
-        <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-white">
+        <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-white lg:flex">
           <div className="max-w-1xl absolute h-full w-full">
             <Image
               src="/login-page-gate.png"
