@@ -15,7 +15,7 @@ export default function VenueCard() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-5 sm:flex-row">
+      <div className="flex flex-col gap-5 lg:flex-row">
         <Skeleton className="h-85 w-85 rounded-sm" />
         <Skeleton className="h-85 w-85 rounded-sm" />
         <Skeleton className="h-85 w-85 rounded-sm" />
@@ -23,7 +23,7 @@ export default function VenueCard() {
     );
   }
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <Link href={PageRoutes.SCHEDULE_CLASSROOM}>
         <ClassroomCard />
       </Link>
