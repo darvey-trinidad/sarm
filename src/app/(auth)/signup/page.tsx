@@ -271,7 +271,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Right Side - University Gate Illustration */}
-        <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-white">
+        <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-white lg:flex">
           <div className="max-w-1xl absolute h-full w-full">
             <Image
               src="/login-page-gate.png"
