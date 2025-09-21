@@ -16,8 +16,8 @@ import {
   createRoomRequestSchema,
   respondToRoomRequestSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
-import { getRoomRequestById, getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
-import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
+import { getRoomRequestById, getWeeklyClassroomSchedule, getWeeklyInitialClassroomSchedule } from "@/lib/api/classroom-schedule/query";
+import { mergeAdjacentInitialSchedules, mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 import { env } from "@/env";
 import { RequestRoomEmail } from "@/emails/room-request";
 import { generateUUID } from "@/lib/utils";
@@ -48,6 +48,12 @@ export const classroomScheduleRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return getWeeklyClassroomSchedule(input.classroomId, input.startDate, input.endDate)
         .then((timeslots) => mergeAdjacentTimeslots(timeslots));
+    }),
+  getWeeklyInitialClassroomSchedule: protectedProcedure
+    .input(z.object({ classroomId: z.string() }))
+    .query(async ({ input }) => {
+      return getWeeklyInitialClassroomSchedule(input.classroomId)
+        .then((timeslots) => mergeAdjacentInitialSchedules(timeslots));
     }),
   cancelClassroomBorrowing: protectedProcedure
     .input(cancelClassroomBorrowingSchema)

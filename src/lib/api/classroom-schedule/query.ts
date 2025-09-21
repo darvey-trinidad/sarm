@@ -5,7 +5,7 @@ import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBo
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
-import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import type { FinalClassroomSchedule, InitialClassroomSchedule } from "@/types/clasroom-schedule";
 import { user } from "@/server/db/schema/auth";
 import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
@@ -256,6 +256,63 @@ export const getWeeklyClassroomSchedule = async (
   }
 };
 
+export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => {
+  try {
+    const rows = await db
+      .select({
+        id: classroomSchedule.id,
+        classroomId: classroomSchedule.classroomId,
+        facultyId: classroomSchedule.facultyId,
+        facultyName: user.name,
+        day: classroomSchedule.day,
+        startTime: classroomSchedule.startTime,
+        endTime: classroomSchedule.endTime,
+        subject: classroomSchedule.subject,
+        section: classroomSchedule.section,
+      })
+      .from(classroomSchedule)
+      .leftJoin(user, eq(classroomSchedule.facultyId, user.id))
+      .where(eq(classroomSchedule.classroomId, classroomId))
+      .orderBy(classroomSchedule.day, classroomSchedule.startTime);
+
+    const results: InitialClassroomSchedule[] = [];
+
+    // Loop over days (Mon–Sat)
+    for (let day = 1; day <= 6; day++) {
+      TIME_ENTRIES.slice(0, -1).forEach(([time]) => {
+        const schedule = rows.find(
+          (s) => s.startTime === time && s.day === day
+        );
+
+        if (schedule) {
+          const { startTime, endTime, ...rest } = schedule;
+          results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
+            ...rest
+          });
+        } else {
+          results.push({
+            id: null,
+            classroomId,
+            facultyId: null,
+            facultyName: null,
+            subject: null,
+            section: null,
+            day,
+            startTime: time,
+            endTime: toTimeInt(time + TIME_INTERVAL),
+          });
+        }
+      });
+    }
+
+    return results;
+  } catch (error) {
+    console.log("Failed to get weekly initial classroom schedule:", error);
+    throw new Error("Could not get weekly initial classroom schedule");
+  }
+};
 
 
 /*

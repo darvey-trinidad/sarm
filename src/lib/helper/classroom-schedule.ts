@@ -1,7 +1,7 @@
 import type { TimeInt } from "@/constants/timeslot";
 import { generateUUID } from "@/lib/utils";
 import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput, CancelClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
-import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import type { FinalClassroomSchedule, InitialClassroomSchedule } from "@/types/clasroom-schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
 
 export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInput) {
@@ -86,6 +86,36 @@ export function mergeAdjacentTimeslots(slots: FinalClassroomSchedule[]): FinalCl
       current.subject === next.subject &&
       current.section === next.section &&
       current.source === next.source;
+
+    if (isAdjacent) {
+      // Extend the current block
+      current.endTime = next.endTime;
+    } else {
+      // Push current block and start a new one
+      merged.push(current);
+      current = { ...next };
+    }
+  }
+
+  merged.push(current);
+  return merged;
+}
+
+export const mergeAdjacentInitialSchedules = (schedules: InitialClassroomSchedule[]) => {
+  if (schedules.length === 0) return [];
+
+  const merged: InitialClassroomSchedule[] = [];
+  let current = schedules[0]!;
+
+  for (let i = 1; i < schedules.length; i++) {
+    const next = schedules[i]!;
+
+    const isAdjacent =
+      current.endTime === next.startTime &&
+      current.classroomId === next.classroomId &&
+      current.facultyId === next.facultyId &&
+      current.subject === next.subject &&
+      current.section === next.section;
 
     if (isAdjacent) {
       // Extend the current block

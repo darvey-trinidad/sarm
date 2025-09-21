@@ -14,3 +14,15 @@ export interface FinalClassroomSchedule {
   endTime: TimeInt;
   source: ScheduleSource;
 }
+
+export interface InitialClassroomSchedule {
+  id: string | null;
+  classroomId: string;
+  facultyId: string | null;
+  facultyName: string | null;
+  day: number;
+  startTime: TimeInt;
+  endTime: TimeInt;
+  subject: string | null;
+  section: string | null;
+}
