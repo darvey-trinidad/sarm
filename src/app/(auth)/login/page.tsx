@@ -24,7 +24,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await authClient.signIn.email(
+      const { error } = await authClient.signIn.email(
         {
           email,
           password,
@@ -34,15 +34,11 @@ export default function LoginPage() {
           onSuccess: () => {
             toast.success("Sign in successful!");
           },
-          onError: (error) => {
-            toast.error("Sign in failed!");
-          },
         },
       );
 
       if (error) {
-        // maybe show toast or inline error
-        console.error(error);
+        toast.error(error.message || "Sign in failed!");
       }
     } finally {
       setLoading(false);
