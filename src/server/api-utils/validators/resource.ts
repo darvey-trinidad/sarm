@@ -23,17 +23,19 @@ export const getAllAvailableResourcesSchema = z.object({
   requestedEndTime: timeIntSchema
 })
 
-export const createResourceBorrowingSchema = z.object({
-  borrowerId: z.string(),
-  startTime: timeIntSchema,
-  endTime: timeIntSchema,
-  resourceId: z.string(),
-  representativeBorrower: z.string(),
-  status: z.enum(BORROWING_STATUS).optional(),
-  quantity: z.number(),
-  dateBorrowed: requiredDateSchema(),
-  purpose: z.string(),
+export const createResourceBorrowingSchema = z.array(
+  z.object({
+    borrowerId: z.string(),
+    startTime: timeIntSchema,
+    endTime: timeIntSchema,
+    resourceId: z.string(),
+    representativeBorrower: z.string(),
+    status: z.enum(BORROWING_STATUS).optional(),
+    quantity: z.number(),
+    dateBorrowed: requiredDateSchema(),
+    purpose: z.string(),
 
-  venueReservationId: z.string().optional(),
-  fileUrl: z.string().optional(),
-});
+    venueReservationId: z.string().optional(),
+    fileUrl: z.string().optional(),
+  })
+);

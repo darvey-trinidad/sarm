@@ -1,8 +1,7 @@
 
 export const RESERVATION_STATUS = [
   "pending",
-  "for_submission",
-  "reserved",
+  "approved",
   "rejected",
   "canceled"
 ] as const;

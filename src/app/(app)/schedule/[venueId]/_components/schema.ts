@@ -12,7 +12,7 @@ export const VenueSchema = z.object({
     .array(
       z.object({
         id: z.string(),
-        quantity: z.number(),
+        quantity: z.coerce.number(),
       }),
     )
     .optional(),

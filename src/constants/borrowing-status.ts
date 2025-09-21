@@ -1,7 +1,6 @@
 export const BORROWING_STATUS = [
   "pending",
   "approved",
-  "borrowed",
   "returned",
   "rejected"
 ] as const;

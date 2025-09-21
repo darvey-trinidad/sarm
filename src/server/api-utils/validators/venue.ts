@@ -2,6 +2,7 @@ import z from "zod";
 import { USABILITY } from "@/constants/usability";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
 import { requiredDateSchema } from "@/server/api-utils/validators/date";
+import { createResourceBorrowingSchema } from "@/server/api-utils/validators/resource";
 
 export const createVenueSchema = z.object({
   name: z.string(),
@@ -20,6 +21,11 @@ export const createVenueReservationSchema = z.object({
   status: z.enum(RESERVATION_STATUS),
   fileUrl: z.string(),
 });
+
+export const createVenueReservationWithBorrowingSchema = z.object({
+  venue: createVenueReservationSchema,
+  borrowing: createResourceBorrowingSchema
+})
 
 export const getVenueScheduleSchema = z.object({
   venueId: z.string(),

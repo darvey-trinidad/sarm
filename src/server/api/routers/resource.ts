@@ -29,6 +29,12 @@ export const resourceRouter = createTRPCRouter({
   createResourceBorrowing: protectedProcedure
     .input(createResourceBorrowingSchema)
     .mutation(({ input }) => {
-      return createResourceBorrowing({ id: generateUUID(), ...input });
+      const borrowings = input.map((item) => {
+        return {
+          id: generateUUID(),
+          ...item
+        };
+      });
+      return createResourceBorrowing(borrowings);
     }),
 });

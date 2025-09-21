@@ -51,7 +51,7 @@ export const getReservedVenueReservationsByDate = async (venueId: string, date: 
       .where(and(
         eq(venueReservation.venueId, venueId),
         eq(venueReservation.date, date),
-        eq(venueReservation.status, ReservationStatus.Reserved)))
+        eq(venueReservation.status, ReservationStatus.Approved)))
       .all();
   } catch (error) {
     console.error(error);
@@ -101,7 +101,7 @@ export const getVenueSchedule = async (venueId: string, startDate: Date, endDate
         eq(venueReservation.venueId, venueId),
         gte(venueReservation.date, startDate),
         lte(venueReservation.date, endDate),
-        eq(venueReservation.status, ReservationStatus.Reserved)
+        eq(venueReservation.status, ReservationStatus.Approved)
       ))
       .orderBy(
         asc(venueReservation.date),

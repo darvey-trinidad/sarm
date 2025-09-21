@@ -24,7 +24,7 @@ export const addResourceQuantity = async (id: string, quantity: number) => {
   }
 };
 
-export const createResourceBorrowing = async (data: NewResourceBorrowing) => {
+export const createResourceBorrowing = async (data: NewResourceBorrowing[]) => {
   try {
     return await db.insert(resourceBorrowing).values(data).returning().get();
   } catch (error) {

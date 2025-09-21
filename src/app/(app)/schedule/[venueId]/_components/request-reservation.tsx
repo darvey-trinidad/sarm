@@ -46,7 +46,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { TIME_OPTIONS } from "@/constants/timeslot";
-import { RESERVATION_STATUS } from "@/constants/reservation-status";
+import { RESERVATION_STATUS, ReservationStatus } from "@/constants/reservation-status";
 import { authClient } from "@/lib/auth-client";
 import { newDate } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,7 +77,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
     },
   });
 
-  const { data: availableResources, refetch: refetchAvailableResources } = api.resource.getAllAvailableResources.useQuery({
+  const { data: availableResources } = api.resource.getAllAvailableResources.useQuery({
     requestedDate: newDate(form.watch("date")),
     requestedStartTime: form.watch("startTime").toString(),
     requestedEndTime: form.watch("endTime").toString(),
@@ -91,12 +91,48 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const { mutate: createVenueReservation } =
     api.venue.createVenueReservation.useMutation();
 
+  const { mutate: createVenueReservationWithBorrowing } = api.venue.createVenueReservationWithBorrowing.useMutation();
+
   const handleSubmit = async (data: z.infer<typeof VenueSchema>) => {
     setIsSubmitting(true);
     console.log("Data", data);
 
     if (isBorrowingItems && data.borrowItems && data.borrowItems.length > 0) {
-
+      createVenueReservationWithBorrowing({
+        venue: {
+          venueId: venueId,
+          reserverId: session?.user.id || "",
+          date: newDate(data.date),
+          startTime: data.startTime,
+          endTime: data.endTime,
+          purpose: data.purpose,
+          status: data.status,
+          fileUrl: data.fileUrl || "",
+        },
+        borrowing: data.borrowItems.map((item) => ({
+          borrowerId: session?.user.id || "",
+          resourceId: item.id,
+          quantity: item.quantity,
+          representativeBorrower: "",
+          purpose: data.purpose,
+          startTime: data.startTime.toString(),
+          endTime: data.endTime.toString(),
+          status: data.status != "canceled" ? data.status : "pending",
+          fileUrl: data.fileUrl || "",
+          dateBorrowed: newDate(data.date),
+        }))
+      }, {
+        onSuccess: () => {
+          toast.success("Reservation and borrowing requests created successfully");
+          form.reset();
+          setIsSubmitting(false);
+        },
+        onError: (err) => {
+          console.log(err);
+          toast.error(err.message || "Failed to create requests");
+          setIsSubmitting(false);
+        },
+      });
     } else {
       createVenueReservation(
         {
@@ -401,7 +437,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                     <FormControl>
                                       <Input
                                         type="number"
-                                        min="1"
+                                        min={selectedResource?.available || 0}
                                         max={selectedResource?.available || 1}
                                         {...field}
                                       />
@@ -446,10 +482,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                     className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
                     endpoint="pdfUploader"
                     onClientUploadComplete={(res) => {
-                      // Do something with the response
                       console.log("File uploaded:", res);
-                      setPdfUrl(res[0]?.ufsUrl || "");
-                      setPdfName(res[0]?.name || "");
+                      const url = res[0]?.ufsUrl || "";
+                      const name = res[0]?.name || "";
+                      setPdfUrl(url);
+                      setPdfName(name);
+                      form.setValue("fileUrl", url);
                       toast.success("File uploaded successfully!");
                     }}
                     onUploadError={(error: Error) =>
