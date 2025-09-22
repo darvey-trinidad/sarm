@@ -56,6 +56,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UploadButton } from "@/utils/uploadthing";
+import { fileURLToPath } from "url";
+import { DEFAULT_BORROWING_STATUS } from "@/constants/borrowing-status";
 
 type VenuePageProps = {
   venueId: string;
@@ -115,18 +117,23 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             status: data.status,
             fileUrl: data.fileUrl || "",
           },
-          borrowing: data.borrowItems.map((item) => ({
+          borrowing: {
             borrowerId: session?.user.id || "",
-            resourceId: item.id,
-            quantity: item.quantity,
             representativeBorrower: "",
             purpose: data.purpose,
             startTime: data.startTime.toString(),
             endTime: data.endTime.toString(),
-            status: data.status != "canceled" ? data.status : "pending",
-            fileUrl: data.fileUrl || "",
+
+            dateRequested: newDate(new Date()),
             dateBorrowed: newDate(data.date),
-          })),
+            fileUrl: data.fileUrl,
+
+            status: data.status == "approved" ? data.status : DEFAULT_BORROWING_STATUS,
+            itemsBorrowed: data.borrowItems.map((item) => ({
+              resourceId: item.id,
+              quantity: item.quantity,
+            }))
+          }
         },
         {
           onSuccess: () => {
@@ -456,7 +463,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                     <FormControl>
                                       <Input
                                         type="number"
-                                        min={selectedResource?.available || 0}
+                                        min={1}
                                         max={selectedResource?.available || 1}
                                         {...field}
                                       />

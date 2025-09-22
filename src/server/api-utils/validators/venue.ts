@@ -2,7 +2,7 @@ import z from "zod";
 import { USABILITY } from "@/constants/usability";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
 import { requiredDateSchema } from "@/server/api-utils/validators/date";
-import { createResourceBorrowingSchema } from "@/server/api-utils/validators/resource";
+import { createBorrowingTransactionSchema } from "@/server/api-utils/validators/resource";
 
 export const createVenueSchema = z.object({
   name: z.string(),
@@ -24,7 +24,7 @@ export const createVenueReservationSchema = z.object({
 
 export const createVenueReservationWithBorrowingSchema = z.object({
   venue: createVenueReservationSchema,
-  borrowing: createResourceBorrowingSchema
+  borrowing: createBorrowingTransactionSchema
 })
 
 export const getVenueScheduleSchema = z.object({
