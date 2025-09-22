@@ -23,6 +23,23 @@ export const getAllAvailableResourcesSchema = z.object({
   requestedEndTime: timeIntSchema
 })
 
+export const EditResourceBorrowingSchema = z.object({
+  id: z.string(),
+  borrowerId: z.string().optional(),
+  startTime: timeIntSchema.optional(),
+  endTime: timeIntSchema.optional(),
+  resourceId: z.string().optional(),
+  representativeBorrower: z.string().optional(),
+  status: z.enum(BORROWING_STATUS).optional(),
+  quantity: z.number().optional(),
+  dateBorrowed: requiredDateSchema().optional(),
+  purpose: z.string().optional(),
+  dateReturned: requiredDateSchema().optional(),
+
+  venueReservationId: z.string().optional(),
+  fileUrl: z.string().optional(),
+});
+
 export const createResourceBorrowingSchema = z.array(
   z.object({
     borrowerId: z.string(),

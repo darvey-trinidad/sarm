@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { generateUUID, toTimeInt } from "@/lib/utils";
-import { createResource, addResourceQuantity, createResourceBorrowing } from "@/lib/api/resource/mutation";
-import { createResourceSchema, addResourceQuantitySchema, createResourceBorrowingSchema, getAllAvailableResourcesSchema } from "@/server/api-utils/validators/resource";
+import { createResource, addResourceQuantity, createResourceBorrowing, editResourceBorrowing } from "@/lib/api/resource/mutation";
+import { createResourceSchema, addResourceQuantitySchema, createResourceBorrowingSchema, getAllAvailableResourcesSchema, EditResourceBorrowingSchema } from "@/server/api-utils/validators/resource";
 import { getAllAvailableResources, getAllResourceBorrowings, getAllResources } from "@/lib/api/resource/query";
 
 export const resourceRouter = createTRPCRouter({
@@ -40,4 +40,10 @@ export const resourceRouter = createTRPCRouter({
   getAllResourceBorrowings: protectedProcedure.query(() => {
     return getAllResourceBorrowings();
   }),
+  editResourceBorrowing: protectedProcedure
+    .input(EditResourceBorrowingSchema)
+    .mutation(({ input }) => {
+      const { id, ...data } = input;
+      return editResourceBorrowing(id, data);
+    }),
 });

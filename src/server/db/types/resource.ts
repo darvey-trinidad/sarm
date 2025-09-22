@@ -6,3 +6,5 @@ export type NewResource = InferInsertModel<typeof resource>;
 
 export type ResourceBorrowing = InferSelectModel<typeof resourceBorrowing>;
 export type NewResourceBorrowing = InferInsertModel<typeof resourceBorrowing>;
+
+export type EditResourceBorrowing = Partial<Omit<ResourceBorrowing, "id">>;
