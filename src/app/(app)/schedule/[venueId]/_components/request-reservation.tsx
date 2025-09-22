@@ -46,7 +46,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { TIME_OPTIONS } from "@/constants/timeslot";
-import { RESERVATION_STATUS, ReservationStatus } from "@/constants/reservation-status";
+import {
+  RESERVATION_STATUS,
+  ReservationStatus,
+} from "@/constants/reservation-status";
 import { authClient } from "@/lib/auth-client";
 import { newDate } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,11 +80,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
     },
   });
 
-  const { data: availableResources } = api.resource.getAllAvailableResources.useQuery({
-    requestedDate: newDate(form.watch("date")),
-    requestedStartTime: form.watch("startTime").toString(),
-    requestedEndTime: form.watch("endTime").toString(),
-  });
+  const { data: availableResources } =
+    api.resource.getAllAvailableResources.useQuery({
+      requestedDate: newDate(form.watch("date")),
+      requestedStartTime: form.watch("startTime").toString(),
+      requestedEndTime: form.watch("endTime").toString(),
+    });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -91,48 +95,54 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const { mutate: createVenueReservation } =
     api.venue.createVenueReservation.useMutation();
 
-  const { mutate: createVenueReservationWithBorrowing } = api.venue.createVenueReservationWithBorrowing.useMutation();
+  const { mutate: createVenueReservationWithBorrowing } =
+    api.venue.createVenueReservationWithBorrowing.useMutation();
 
   const handleSubmit = async (data: z.infer<typeof VenueSchema>) => {
     setIsSubmitting(true);
     console.log("Data", data);
 
     if (isBorrowingItems && data.borrowItems && data.borrowItems.length > 0) {
-      createVenueReservationWithBorrowing({
-        venue: {
-          venueId: venueId,
-          reserverId: session?.user.id || "",
-          date: newDate(data.date),
-          startTime: data.startTime,
-          endTime: data.endTime,
-          purpose: data.purpose,
-          status: data.status,
-          fileUrl: data.fileUrl || "",
+      createVenueReservationWithBorrowing(
+        {
+          venue: {
+            venueId: venueId,
+            reserverId: session?.user.id || "",
+            date: newDate(data.date),
+            startTime: data.startTime,
+            endTime: data.endTime,
+            purpose: data.purpose,
+            status: data.status,
+            fileUrl: data.fileUrl || "",
+          },
+          borrowing: data.borrowItems.map((item) => ({
+            borrowerId: session?.user.id || "",
+            resourceId: item.id,
+            quantity: item.quantity,
+            representativeBorrower: "",
+            purpose: data.purpose,
+            startTime: data.startTime.toString(),
+            endTime: data.endTime.toString(),
+            status: data.status != "canceled" ? data.status : "pending",
+            fileUrl: data.fileUrl || "",
+            dateBorrowed: newDate(data.date),
+          })),
         },
-        borrowing: data.borrowItems.map((item) => ({
-          borrowerId: session?.user.id || "",
-          resourceId: item.id,
-          quantity: item.quantity,
-          representativeBorrower: "",
-          purpose: data.purpose,
-          startTime: data.startTime.toString(),
-          endTime: data.endTime.toString(),
-          status: data.status != "canceled" ? data.status : "pending",
-          fileUrl: data.fileUrl || "",
-          dateBorrowed: newDate(data.date),
-        }))
-      }, {
-        onSuccess: () => {
-          toast.success("Reservation and borrowing requests created successfully");
-          form.reset();
-          setIsSubmitting(false);
+        {
+          onSuccess: () => {
+            toast.success(
+              "Reservation and borrowing requests created successfully",
+            );
+            form.reset();
+            setIsSubmitting(false);
+          },
+          onError: (err) => {
+            console.log(err);
+            toast.error(err.message || "Failed to create requests");
+            setIsSubmitting(false);
+          },
         },
-        onError: (err) => {
-          console.log(err);
-          toast.error(err.message || "Failed to create requests");
-          setIsSubmitting(false);
-        },
-      });
+      );
     } else {
       createVenueReservation(
         {
@@ -159,7 +169,6 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
         },
       );
     }
-
   };
 
   const startTime = form.watch("startTime");
@@ -376,7 +385,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       {fields.map((field, index) => {
                         // get the selected resource details
                         const selectedResource = availableResources?.find(
-                          (r) => r.id === form.watch(`borrowItems.${index}.id`)
+                          (r) => r.id === form.watch(`borrowItems.${index}.id`),
                         );
 
                         return (
@@ -392,7 +401,10 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormLabel>Item Name</FormLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select
+                                      value={field.value}
+                                      onValueChange={field.onChange}
+                                    >
                                       <FormControl>
                                         <SelectTrigger className="w-full truncate">
                                           <SelectValue placeholder="Select item" />
@@ -400,7 +412,10 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                       </FormControl>
                                       <SelectContent>
                                         {availableResources?.map((item) => (
-                                          <SelectItem key={item.id} value={item.id}>
+                                          <SelectItem
+                                            key={item.id}
+                                            value={item.id}
+                                          >
                                             {item.name}
                                           </SelectItem>
                                         ))}
@@ -418,7 +433,11 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                 <FormLabel>Available</FormLabel>
                                 <FormControl>
                                   <Input
-                                    value={selectedResource ? selectedResource.available : ""}
+                                    value={
+                                      selectedResource
+                                        ? selectedResource.available
+                                        : ""
+                                    }
                                     readOnly
                                     className="bg-muted text-muted-foreground"
                                   />
