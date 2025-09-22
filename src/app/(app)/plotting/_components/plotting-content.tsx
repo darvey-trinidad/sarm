@@ -27,8 +27,7 @@ export default function PlottingContent() {
             Create Classroom Schedule
           </h2>
           <p className="text-muted-foreground">
-            Input course details and schedule information for the entire school
-            year
+            Create a schedule for a classroom for the whole semester.
           </p>
         </div>
       </div>

@@ -111,6 +111,7 @@ export default function ResourceQuantityForm({
                       <Input
                         type="number"
                         {...field}
+                        min="0"
                         onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormControl>
