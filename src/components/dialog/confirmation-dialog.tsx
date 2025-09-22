@@ -77,12 +77,8 @@ export function ConfirmationDialog({
     try {
       await onConfirm();
       onOpenChange(false);
-
-      toast.success("Action completed successfully");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Something went wrong",
-      );
+      console.error("Error confirming:", error);
     }
   };
 

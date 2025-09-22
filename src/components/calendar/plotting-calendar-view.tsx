@@ -1,18 +1,14 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
-import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import { addDays, startOfWeek } from "date-fns";
+import type { InitialClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
 import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
-import { newDate } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import ScheduleActionDialog from "./schedule-action-dialog";
-import { useScheduleActions } from "@/hooks/use-schedule-action";
 import { getScheduleColor } from "@/constants/schedule-colors";
+import PlottingFormDialog from "@/app/(app)/plotting/_components/plot/plotting-form-dialog";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -23,43 +19,30 @@ const DaysofWeek = [
   "Saturday",
 ];
 
-type ClassroomCalendarViewProps = {
+type PlottingClassroomCalendarViewProps = {
   classroomId: string;
 };
 
-export default function ClassroomCalendarView({
+export default function PlottingClassroomCalendarView({
   classroomId,
-}: ClassroomCalendarViewProps) {
-  const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
+}: PlottingClassroomCalendarViewProps) {
+  const [schedules, setSchedules] = useState<InitialClassroomSchedule[]>([]);
   const [selectedItem, setSelectedItem] =
-    useState<FinalClassroomSchedule | null>(null);
+    useState<InitialClassroomSchedule | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
+  const { data: session } = authClient.useSession();
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 5);
-  const { data: session } = authClient.useSession();
 
-  const { markAsVacant, claimSlot, cancelBorrowing, requestToBorrow } =
-    useScheduleActions({
-      onRefresh: () => refetch(),
+  const { data: scheduleData, isLoading } =
+    api.classroomSchedule.getWeeklyInitialClassroomSchedule.useQuery({
+      classroomId,
     });
 
-  const {
-    data: scheduleData,
-    isLoading,
-    isError,
-    refetch,
-  } = api.classroomSchedule.getWeeklyClassroomSchedule.useQuery({
-    classroomId,
-    startDate: newDate(weekStart),
-    endDate: newDate(weekEnd),
-  });
-
   useEffect(() => {
-    if (scheduleData) setSchedules(scheduleData);
-    else setSchedules([]);
+    setSchedules(scheduleData ?? []);
   }, [scheduleData]);
 
   useEffect(() => {
@@ -79,22 +62,18 @@ export default function ClassroomCalendarView({
 
   const getDayOfWeek = (date: Date) => (date.getDay() + 6) % 7;
 
-  const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
+  const getScheduleStyle = (schedule: InitialClassroomSchedule) => {
     const startPos = timeToPosition(schedule.startTime);
     const endPos = timeToPosition(schedule.endTime);
     const height = Math.max(SLOT_HEIGHT, endPos - startPos);
-    const color = getScheduleColor(schedule.source);
+    const color = getScheduleColor(schedule.subject ?? "Unoccupied");
 
     if (isMobile) {
       const headerHeight = 60;
-      const dayOfWeek = getDayOfWeek(schedule.date);
-
-      // width handling
       const timeColumnWidth = 100;
       const dayWidth = 280;
-
-      // horizontal position
-      const leftPosition = dayWidth * dayOfWeek + timeColumnWidth;
+      const adjustedDay = schedule.day - 1;
+      const leftPosition = dayWidth * adjustedDay + timeColumnWidth;
 
       return {
         top: `${startPos + headerHeight}px`,
@@ -106,10 +85,8 @@ export default function ClassroomCalendarView({
         zIndex: 10,
       };
     } else {
-      const timeColumnWidth = 100 / 7;
       const dayColumnWidth = 100 / 7;
-      const leftPosition =
-        timeColumnWidth + getDayOfWeek(schedule.date) * dayColumnWidth;
+      const leftPosition = schedule.day * dayColumnWidth;
       return {
         top: `${startPos}px`,
         height: `${height}px`,
@@ -122,82 +99,21 @@ export default function ClassroomCalendarView({
     }
   };
 
-  const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
-    const now = new Date();
-    const dateToday = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-    );
-    const schedDate = new Date(
-      schedule.date.getFullYear(),
-      schedule.date.getMonth(),
-      schedule.date.getDate(),
-    );
-
-    const schedIsPast =
-      schedDate < dateToday ||
-      (schedDate.getTime() === dateToday.getTime() &&
-        schedule.endTime <
-          now.getHours() * 100 + (now.getMinutes() * 100) / 60);
-
-    if (schedIsPast) return;
-
+  const handleScheduleClick = (schedule: InitialClassroomSchedule) => {
     setSelectedItem(schedule);
     setIsDialogOpen(true);
   };
 
-  const navigateWeek = (direction: "prev" | "next") => {
-    setCurrentWeek(
-      direction === "prev"
-        ? subWeeks(currentWeek, 1)
-        : addWeeks(currentWeek, 1),
+  if (isLoading)
+    return (
+      <div className="flex h-full w-full flex-row items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        <h2>Loading Schedule...</h2>
+      </div>
     );
-  };
-
-  const goToCurrentWeek = () => setCurrentWeek(new Date());
-
-  if (isError) return <p>Failed to load schedule.</p>;
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col justify-end gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateWeek("prev")}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-
-          <div className="bg-muted rounded-md px-3 py-1 text-xs font-medium sm:text-sm">
-            {format(weekStart, "MMM d")} -{" "}
-            {isMobile
-              ? format(weekEnd, "MMM d")
-              : format(weekEnd, "MMM d, yyyy")}
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateWeek("next")}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-
-          <Button variant="outline" size="sm" onClick={goToCurrentWeek}>
-            Today
-          </Button>
-
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-        </div>
-      </div>
-
       {/* Calendar */}
       <div className="bg-background rounded-lg border">
         <ScrollArea className="h-[75vh]">
@@ -209,8 +125,9 @@ export default function ClassroomCalendarView({
           ) : (
             <ScrollBar orientation="vertical" />
           )}
+
           <div className="relative">
-            {/* Header */}
+            {/* Days header */}
             <div className="bg-background sticky top-0 z-20 border-b">
               <div
                 className={
@@ -220,7 +137,7 @@ export default function ClassroomCalendarView({
                 }
               >
                 <div
-                  className={`bg-muted/50 border-r p-3 ${isMobile ? "w-[100px] flex-shrink-0" : ""}`}
+                  className={`bg-muted/50 border-r p-3 ${isMobile ? "w-[100px]" : ""}`}
                 />
                 {DaysofWeek.map((day, index) => {
                   const dayDate = addDays(weekStart, index);
@@ -228,20 +145,17 @@ export default function ClassroomCalendarView({
                     <div
                       key={day}
                       className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
+                        isMobile ? "w-[280px]" : ""
                       }`}
                     >
-                      <div className="text-sm font-medium">{day}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {format(dayDate, "MMM d")}
-                      </div>
+                      <div className="py-1 text-sm font-medium">{day}</div>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Body */}
+            {/* Time grid + schedules */}
             <div
               className={
                 isMobile
@@ -250,7 +164,7 @@ export default function ClassroomCalendarView({
               }
             >
               <div
-                className={`bg-muted/20 border-r ${isMobile ? "w-[100px] flex-shrink-0 bg-white" : ""}`}
+                className={`bg-muted/20 border-r ${isMobile ? "w-[100px]" : ""}`}
               >
                 {TIME_ENTRIES.map(([value, label]) => (
                   <div
@@ -265,7 +179,9 @@ export default function ClassroomCalendarView({
               {Array.from({ length: 6 }).map((_, dayIndex) => (
                 <div
                   key={dayIndex}
-                  className={`relative border-r last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-0" : ""}`}
+                  className={`relative border-r last:border-r-0 ${
+                    isMobile ? "w-[280px]" : ""
+                  }`}
                 >
                   {TIME_ENTRIES.map(([value]) => (
                     <div
@@ -279,15 +195,15 @@ export default function ClassroomCalendarView({
               {!isLoading &&
                 schedules.map((schedule) => (
                   <div
-                    key={`${schedule.date}-${schedule.startTime}`}
+                    key={`${schedule.day}-${schedule.startTime}-${schedule.endTime}-${schedule.section} `}
                     className="absolute cursor-pointer rounded-md border-l-4 p-2 transition-all hover:z-20 hover:shadow-md"
                     style={getScheduleStyle(schedule)}
                     onClick={() => handleScheduleClick(schedule)}
                   >
                     <div className="truncate text-xs font-medium">
-                      {schedule.source === "Initial Schedule"
+                      {schedule.subject && schedule.section
                         ? `${schedule.subject} - ${schedule.section}`
-                        : schedule.source}
+                        : "Unscheduled"}
                     </div>
                     <div className="text-muted-foreground truncate text-xs">
                       {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
@@ -320,16 +236,11 @@ export default function ClassroomCalendarView({
           Scroll horizontally to view different days
         </div>
       )}
-
-      <ScheduleActionDialog
+      <PlottingFormDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         selectedItem={selectedItem}
         currentUser={session?.user}
-        onMarkVacant={markAsVacant}
-        onClaimSlot={claimSlot}
-        onCancelBorrowing={cancelBorrowing}
-        onRequestToBorrow={requestToBorrow}
       />
     </div>
   );
