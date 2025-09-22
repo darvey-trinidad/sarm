@@ -18,14 +18,20 @@ export const getAllVenues = async () => {
 export async function getAllVenueReservations({
   status,
   venueId,
+  startDate,
+  endDate,
 }: {
   status?: ReservationStatus;
   venueId?: string;
+  startDate?: Date;   // filter reservations on/after this date
+  endDate?: Date;     // filter reservations on/before this date
 }): Promise<ReservationWithBorrowing[]> {
   // --- Build conditions dynamically ---
   const conditions = [];
   if (status) conditions.push(eq(venueReservation.status, status));
   if (venueId) conditions.push(eq(venueReservation.venueId, venueId));
+  if (startDate) conditions.push(gte(venueReservation.date, startDate));
+  if (endDate) conditions.push(lte(venueReservation.date, endDate));
 
   const rows = await db
     .select({
@@ -111,7 +117,9 @@ export async function getAllVenueReservations({
 export const getAllPendingVenueReservations = async () => {
   try {
     const reservations = await getAllVenueReservations({
-      status: ReservationStatus.Pending
+      status: ReservationStatus.Pending,
+      // startDate: new Date("2025-09-22"),
+      // endDate: new Date("2025-09-23"),
     });
     return reservations;
 
