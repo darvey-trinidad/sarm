@@ -1,5 +1,4 @@
 import z from "zod";
-import type { NewResourceBorrowing } from "@/server/db/types/resource";
 import { RESOURCE_CATEGORY } from "@/constants/resource-category";
 import { timeIntSchema } from "@/constants/timeslot";
 import { BORROWING_STATUS } from "@/constants/borrowing-status";
@@ -40,19 +39,49 @@ export const EditResourceBorrowingSchema = z.object({
   fileUrl: z.string().optional(),
 });
 
+
+
+
+export const createBorrowingTransactionSchema = z.object({
+  borrowerId: z.string(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema,
+  purpose: z.string(),
+  status: z.enum(BORROWING_STATUS),
+  fileUrl: z.string().optional(),
+  venueReservationId: z.string().optional(),
+  representativeBorrower: z.string(),
+  dateRequested: requiredDateSchema(),
+  dateBorrowed: requiredDateSchema().optional(),
+  dateReturned: requiredDateSchema().optional(),
+  itemsBorrowed: z.array(
+    z.object({
+      resourceId: z.string(),
+      quantity: z.number().optional(),
+    })
+  ),
+});
+
+export const updateBorrowingTransactionSchema = z.object({
+  id: z.string(),
+  borrowerId: z.string().optional(),
+  startTime: timeIntSchema.optional(),
+  endTime: timeIntSchema.optional(),
+  purpose: z.string().optional(),
+  status: z.enum(BORROWING_STATUS).optional(),
+  fileUrl: z.string().optional(),
+  venueReservationId: z.string().optional(),
+  representativeBorrower: z.string().optional(),
+  dateRequested: requiredDateSchema().optional(),
+  dateBorrowed: requiredDateSchema().optional(),
+  dateReturned: requiredDateSchema().optional(),
+})
+
 export const createResourceBorrowingSchema = z.array(
   z.object({
-    borrowerId: z.string(),
-    startTime: timeIntSchema,
-    endTime: timeIntSchema,
+    id: z.string(),
     resourceId: z.string(),
-    representativeBorrower: z.string(),
-    status: z.enum(BORROWING_STATUS).optional(),
-    quantity: z.number(),
-    dateBorrowed: requiredDateSchema(),
-    purpose: z.string(),
-
-    venueReservationId: z.string().optional(),
-    fileUrl: z.string().optional(),
+    transactionId: z.string(),
+    quantity: z.number().optional(),
   })
 );

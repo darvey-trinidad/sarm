@@ -1,6 +1,6 @@
 import { db, eq } from "@/server/db";
-import type { EditResourceBorrowing, NewResource, NewResourceBorrowing } from "@/server/db/types/resource";
-import { resource, resourceBorrowing } from "@/server/db/schema/resource";
+import type { EditBorrowingTransaction, EditResourceBorrowing, NewBorrowingTransaction, NewResource, NewResourceBorrowing } from "@/server/db/types/resource";
+import { borrowingTransaction, resource, resourceBorrowing } from "@/server/db/schema/resource";
 
 export const createResource = async (data: NewResource) => {
   try {
@@ -23,6 +23,24 @@ export const addResourceQuantity = async (id: string, quantity: number) => {
     throw error;
   }
 };
+
+export const createBorrowingTransaction = async (data: NewBorrowingTransaction) => {
+  try {
+    return await db.insert(borrowingTransaction).values(data).returning().get();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const updateBorrowingTransaction = async (id: string, data: EditBorrowingTransaction) => {
+  try {
+    return await db.update(borrowingTransaction).set(data).where(eq(borrowingTransaction.id, id)).returning().get();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export const createResourceBorrowing = async (data: NewResourceBorrowing[]) => {
   try {

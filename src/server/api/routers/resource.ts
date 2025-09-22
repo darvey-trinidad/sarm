@@ -1,8 +1,9 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { generateUUID, toTimeInt } from "@/lib/utils";
-import { createResource, addResourceQuantity, createResourceBorrowing, editResourceBorrowing } from "@/lib/api/resource/mutation";
-import { createResourceSchema, addResourceQuantitySchema, createResourceBorrowingSchema, getAllAvailableResourcesSchema, EditResourceBorrowingSchema } from "@/server/api-utils/validators/resource";
+import { createResource, addResourceQuantity, createResourceBorrowing, editResourceBorrowing, createBorrowingTransaction, updateBorrowingTransaction } from "@/lib/api/resource/mutation";
+import { createResourceSchema, addResourceQuantitySchema, createResourceBorrowingSchema, getAllAvailableResourcesSchema, EditResourceBorrowingSchema, createBorrowingTransactionSchema, updateBorrowingTransactionSchema } from "@/server/api-utils/validators/resource";
 import { getAllAvailableResources, getAllResourceBorrowings, getAllResources } from "@/lib/api/resource/query";
+import { TRPCError } from "@trpc/server";
 
 export const resourceRouter = createTRPCRouter({
   createResource: protectedProcedure
@@ -27,23 +28,30 @@ export const resourceRouter = createTRPCRouter({
       return res;
     }),
   createResourceBorrowing: protectedProcedure
-    .input(createResourceBorrowingSchema)
-    .mutation(({ input }) => {
-      const borrowings = input.map((item) => {
+    .input(createBorrowingTransactionSchema)
+    .mutation(async ({ input }) => {
+      const { itemsBorrowed, ...borrowingTransactionDetails } = input;
+      const borrowingTransaction = await createBorrowingTransaction({ id: generateUUID(), ...borrowingTransactionDetails });
+
+      if (!borrowingTransaction) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create borrowing transaction" });
+
+      const borrowings = itemsBorrowed.map((item) => {
         return {
           id: generateUUID(),
-          ...item
+          ...item,
+          transactionId: borrowingTransaction.id
         };
       });
+
       return createResourceBorrowing(borrowings);
     }),
   getAllResourceBorrowings: protectedProcedure.query(() => {
     return getAllResourceBorrowings();
   }),
-  editResourceBorrowing: protectedProcedure
-    .input(EditResourceBorrowingSchema)
+  updateBorrowingTransaction: protectedProcedure
+    .input(updateBorrowingTransactionSchema)
     .mutation(({ input }) => {
       const { id, ...data } = input;
-      return editResourceBorrowing(id, data);
+      return updateBorrowingTransaction(id, data);
     }),
 });
