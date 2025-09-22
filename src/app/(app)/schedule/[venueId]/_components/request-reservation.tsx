@@ -124,7 +124,6 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             startTime: data.startTime.toString(),
             endTime: data.endTime.toString(),
 
-            dateRequested: newDate(new Date()),
             dateBorrowed: newDate(data.date),
             fileUrl: data.fileUrl,
 

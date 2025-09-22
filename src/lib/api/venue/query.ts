@@ -2,7 +2,7 @@ import { db, eq, and, desc, asc, gte, lte } from "@/server/db";
 import { venue, venueReservation } from "@/server/db/schema/venue";
 import { user } from "@/server/db/schema/auth";
 import { ReservationStatus } from "@/constants/reservation-status";
-import { resource, resourceBorrowing } from "@/server/db/schema/resource";
+import { borrowingTransaction, resource, resourceBorrowing } from "@/server/db/schema/resource";
 
 import type { VenueReservationWithoutId } from "@/server/db/types/venue";
 
@@ -15,84 +15,111 @@ export const getAllVenues = async () => {
   }
 }
 
-export const getAllVenueReservations = async () => {
+export async function getAllVenueReservations({
+  status,
+  venueId,
+}: {
+  status?: ReservationStatus;
+  venueId?: string;
+}): Promise<ReservationWithBorrowing[]> {
+  // --- Build conditions dynamically ---
+  const conditions = [];
+  if (status) conditions.push(eq(venueReservation.status, status));
+  if (venueId) conditions.push(eq(venueReservation.venueId, venueId));
+
+  const rows = await db
+    .select({
+      venueReservationId: venueReservation.id,
+      venueId: venue.id,
+      venueName: venue.name,
+      reserverId: user.id,
+      reserverName: user.name,
+
+      date: venueReservation.date,
+      startTime: venueReservation.startTime,
+      endTime: venueReservation.endTime,
+      purpose: venueReservation.purpose,
+      status: venueReservation.status,
+      createdAt: venueReservation.createdAt,
+      fileUrl: venueReservation.fileUrl,
+
+      transactionId: borrowingTransaction.id,
+      transactionVenueReservationId: borrowingTransaction.venueReservationId,
+      representativeBorrower: borrowingTransaction.representativeBorrower,
+
+      resourceId: resource.id,
+      resourceName: resource.name,
+      resourceQuantity: resourceBorrowing.quantity,
+    })
+    .from(venueReservation)
+    .innerJoin(venue, eq(venueReservation.venueId, venue.id))
+    .innerJoin(user, eq(venueReservation.reserverId, user.id))
+    .leftJoin(
+      borrowingTransaction,
+      eq(borrowingTransaction.venueReservationId, venueReservation.id),
+    )
+    .leftJoin(
+      resourceBorrowing,
+      eq(resourceBorrowing.transactionId, borrowingTransaction.id),
+    )
+    .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(venueReservation.createdAt));
+
+  const result = Object.values(
+    rows.reduce<Record<string, ReservationWithBorrowing>>((acc, row) => {
+      if (!acc[row.venueReservationId]) {
+        acc[row.venueReservationId] = {
+          venueReservationId: row.venueReservationId,
+          venueId: row.venueId || "",
+          venueName: row.venueName,
+          reserverId: row.reserverId || "",
+          reserverName: row.reserverName,
+          date: row.date,
+          startTime: row.startTime,
+          endTime: row.endTime,
+          purpose: row.purpose,
+          status: row.status,
+          fileUrl: row.fileUrl,
+          createdAt: row.createdAt,
+          borrowingTransaction: row.transactionId
+            ? {
+              id: row.transactionId || "",
+              venueReservationId: row.transactionVenueReservationId || "",
+              representativeBorrower: row.representativeBorrower || "",
+              itemsBorrowed: [],
+            }
+            : null,
+        };
+      }
+
+      if (row.transactionId && row.resourceId) {
+        acc[row.venueReservationId]?.borrowingTransaction?.itemsBorrowed.push({
+          id: row.resourceId || "",
+          name: row.resourceName || "",
+          quantity: row.resourceQuantity || 1,
+        });
+      }
+
+      return acc;
+    }, {}),
+  );
+
+  return result;
+}
+
+export const getAllPendingVenueReservations = async () => {
   try {
-    const rows = await db
-      .select({
-        venueReservationId: venueReservation.id,
-        venueId: venueReservation.venueId,
-        venueName: venue.name,
-        date: venueReservation.date,
-        startTime: venueReservation.startTime,
-        endTime: venueReservation.endTime,
-        reserverId: venueReservation.reserverId,
-        reserverName: user.name,
-        purpose: venueReservation.purpose,
-        status: venueReservation.status,
-        createdAt: venueReservation.createdAt,
-        fileUrl: venueReservation.fileUrl,
-
-        // borrowing fields
-        resourceBorrowingId: resourceBorrowing.id,
-        resourceId: resourceBorrowing.resourceId,
-        resourceName: resource.name,
-        quantity: resourceBorrowing.quantity,
-        representativeBorrower: resourceBorrowing.representativeBorrower,
-      })
-      .from(venueReservation)
-      .orderBy(desc(venueReservation.date), asc(venueReservation.startTime))
-      .innerJoin(venue, eq(venueReservation.venueId, venue.id))
-      .innerJoin(user, eq(venueReservation.reserverId, user.id))
-      .leftJoin(
-        resourceBorrowing,
-        eq(venueReservation.id, resourceBorrowing.venueReservationId)
-      )
-      .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
-      .all();
-
-    // ---- Post-process: group by reservationId ----
-    const reservations = Object.values(
-      rows.reduce((acc, row) => {
-        const id = row.venueReservationId;
-
-        if (!acc[id]) {
-          acc[id] = {
-            venueReservationId: row.venueReservationId,
-            venueId: row.venueId,
-            venueName: row.venueName,
-            date: row.date,
-            startTime: row.startTime,
-            endTime: row.endTime,
-            reserverId: row.reserverId,
-            reserverName: row.reserverName,
-            purpose: row.purpose,
-            status: row.status,
-            createdAt: row.createdAt,
-            fileUrl: row.fileUrl,
-            borrowings: [],
-          };
-        }
-
-        if (row.resourceBorrowingId) {
-          acc[id].borrowings.push({
-            resourceBorrowingId: row.resourceBorrowingId,
-            resourceId: row.resourceId,
-            resourceName: row.resourceName,
-            quantity: row.quantity,
-            representativeBorrower: row.representativeBorrower,
-          });
-        }
-
-        return acc;
-      }, {} as Record<string, any>)
-    );
-
+    const reservations = await getAllVenueReservations({
+      status: ReservationStatus.Pending
+    });
     return reservations;
+
   } catch (error) {
     console.error(error);
     throw error;
   }
-};
+}
 
 export const getReservedVenueReservationsByDate = async (venueId: string, date: Date) => {
   try {
@@ -166,3 +193,33 @@ export const getVenueSchedule = async (venueId: string, startDate: Date, endDate
     throw error;
   }
 }
+
+// types
+type BorrowedItem = {
+  id: string;
+  name: string;
+  quantity: number;
+};
+
+type BorrowingTransaction = {
+  id: string;
+  venueReservationId: string;
+  representativeBorrower: string;
+  itemsBorrowed: BorrowedItem[];
+} | null;
+
+type ReservationWithBorrowing = {
+  venueReservationId: string;
+  venueId: string;
+  venueName: string | null;
+  reserverId: string;
+  reserverName: string | null;
+  date: Date;
+  startTime: number;
+  endTime: number;
+  purpose: string;
+  status: string;
+  createdAt: Date;
+  fileUrl: string | null;
+  borrowingTransaction: BorrowingTransaction;
+};
