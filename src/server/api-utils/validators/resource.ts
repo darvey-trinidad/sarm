@@ -51,7 +51,7 @@ export const createBorrowingTransactionSchema = z.object({
   fileUrl: z.string().optional(),
   venueReservationId: z.string().optional(),
   representativeBorrower: z.string(),
-  dateRequested: requiredDateSchema(),
+  dateRequested: requiredDateSchema().optional(),
   dateBorrowed: requiredDateSchema().optional(),
   dateReturned: requiredDateSchema().optional(),
   itemsBorrowed: z.array(

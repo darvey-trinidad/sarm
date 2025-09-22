@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation } from "@/lib/api/venue/mutation";
-import { getAllVenues, getVenueSchedule } from "@/lib/api/venue/query";
-import { createVenueSchema, createVenueReservationSchema, getVenueScheduleSchema, createVenueReservationWithBorrowingSchema } from "@/server/api-utils/validators/venue";
+import { getAllPendingVenueReservations, getAllVenues, getVenueSchedule } from "@/lib/api/venue/query";
+import { createVenueSchema, createVenueReservationSchema, getVenueScheduleSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
 import { createBorrowingTransaction, createResourceBorrowing } from "@/lib/api/resource/mutation";
@@ -28,7 +28,11 @@ export const venueRouter = createTRPCRouter({
       if (!venueReservation) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create venue reservation" });
 
       const { itemsBorrowed, ...borrowingTransactionDetails } = input.borrowing;
-      const borrowingTransaction = await createBorrowingTransaction({ id: generateUUID(), ...borrowingTransactionDetails });
+      const borrowingTransaction = await createBorrowingTransaction({
+        id: generateUUID(),
+        ...borrowingTransactionDetails,
+        venueReservationId: venueReservation.id
+      });
       if (!borrowingTransaction.id) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create borrowing transaction" });
 
       const borrowings = itemsBorrowed.map((item) => {
@@ -53,8 +57,13 @@ export const venueRouter = createTRPCRouter({
         }
       };
     }),
-  getAllVenueReservations: protectedProcedure.query(() => {
-    return getAllVenueReservations();
+  getAllVenueReservations: protectedProcedure
+    .input(getAllVenueReservationsSchema)
+    .query(async ({ input }) => {
+      return await getAllVenueReservations(input);
+    }),
+  getAllPendingVenueReservations: protectedProcedure.query(async () => {
+    return await getAllPendingVenueReservations();
   }),
   getVenueSchedule: protectedProcedure
     .input(getVenueScheduleSchema)

@@ -3,6 +3,7 @@ import { USABILITY } from "@/constants/usability";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
 import { requiredDateSchema } from "@/server/api-utils/validators/date";
 import { createBorrowingTransactionSchema } from "@/server/api-utils/validators/resource";
+import { venue } from "@/server/db/schema/venue";
 
 export const createVenueSchema = z.object({
   name: z.string(),
@@ -31,4 +32,11 @@ export const getVenueScheduleSchema = z.object({
   venueId: z.string(),
   startDate: requiredDateSchema(),
   endDate: requiredDateSchema(),
+})
+
+export const getAllVenueReservationsSchema = z.object({
+  status: z.enum(RESERVATION_STATUS).optional(),
+  venueId: z.string().optional(),
+  startDate: requiredDateSchema().optional(),
+  endDate: requiredDateSchema().optional(),
 })
