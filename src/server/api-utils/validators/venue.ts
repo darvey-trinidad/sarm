@@ -37,4 +37,6 @@ export const getVenueScheduleSchema = z.object({
 export const getAllVenueReservationsSchema = z.object({
   status: z.enum(RESERVATION_STATUS).optional(),
   venueId: z.string().optional(),
+  startDate: requiredDateSchema().optional(),
+  endDate: requiredDateSchema().optional(),
 })

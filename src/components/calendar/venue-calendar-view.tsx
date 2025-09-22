@@ -9,6 +9,7 @@ import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
 import { toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import { ReservationStatus } from "@/constants/reservation-status";
 
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
@@ -35,8 +36,9 @@ export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
     data: reservations,
     isLoading,
     isError,
-  } = api.venue.getVenueSchedule.useQuery({
+  } = api.venue.getAllVenueReservations.useQuery({
     venueId,
+    status: ReservationStatus.Approved,
     startDate: newDate(weekStart),
     endDate: newDate(weekEnd),
   });
@@ -181,9 +183,8 @@ export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
+                        }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
