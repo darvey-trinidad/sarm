@@ -50,6 +50,7 @@ export async function getAllVenueReservations({
       fileUrl: venueReservation.fileUrl,
 
       transactionId: borrowingTransaction.id,
+      transactionStatus: borrowingTransaction.status,
       transactionVenueReservationId: borrowingTransaction.venueReservationId,
       representativeBorrower: borrowingTransaction.representativeBorrower,
 
@@ -94,6 +95,7 @@ export async function getAllVenueReservations({
               id: row.transactionId || "",
               venueReservationId: row.transactionVenueReservationId || "",
               representativeBorrower: row.representativeBorrower || "",
+              status: row.transactionStatus || "",
               itemsBorrowed: [],
             }
             : null,
@@ -217,6 +219,7 @@ type BorrowingTransaction = {
   venueReservationId: string;
   representativeBorrower: string;
   itemsBorrowed: BorrowedItem[];
+  status: string;
 } | null;
 
 type ReservationWithBorrowing = {
