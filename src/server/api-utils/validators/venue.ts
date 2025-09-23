@@ -5,6 +5,7 @@ import { requiredDateSchema } from "@/server/api-utils/validators/date";
 import { createBorrowingTransactionSchema, editBorrowingTransactionSchema } from "@/server/api-utils/validators/resource";
 import { venue } from "@/server/db/schema/venue";
 import { timeIntSchema } from "@/constants/timeslot";
+import { BORROWING_STATUS } from "@/constants/borrowing-status";
 
 export const createVenueSchema = z.object({
   name: z.string(),
@@ -36,19 +37,6 @@ export const getAllVenueReservationsSchema = z.object({
   endDate: requiredDateSchema().optional(),
 })
 
-type venueRes = {
-  status?: "pending" | "approved" | "rejected" | "canceled" | undefined;
-  venueId?: string | undefined;
-  reserverId?: string | undefined;
-  date?: Date | undefined;
-  startTime?: number | undefined;
-  endTime?: number | undefined;
-  purpose?: string | undefined;
-  fileUrl?: string | null | undefined;
-  createdAt?: Date | undefined;
-  updatedAt?: Date | null | undefined;
-}
-
 export const editVenueReservationSchema = z.object({
   id: z.string(),
   status: z.enum(RESERVATION_STATUS).optional(),
@@ -61,7 +49,15 @@ export const editVenueReservationSchema = z.object({
   fileUrl: z.string().optional(),
 })
 
+export const editVenueReservationAndBorrowingStatusSchema = z.object({
+  id: z.string(),
+  reservationStatus: z.enum(RESERVATION_STATUS),
+  borrowingStatus: z.enum(BORROWING_STATUS).optional()
+})
+
 export const editVenueReservationWithBorrowingSchema = z.object({
   venue: editVenueReservationSchema,
   borrowing: editBorrowingTransactionSchema.optional()
 })
+
+export type EditVenueReservationWithBorrowing = z.infer<typeof editVenueReservationWithBorrowingSchema>

@@ -51,11 +51,22 @@ export const createResourceBorrowing = async (data: NewResourceBorrowing[]) => {
   }
 };
 
-export const editResourceBorrowing = async (id: string, data: EditResourceBorrowing) => {
+export const editBorrowingTransactionByVenueReservationId = async (reservationId: string, data: EditBorrowingTransaction) => {
   try {
-    return await db.update(resourceBorrowing).set(data).where(eq(resourceBorrowing.id, id)).returning().get();
+    const current = await db.select().from(borrowingTransaction).where(eq(borrowingTransaction.venueReservationId, reservationId)).get();
+
+    if (!current) return null;
+
+    const updated = await db
+      .update(borrowingTransaction)
+      .set(data)
+      .where(eq(borrowingTransaction.venueReservationId, reservationId))
+      .returning()
+      .get();
+
+    return updated;
   } catch (error) {
     console.error(error);
     throw error;
   }
-};
+}

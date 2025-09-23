@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -63,6 +63,8 @@ export default function VenueReservation() {
     ReservationStatus | "all"
   >("all");
 
+  const { mutate: editStatusMutation } = api.venue.editVenueReservationAndBorrowingStatus.useMutation();
+
   const filters = useMemo(
     () => ({
       venueId: selectedVenue === "all" ? undefined : selectedVenue,
@@ -77,7 +79,7 @@ export default function VenueReservation() {
     [selectedVenue, selectedStatus, startDate, endDate],
   );
 
-  const { data: venues, isLoading } =
+  const { data: venues, isLoading, refetch: refetchVenueReservations } =
     api.venue.getAllVenueReservations.useQuery(filters);
 
   const uniqueVenues = useMemo(() => {
@@ -108,20 +110,51 @@ export default function VenueReservation() {
   }, [venues, searchTerm]);
 
   const handleApprove = (reservationId: string) => {
-    console.log("Approving reservation:", reservationId);
-    toast.success("Reservation approved!");
+    editStatusMutation({
+      id: reservationId,
+      reservationStatus: "approved",
+      borrowingStatus: "approved"
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation approved!");
+        refetchVenueReservations();
+      },
+      onError: () => {
+        toast.error("Failed to approve reservation!");
+      }
+    });
   };
 
   const handleReject = (reservationId: string) => {
-    console.log("Rejecting reservation:", reservationId);
-    // Implementation for rejection logic
-    toast.success("Reservation rejected!");
+    editStatusMutation({
+      id: reservationId,
+      reservationStatus: "rejected",
+      borrowingStatus: "rejected"
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation rejected!");
+        refetchVenueReservations();
+      },
+      onError: () => {
+        toast.error("Failed to reject reservation!");
+      }
+    });
   };
 
   const handleCancel = (reservationId: string) => {
-    console.log("Canceling reservation:", reservationId);
-    // Implementation for cancellation logic
-    toast.success("Reservation canceled!");
+    editStatusMutation({
+      id: reservationId,
+      reservationStatus: "canceled",
+      borrowingStatus: "canceled"
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation canceled!");
+        refetchVenueReservations();
+      },
+      onError: () => {
+        toast.error("Failed to cancel reservation!");
+      }
+    });
   };
 
   const getStatusIcon = (status: string) => {
@@ -375,7 +408,7 @@ export default function VenueReservation() {
 
                       {reservation.borrowingTransaction &&
                         reservation.borrowingTransaction.itemsBorrowed.length >
-                          0 && (
+                        0 && (
                           <div className="mt-3 p-3">
                             <h4 className="text-medium font-semibold text-gray-800">
                               Items Requested:

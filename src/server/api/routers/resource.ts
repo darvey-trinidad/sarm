@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { generateUUID, toTimeInt } from "@/lib/utils";
-import { createResource, addResourceQuantity, createResourceBorrowing, editResourceBorrowing, createBorrowingTransaction, editBorrowingTransaction } from "@/lib/api/resource/mutation";
-import { createResourceSchema, addResourceQuantitySchema, createResourceBorrowingSchema, getAllAvailableResourcesSchema, EditResourceBorrowingSchema, createBorrowingTransactionSchema, editBorrowingTransactionSchema } from "@/server/api-utils/validators/resource";
+import { createResource, addResourceQuantity, createResourceBorrowing, createBorrowingTransaction, editBorrowingTransaction } from "@/lib/api/resource/mutation";
+import { createResourceSchema, addResourceQuantitySchema, getAllAvailableResourcesSchema, createBorrowingTransactionSchema, editBorrowingTransactionSchema } from "@/server/api-utils/validators/resource";
 import { getAllAvailableResources, getAllResourceBorrowings, getAllResources } from "@/lib/api/resource/query";
 import { TRPCError } from "@trpc/server";
 

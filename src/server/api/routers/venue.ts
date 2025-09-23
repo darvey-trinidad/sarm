@@ -1,10 +1,10 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation, editVenueReservation } from "@/lib/api/venue/mutation";
 import { getAllPendingVenueReservations, getAllVenues } from "@/lib/api/venue/query";
-import { createVenueSchema, createVenueReservationSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema } from "@/server/api-utils/validators/venue";
+import { createVenueSchema, createVenueReservationSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema, editVenueReservationAndBorrowingStatusSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
-import { createBorrowingTransaction, createResourceBorrowing, editBorrowingTransaction } from "@/lib/api/resource/mutation";
+import { createBorrowingTransaction, createResourceBorrowing, editBorrowingTransaction, editBorrowingTransactionByVenueReservationId } from "@/lib/api/resource/mutation";
 import { TRPCError } from "@trpc/server";
 
 export const venueRouter = createTRPCRouter({
@@ -99,6 +99,28 @@ export const venueRouter = createTRPCRouter({
         }
       } catch (error) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation" });
+      }
+    }),
+  editVenueReservationAndBorrowingStatus: protectedProcedure
+    .input(editVenueReservationAndBorrowingStatusSchema)
+    .mutation(async ({ input }) => {
+      try {
+        editVenueReservation(input.id, { status: input.reservationStatus });
+
+        const res = await editBorrowingTransactionByVenueReservationId(input.id, { status: input.borrowingStatus });
+        console.log("EDITED BORROWING", res);
+
+        if (res) return {
+          success: true,
+          message: `Reservation and borrowing ${input.reservationStatus} successfully`
+        };
+
+        return {
+          success: true,
+          message: `Reservation ${input.reservationStatus} successfully`
+        };
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation status" });
       }
     })
 });
