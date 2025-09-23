@@ -8,12 +8,6 @@ import { newDate } from "@/lib/utils";
 
 
 export default function TestingPage() {
-  // ito tatawagin para makuha yung session (info about currently logged in na user)
-  // const { data, isLoading } = api.venue.getVenueSchedule.useQuery({
-  //   venueId: "75312178-384e-4a68-8ced-5876de1b76f4",
-  //   startDate: newDate(new Date("2025-09-15")),
-  //   endDate: newDate(new Date("2025-09-20"))
-  // });
 
   const { data: data2, isLoading: isLoading2 } = api.venue.getAllVenueReservations.useQuery({
     startDate: newDate(new Date("2025-09-26")),

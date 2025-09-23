@@ -170,42 +170,6 @@ export const checkVenueReservationConflicts = async (newReservation: VenueReserv
   }
 }
 
-export const getVenueSchedule = async (venueId: string, startDate: Date, endDate: Date) => {
-  try {
-    return await db
-      .select({
-        venueReservationId: venueReservation.id,
-        venueId: venueReservation.venueId,
-        venueName: venue.name,
-        date: venueReservation.date,
-        startTime: venueReservation.startTime,
-        endTime: venueReservation.endTime,
-        reserverId: venueReservation.reserverId,
-        reserverName: user.name,
-        purpose: venueReservation.purpose,
-        status: venueReservation.status,
-        createdAt: venueReservation.createdAt
-      })
-      .from(venueReservation)
-      .where(and(
-        eq(venueReservation.venueId, venueId),
-        gte(venueReservation.date, startDate),
-        lte(venueReservation.date, endDate),
-        eq(venueReservation.status, ReservationStatus.Approved)
-      ))
-      .orderBy(
-        asc(venueReservation.date),
-        asc(venueReservation.startTime)
-      )
-      .innerJoin(venue, eq(venueReservation.venueId, venue.id))
-      .innerJoin(user, eq(venueReservation.reserverId, user.id))
-      .all();
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
 // types
 type BorrowedItem = {
   id: string;

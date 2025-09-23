@@ -29,12 +29,6 @@ export const createVenueReservationWithBorrowingSchema = z.object({
   borrowing: createBorrowingTransactionSchema
 })
 
-export const getVenueScheduleSchema = z.object({
-  venueId: z.string(),
-  startDate: requiredDateSchema(),
-  endDate: requiredDateSchema(),
-})
-
 export const getAllVenueReservationsSchema = z.object({
   status: z.enum(RESERVATION_STATUS).optional(),
   venueId: z.string().optional(),

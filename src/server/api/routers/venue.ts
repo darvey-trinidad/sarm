@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation, editVenueReservation } from "@/lib/api/venue/mutation";
-import { getAllPendingVenueReservations, getAllVenues, getVenueSchedule } from "@/lib/api/venue/query";
-import { createVenueSchema, createVenueReservationSchema, getVenueScheduleSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema } from "@/server/api-utils/validators/venue";
+import { getAllPendingVenueReservations, getAllVenues } from "@/lib/api/venue/query";
+import { createVenueSchema, createVenueReservationSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
 import { createBorrowingTransaction, createResourceBorrowing, editBorrowingTransaction } from "@/lib/api/resource/mutation";
@@ -65,12 +65,6 @@ export const venueRouter = createTRPCRouter({
   getAllPendingVenueReservations: protectedProcedure.query(async () => {
     return await getAllPendingVenueReservations();
   }),
-  getVenueSchedule: protectedProcedure
-    .input(getVenueScheduleSchema)
-    .query(({ input }) => {
-      console.log(input);
-      return getVenueSchedule(input.venueId, input.startDate, input.endDate);
-    }),
   editVenueReservation: protectedProcedure
     .input(editVenueReservationWithBorrowingSchema)
     .mutation(({ input }) => {
