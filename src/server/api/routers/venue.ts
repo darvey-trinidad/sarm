@@ -6,6 +6,8 @@ import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
 import { createBorrowingTransaction, createResourceBorrowing, editBorrowingTransaction, editBorrowingTransactionByVenueReservationId } from "@/lib/api/resource/mutation";
 import { TRPCError } from "@trpc/server";
+import { notifyPeInstructors } from "@/emails/notify-pe";
+import { ReservationStatus } from "@/constants/reservation-status";
 
 export const venueRouter = createTRPCRouter({
   createVenue: protectedProcedure
@@ -108,7 +110,12 @@ export const venueRouter = createTRPCRouter({
         editVenueReservation(input.id, { status: input.reservationStatus });
 
         const res = await editBorrowingTransactionByVenueReservationId(input.id, { status: input.borrowingStatus });
-        console.log("EDITED BORROWING", res);
+
+        if (input.reservationStatus.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
+          await notifyPeInstructors(input.id);
+        } else {
+          console.log("\n\n\n\n not approved \n\n\n\n")
+        }
 
         if (res) return {
           success: true,

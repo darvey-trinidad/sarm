@@ -11,6 +11,15 @@ export const getAllFaculty = async () => {
   ).all();
 }
 
+export const getAllPeInstructors = async () => {
+  return await db.select().from(user).where(
+    and(
+      eq(user.role, "pe_instructor"),
+      eq(user.isActive, true)
+    )
+  ).all();
+}
+
 export const getAllSchedulableFaculty = async (role: string, departmentOrOrganization: string) => {
   if (role === ADMIN_ROLE) return await getAllFaculty();
 
