@@ -62,7 +62,7 @@ export const createBorrowingTransactionSchema = z.object({
   ),
 });
 
-export const updateBorrowingTransactionSchema = z.object({
+export const editBorrowingTransactionSchema = z.object({
   id: z.string(),
   borrowerId: z.string().optional(),
   startTime: timeIntSchema.optional(),

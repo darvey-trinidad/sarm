@@ -33,7 +33,7 @@ export const createBorrowingTransaction = async (data: NewBorrowingTransaction) 
   }
 }
 
-export const updateBorrowingTransaction = async (id: string, data: EditBorrowingTransaction) => {
+export const editBorrowingTransaction = async (id: string, data: EditBorrowingTransaction) => {
   try {
     return await db.update(borrowingTransaction).set(data).where(eq(borrowingTransaction.id, id)).returning().get();
   } catch (error) {

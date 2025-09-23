@@ -1,10 +1,10 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { createVenue, createVenueReservation } from "@/lib/api/venue/mutation";
+import { createVenue, createVenueReservation, editVenueReservation } from "@/lib/api/venue/mutation";
 import { getAllPendingVenueReservations, getAllVenues, getVenueSchedule } from "@/lib/api/venue/query";
-import { createVenueSchema, createVenueReservationSchema, getVenueScheduleSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema } from "@/server/api-utils/validators/venue";
+import { createVenueSchema, createVenueReservationSchema, getVenueScheduleSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
-import { createBorrowingTransaction, createResourceBorrowing } from "@/lib/api/resource/mutation";
+import { createBorrowingTransaction, createResourceBorrowing, editBorrowingTransaction } from "@/lib/api/resource/mutation";
 import { TRPCError } from "@trpc/server";
 
 export const venueRouter = createTRPCRouter({
@@ -71,4 +71,40 @@ export const venueRouter = createTRPCRouter({
       console.log(input);
       return getVenueSchedule(input.venueId, input.startDate, input.endDate);
     }),
+  editVenueReservation: protectedProcedure
+    .input(editVenueReservationWithBorrowingSchema)
+    .mutation(({ input }) => {
+      try {
+        const { id: venueReservationId, ...venueReservationData } = input.venue;
+        const updatedVenueReservation = editVenueReservation(venueReservationId, venueReservationData);
+
+        if (input.borrowing) {
+          const { id: borrowingTransactionId, ...borrowingData } = input.borrowing;
+          const updatedBorrowingTransaction = editBorrowingTransaction(
+            borrowingTransactionId,
+            borrowingData
+          );
+          console.log(updatedVenueReservation, updatedBorrowingTransaction);
+          return {
+            success: true,
+            message: "Venue reservation and borrowing transaction updated successfully",
+            data: {
+              updatedVenueReservation,
+              updatedBorrowingTransaction
+            }
+          };
+        } else {
+          return {
+            success: true,
+            message: "Venue reservation updated successfully",
+            data: {
+              updatedVenueReservation,
+              updatedBorrowingTransaction: null
+            }
+          };
+        }
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation" });
+      }
+    })
 });
