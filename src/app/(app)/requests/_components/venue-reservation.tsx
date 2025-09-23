@@ -11,6 +11,7 @@ import { cn, newDate } from "@/lib/utils";
 import { format } from "date-fns";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import { TIME_MAP, TIME_ENTRIES } from "@/constants/timeslot";
 import {
   Select,
   SelectContent,
@@ -392,7 +393,7 @@ export default function VenueReservation() {
                         </Badge>
                       </div>
 
-                      <div className="text-muted-foreground grid grid-cols-1 pt-2 md:grid-cols-2 lg:grid-cols-4">
+                      <div className="text-muted-foreground justitfy-between flex flex-col gap-4 pt-2 lg:flex-row">
                         <div className="flex items-center gap-1">
                           <User className="h-4 w-4" />
                           <span>{reservation.reserverName}</span>
@@ -404,17 +405,26 @@ export default function VenueReservation() {
                         </div>
 
                         <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                          <CalendarIcon className="h-4 w-4" />
                           <span>
-                            {formatTime(reservation.startTime)} -{" "}
-                            {formatTime(reservation.endTime)}
+                            {formatDate(reservation.date.toISOString())}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-1">
-                          <CalendarIcon className="h-4 w-4" />
+                          <Clock className="h-4 w-4" />
                           <span>
-                            {formatDate(reservation.date.toISOString())}
+                            {
+                              TIME_MAP[
+                                reservation.startTime as keyof typeof TIME_MAP
+                              ]
+                            }{" "}
+                            -{" "}
+                            {
+                              TIME_MAP[
+                                reservation.endTime as keyof typeof TIME_MAP
+                              ]
+                            }
                           </span>
                         </div>
                       </div>
@@ -518,7 +528,8 @@ export default function VenueReservation() {
                   </div>
                 </div>
                 <div className="text-muted-foreground border-border border-t pt-3 text-sm">
-                  Submitted on {formatDate(reservation.createdAt.toISOString())}
+                  Submitted on {formatDate(reservation.createdAt.toISOString())}{" "}
+                  ( {reservation.createdAt.toLocaleTimeString()})
                 </div>
               </CardContent>
             </Card>
