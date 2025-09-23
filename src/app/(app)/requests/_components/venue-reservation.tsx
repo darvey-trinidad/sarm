@@ -63,7 +63,8 @@ export default function VenueReservation() {
     ReservationStatus | "all"
   >("all");
 
-  const { mutate: editStatusMutation } = api.venue.editVenueReservationAndBorrowingStatus.useMutation();
+  const { mutate: editStatusMutation } =
+    api.venue.editVenueReservationAndBorrowingStatus.useMutation();
 
   const filters = useMemo(
     () => ({
@@ -79,8 +80,11 @@ export default function VenueReservation() {
     [selectedVenue, selectedStatus, startDate, endDate],
   );
 
-  const { data: venues, isLoading, refetch: refetchVenueReservations } =
-    api.venue.getAllVenueReservations.useQuery(filters);
+  const {
+    data: venues,
+    isLoading,
+    refetch: refetchVenueReservations,
+  } = api.venue.getAllVenueReservations.useQuery(filters);
 
   const uniqueVenues = useMemo(() => {
     if (!venues) return [];
@@ -110,51 +114,60 @@ export default function VenueReservation() {
   }, [venues, searchTerm]);
 
   const handleApprove = (reservationId: string) => {
-    editStatusMutation({
-      id: reservationId,
-      reservationStatus: "approved",
-      borrowingStatus: "approved"
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation approved!");
-        refetchVenueReservations();
+    editStatusMutation(
+      {
+        id: reservationId,
+        reservationStatus: "approved",
+        borrowingStatus: "approved",
       },
-      onError: () => {
-        toast.error("Failed to approve reservation!");
-      }
-    });
+      {
+        onSuccess: () => {
+          toast.success("Reservation approved!");
+          refetchVenueReservations();
+        },
+        onError: () => {
+          toast.error("Failed to approve reservation!");
+        },
+      },
+    );
   };
 
   const handleReject = (reservationId: string) => {
-    editStatusMutation({
-      id: reservationId,
-      reservationStatus: "rejected",
-      borrowingStatus: "rejected"
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation rejected!");
-        refetchVenueReservations();
+    editStatusMutation(
+      {
+        id: reservationId,
+        reservationStatus: "rejected",
+        borrowingStatus: "rejected",
       },
-      onError: () => {
-        toast.error("Failed to reject reservation!");
-      }
-    });
+      {
+        onSuccess: () => {
+          toast.success("Reservation rejected!");
+          refetchVenueReservations();
+        },
+        onError: () => {
+          toast.error("Failed to reject reservation!");
+        },
+      },
+    );
   };
 
   const handleCancel = (reservationId: string) => {
-    editStatusMutation({
-      id: reservationId,
-      reservationStatus: "canceled",
-      borrowingStatus: "canceled"
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation canceled!");
-        refetchVenueReservations();
+    editStatusMutation(
+      {
+        id: reservationId,
+        reservationStatus: "canceled",
+        borrowingStatus: "canceled",
       },
-      onError: () => {
-        toast.error("Failed to cancel reservation!");
-      }
-    });
+      {
+        onSuccess: () => {
+          toast.success("Reservation canceled!");
+          refetchVenueReservations();
+        },
+        onError: () => {
+          toast.error("Failed to cancel reservation!");
+        },
+      },
+    );
   };
 
   const getStatusIcon = (status: string) => {
@@ -408,7 +421,7 @@ export default function VenueReservation() {
 
                       {reservation.borrowingTransaction &&
                         reservation.borrowingTransaction.itemsBorrowed.length >
-                        0 && (
+                          0 && (
                           <div className="mt-3 p-3">
                             <h4 className="text-medium font-semibold text-gray-800">
                               Items Requested:
@@ -503,6 +516,9 @@ export default function VenueReservation() {
                       </Button>
                     )}
                   </div>
+                </div>
+                <div className="text-muted-foreground border-border border-t pt-3 text-sm">
+                  Submitted on {formatDate(reservation.createdAt.toISOString())}
                 </div>
               </CardContent>
             </Card>
