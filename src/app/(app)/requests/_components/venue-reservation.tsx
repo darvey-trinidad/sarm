@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { cn, newDate } from "@/lib/utils";
 import { format } from "date-fns";
@@ -380,33 +380,35 @@ export default function VenueReservation() {
                             <h4 className="text-medium font-semibold text-gray-800">
                               Items Requested:
                             </h4>
-                            <div className="space-y-2">
-                              {reservation.borrowingTransaction.itemsBorrowed.map(
-                                (item) => (
-                                  <div
-                                    key={item.id}
-                                    className="bg-background flex items-center justify-between rounded border p-2"
-                                  >
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium">
-                                          {item.name}
-                                        </span>
-                                        <Badge
-                                          variant="outline"
-                                          className="text-xs"
-                                        >
-                                          × {item.quantity}
-                                        </Badge>
+                            <ScrollArea className="h-32 w-full">
+                              <div className="space-y-2">
+                                {reservation.borrowingTransaction.itemsBorrowed.map(
+                                  (item) => (
+                                    <div
+                                      key={item.id}
+                                      className="bg-background flex items-center justify-between rounded border p-2"
+                                    >
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-medium">
+                                            {item.name}
+                                          </span>
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            × {item.quantity}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-muted-foreground mt-1 text-xs">
+                                          {item.description}
+                                        </p>
                                       </div>
-                                      <p className="text-muted-foreground mt-1 text-xs">
-                                        {item.description}
-                                      </p>
                                     </div>
-                                  </div>
-                                ),
-                              )}
-                            </div>
+                                  ),
+                                )}
+                              </div>
+                            </ScrollArea>
                           </div>
                         )}
                     </div>
