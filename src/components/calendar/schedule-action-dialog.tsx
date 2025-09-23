@@ -95,7 +95,7 @@ export default function ScheduleActionDialog({
     selectedItem.source === SCHEDULE_SOURCE.Borrowing &&
     selectedItem.facultyId === currentUser?.id;
   const isOthersSchedule =
-    !isOwnSchedule && !isVacantSlot && !isUnoccupiedSlot && !isBorrowedByUser;
+    !isOwnSchedule && !isVacantSlot && !isUnoccupiedSlot && !isBorrowedByUser && selectedItem.source !== SCHEDULE_SOURCE.Borrowing;
 
   const canMarkVacant = isOwnSchedule;
   const canClaim = isVacantSlot || isUnoccupiedSlot;
@@ -271,7 +271,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                selectedItem.subject
+                  selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
