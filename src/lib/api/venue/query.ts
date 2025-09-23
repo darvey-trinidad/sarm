@@ -55,6 +55,7 @@ export async function getAllVenueReservations({
 
       resourceId: resource.id,
       resourceName: resource.name,
+      resourceDescription: resource.description,
       resourceQuantity: resourceBorrowing.quantity,
     })
     .from(venueReservation)
@@ -103,6 +104,7 @@ export async function getAllVenueReservations({
         acc[row.venueReservationId]?.borrowingTransaction?.itemsBorrowed.push({
           id: row.resourceId || "",
           name: row.resourceName || "",
+          description: row.resourceDescription || "",
           quantity: row.resourceQuantity || 1,
         });
       }
@@ -206,6 +208,7 @@ export const getVenueSchedule = async (venueId: string, startDate: Date, endDate
 type BorrowedItem = {
   id: string;
   name: string;
+  description: string;
   quantity: number;
 };
 
