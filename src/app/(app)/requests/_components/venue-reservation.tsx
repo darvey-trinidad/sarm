@@ -404,17 +404,17 @@ export default function VenueReservation() {
                         </div>
 
                         <div className="flex items-center gap-1">
-                          <CalendarIcon className="h-4 w-4" />
-                          <span>
-                            {formatDate(reservation.date.toISOString())}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-1 pl-4">
                           <Clock className="h-4 w-4" />
                           <span>
                             {formatTime(reservation.startTime)} -{" "}
                             {formatTime(reservation.endTime)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <CalendarIcon className="h-4 w-4" />
+                          <span>
+                            {formatDate(reservation.date.toISOString())}
                           </span>
                         </div>
                       </div>
