@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { TIME_MAP } from "@/constants/timeslot";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import {
   Select,
   SelectContent,
@@ -26,7 +27,6 @@ import {
 } from "@/components/ui/popover";
 import {
   CalendarIcon,
-  CircleX,
   Clock,
   MapPin,
   User,
@@ -64,11 +64,13 @@ export default function ResourceReservation() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedStatus, setSelectedStatus] = useState<
-    BorrowingStatus | "all"
-  >("all");
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+  const [selectedStatus, setSelectedStatus] = useState<BorrowingStatus | "all">(
+    "all",
+  );
 
-  const { mutate: editStatusMutation } = api.resource.editBorrowingTransaction.useMutation();
+  const { mutate: editStatusMutation } =
+    api.resource.editBorrowingTransaction.useMutation();
 
   const filter = useMemo(
     () => ({
@@ -133,61 +135,109 @@ export default function ResourceReservation() {
   }, [resources, selectedResource, searchTerm]);
 
   const handleApprove = (borrowingTransactionId: string) => {
-    editStatusMutation({
-      id: borrowingTransactionId,
-      status: "approved",
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation approved!");
-        refetchResourcesReservations();
-      },
-      onError: () => {
-        toast.error("Failed to approve reservation!");
+    showConfirmation({
+      title: "Approve Resource Reservation",
+      description: "Are you sure you want to approve this reservation?",
+      confirmText: "Approve",
+      cancelText: "Cancel",
+      variant: "success",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: borrowingTransactionId,
+            status: "approved",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation approved!");
+              refetchResourcesReservations();
+            },
+            onError: () => {
+              toast.error("Failed to approve reservation!");
+            },
+          },
+        );
       },
     });
   };
 
   const handleCancel = (borrowingTransactionId: string) => {
-    editStatusMutation({
-      id: borrowingTransactionId,
-      status: "canceled",
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation canceled!");
-        refetchResourcesReservations();
-      },
-      onError: () => {
-        toast.error("Failed to cancel reservation!");
+    showConfirmation({
+      title: "Cancel Resource Reservation",
+      description: "Are you sure you want to cancel this reservation?",
+      confirmText: "Cancel",
+      cancelText: "Cancel",
+      variant: "destructive",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: borrowingTransactionId,
+            status: "canceled",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation canceled!");
+              refetchResourcesReservations();
+            },
+            onError: () => {
+              toast.error("Failed to cancel reservation!");
+            },
+          },
+        );
       },
     });
   };
 
   const handleReject = (borrowingTransactionId: string) => {
-    editStatusMutation({
-      id: borrowingTransactionId,
-      status: "rejected",
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation rejected!");
-        refetchResourcesReservations();
-      },
-      onError: () => {
-        toast.error("Failed to reject reservation!");
+    showConfirmation({
+      title: "Reject Resource Reservation",
+      description: "Are you sure you want to reject this reservation?",
+      confirmText: "Reject",
+      cancelText: "Cancel",
+      variant: "destructive",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: borrowingTransactionId,
+            status: "rejected",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation rejected!");
+              refetchResourcesReservations();
+            },
+            onError: () => {
+              toast.error("Failed to reject reservation!");
+            },
+          },
+        );
       },
     });
   };
 
   const handleReturn = (borrowingTransactionId: string) => {
-    editStatusMutation({
-      id: borrowingTransactionId,
-      status: "returned",
-    }, {
-      onSuccess: () => {
-        toast.success("Reservation returned!");
-        refetchResourcesReservations();
-      },
-      onError: () => {
-        toast.error("Failed to return reservation!");
+    showConfirmation({
+      title: "Return Resource Reservation",
+      description: "Are you sure you want to return this reservation?",
+      confirmText: "Return",
+      cancelText: "Cancel",
+      variant: "default",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: borrowingTransactionId,
+            status: "returned",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation returned!");
+              refetchResourcesReservations();
+            },
+            onError: () => {
+              toast.error("Failed to return reservation!");
+            },
+          },
+        );
       },
     });
   };
@@ -380,21 +430,21 @@ export default function ResourceReservation() {
           startDate ||
           endDate ||
           searchTerm) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedResource("all");
-                setSelectedStatus("all");
-                setStartDate(undefined);
-                setEndDate(undefined);
-                setSearchTerm("");
-              }}
-              className="mt-2"
-            >
-              Clear Filters
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSelectedResource("all");
+              setSelectedStatus("all");
+              setStartDate(undefined);
+              setEndDate(undefined);
+              setSearchTerm("");
+            }}
+            className="mt-2"
+          >
+            Clear Filters
+          </Button>
+        )}
       </div>
 
       {/*Resource Reservations*/}
@@ -420,29 +470,31 @@ export default function ResourceReservation() {
               className="border-border transition-shadow hover:shadow-md"
             >
               <CardContent className="p-4">
-                <div className="mb-4 flex items-start justify-between">
+                <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
                       <div className="flex flex-row gap-2">
                         <h3 className="text-medium font-semibold text-gray-800">
                           {request.purpose}
                         </h3>
-                        <Badge
-                          className={`${getStatusColor(request.status)} flex items-center gap-1`}
-                        >
-                          {getStatusIcon(request.status)}
-                          {request.status.charAt(0).toUpperCase() +
-                            request.status.slice(1)}
-                        </Badge>
-                        {request.venueReservationId && (
+                        <div className="flex items-center">
                           <Badge
-                            className="ml-2 flex items-center gap-1 bg-sky-100 text-sky-800 border-sky-200"
-                            title="This request has a linked venue reservation"
+                            className={`${getStatusColor(request.status)} flex items-center gap-1`}
                           >
-                            <MapPin className="h-3 w-3" />
-                            With Venue
+                            {getStatusIcon(request.status)}
+                            {request.status.charAt(0).toUpperCase() +
+                              request.status.slice(1)}
                           </Badge>
-                        )}
+                          {request.venueReservationId && (
+                            <Badge
+                              className="ml-2 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800"
+                              title="This request has a linked venue reservation"
+                            >
+                              <MapPin className="h-3 w-3" />
+                              With Venue
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
@@ -465,7 +517,7 @@ export default function ResourceReservation() {
                           <span>
                             {
                               TIME_MAP[
-                              request.startTime as keyof typeof TIME_MAP
+                                request.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
@@ -601,6 +653,7 @@ export default function ResourceReservation() {
           ))
         )}
       </div>
+      {ConfirmationDialog}
     </div>
   );
 }

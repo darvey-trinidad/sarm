@@ -120,7 +120,7 @@ export default function VenueReservation() {
 
   const handleApprove = (reservationId: string) => {
     showConfirmation({
-      title: "Approve Reservation",
+      title: "Approve Venue Reservation",
       description: "Are you sure you want to approve this reservation?",
       confirmText: "Approve",
       cancelText: "Cancel",
@@ -148,7 +148,7 @@ export default function VenueReservation() {
 
   const handleReject = (reservationId: string) => {
     showConfirmation({
-      title: "Reject Reservation",
+      title: "Reject Venue Reservation",
       description: "Are you sure you want to reject this reservation?",
       confirmText: "Reject",
       cancelText: " Cancel",
@@ -176,7 +176,7 @@ export default function VenueReservation() {
 
   const handleCancel = (reservationId: string) => {
     showConfirmation({
-      title: "Cancel Reservation",
+      title: "Cancel Venue Reservation",
       description: "Are you sure you want to cancel this reservation?",
       confirmText: "Cancel",
       cancelText: "Cancel",
