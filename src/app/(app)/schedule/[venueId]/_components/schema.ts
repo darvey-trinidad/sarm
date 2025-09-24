@@ -8,6 +8,7 @@ export const VenueSchema = z.object({
   endTime: z.number(),
   purpose: z.string(),
   status: z.enum(RESERVATION_STATUS),
+  representativeBorrower: z.string().optional(),
   borrowItems: z
     .array(
       z.object({

@@ -77,6 +77,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
       endTime: 2000,
       purpose: "",
       status: "pending",
+      representativeBorrower: "",
       fileUrl: "",
       borrowItems: [],
     },
@@ -119,7 +120,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
           },
           borrowing: {
             borrowerId: session?.user.id || "",
-            representativeBorrower: "",
+            representativeBorrower: data.representativeBorrower || "",
             purpose: data.purpose,
             startTime: data.startTime.toString(),
             endTime: data.endTime.toString(),
@@ -487,6 +488,24 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                         );
                       })}
                     </div>
+
+                    {/* Representative Borrower */}
+                    <FormField
+                      control={form.control}
+                      name="representativeBorrower"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Representative Borrower</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Representative's full name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 )}
 
