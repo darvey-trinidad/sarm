@@ -4,6 +4,7 @@ import { createResource, addResourceQuantity, createResourceBorrowing, createBor
 import { createResourceSchema, addResourceQuantitySchema, getAllAvailableResourcesSchema, createBorrowingTransactionSchema, editBorrowingTransactionSchema, getAllBorrowingTransactionsSchema } from "@/server/api-utils/validators/resource";
 import { getAllAvailableResources, getAllBorrowingTransactions, getAllResources } from "@/lib/api/resource/query";
 import { TRPCError } from "@trpc/server";
+import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 
 export const resourceRouter = createTRPCRouter({
   createResource: protectedProcedure
@@ -52,8 +53,18 @@ export const resourceRouter = createTRPCRouter({
     }),
   editBorrowingTransaction: protectedProcedure
     .input(editBorrowingTransactionSchema)
-    .mutation(({ input }) => {
-      const { id, ...data } = input;
-      return editBorrowingTransaction(id, data);
+    .mutation(async ({ input }) => {
+      try {
+        const { id, ...data } = input;
+        const editedBorrowing = await editBorrowingTransaction(id, data);
+
+        if (editedBorrowing) {
+          await notifyResourceBorrower(editedBorrowing.id);
+        }
+
+        return editedBorrowing;
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update borrowing transaction status" });
+      }
     }),
 });
