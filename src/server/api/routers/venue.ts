@@ -9,6 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { notifyPeInstructors } from "@/emails/notify-pe";
 import { ReservationStatus } from "@/constants/reservation-status";
 import { notifyVenueReserver } from "@/emails/notify-venue-reserver";
+import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 
 export const venueRouter = createTRPCRouter({
   createVenue: protectedProcedure
@@ -115,13 +116,16 @@ export const venueRouter = createTRPCRouter({
         if (input.reservationStatus.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase())
           await notifyPeInstructors(input.id);
 
-        if (input.reservationStatus.toLocaleLowerCase() !== ReservationStatus.Pending.toLocaleLowerCase())
+        if (input.reservationStatus.toLocaleLowerCase() !== ReservationStatus.Pending.toLocaleLowerCase()) {
           await notifyVenueReserver(input.id);
-
-        if (res) return {
-          success: true,
-          message: `Reservation and borrowing ${input.reservationStatus} successfully`
-        };
+          if (res) {
+            await notifyResourceBorrower(res.id);
+            return {
+              success: true,
+              message: `Reservation and borrowing ${input.reservationStatus} successfully`
+            };
+          }
+        }
 
         return {
           success: true,
