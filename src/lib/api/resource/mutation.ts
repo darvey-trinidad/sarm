@@ -70,3 +70,12 @@ export const editBorrowingTransactionByVenueReservationId = async (reservationId
     throw error;
   }
 }
+
+export const editBorrowingTransactionByTransactionId = async (transactionId: string, data: EditBorrowingTransaction) => {
+  try {
+    return await db.update(borrowingTransaction).set(data).where(eq(borrowingTransaction.id, transactionId)).returning().get();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
