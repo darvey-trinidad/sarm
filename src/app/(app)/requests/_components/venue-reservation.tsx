@@ -13,6 +13,7 @@ import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { TIME_MAP } from "@/constants/timeslot";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
+import { ReservationStatus } from "@/constants/reservation-status";
 import {
   Select,
   SelectContent,
@@ -40,7 +41,6 @@ import {
   CircleOff,
   Package,
 } from "lucide-react";
-import { ConfirmationDialog } from "@/components/dialog/confirmation-dialog";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -59,7 +59,6 @@ const formatDate = (dateString: string) => {
 };
 
 export default function VenueReservation() {
-  type ReservationStatus = "pending" | "approved" | "rejected" | "canceled";
   const [selectedVenue, setSelectedVenue] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
