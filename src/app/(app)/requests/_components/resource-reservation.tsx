@@ -30,6 +30,8 @@ import {
   Clock,
   MapPin,
   User,
+  UserCheck,
+  Package,
   FileText,
   Filter,
   Search,
@@ -37,7 +39,7 @@ import {
   XCircle,
   AlertCircle,
   CircleOff,
-  Package,
+  Undo2,
 } from "lucide-react";
 
 // Helper function to format time
@@ -56,9 +58,14 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function VenueReservation() {
-  type ReservationStatus = "pending" | "approved" | "rejected" | "canceled";
-  const [selectedVenue, setSelectedVenue] = useState<string>("all");
+export default function ResourceReservation() {
+  type ReservationStatus =
+    | "returned"
+    | "pending"
+    | "approved"
+    | "rejected"
+    | "canceled";
+  const [selectedResource, setSelectedResource] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -66,12 +73,9 @@ export default function VenueReservation() {
     ReservationStatus | "all"
   >("all");
 
-  const { mutate: editStatusMutation } =
-    api.venue.editVenueReservationAndBorrowingStatus.useMutation();
-
-  const filters = useMemo(
+  const filter = useMemo(
     () => ({
-      venueId: selectedVenue === "all" ? undefined : selectedVenue,
+      resource: selectedResource === "all" ? undefined : selectedResource,
       status: selectedStatus === "all" ? undefined : selectedStatus,
       startDate: startDate
         ? newDate(startDate).toISOString().split("T")[0]
@@ -80,97 +84,71 @@ export default function VenueReservation() {
         ? newDate(endDate).toISOString().split("T")[0]
         : undefined,
     }),
-    [selectedVenue, selectedStatus, startDate, endDate],
+    [selectedResource, selectedStatus, startDate, endDate],
   );
 
   const {
-    data: venues,
+    data: resources,
     isLoading,
-    refetch: refetchVenueReservations,
-  } = api.venue.getAllVenueReservations.useQuery(filters);
+    refetch: refetchResourcesReservations,
+  } = api.resource.getAllBorrowingTransactions.useQuery(filter);
 
-  const uniqueVenues = useMemo(() => {
-    if (!venues) return [];
-    const venueMap = new Map();
-    venues.forEach((reservation) => {
-      if (!venueMap.has(reservation.venueId)) {
-        venueMap.set(reservation.venueId, {
-          id: reservation.venueId,
-          name: reservation.venueName,
-        });
-      }
+  const uniqueResources = useMemo(() => {
+    if (!resources) return [];
+    const resourceMap = new Map();
+    resources.forEach((request) => {
+      request.borrowedItems.forEach((item) => {
+        if (!resourceMap.has(item.resourceId)) {
+          resourceMap.set(item.resourceId, {
+            id: item.resourceId,
+            name: item.resourceName,
+          });
+        }
+      });
     });
-    return Array.from(venueMap.values());
-  }, [venues]);
-  const filteredReservations = useMemo(() => {
-    if (!venues) return [];
+    return Array.from(resourceMap.values());
+  }, [resources]);
 
-    if (!searchTerm) return venues;
+  const filteredRequests = useMemo(() => {
+    if (!resources) return [];
 
-    const searchLower = searchTerm.toLowerCase();
-    return venues.filter(
-      (reservation) =>
-        reservation.reserverName?.toLowerCase().includes(searchLower) ||
-        reservation.purpose.toLowerCase().includes(searchLower) ||
-        reservation.venueName?.toLowerCase().includes(searchLower),
-    );
-  }, [venues, searchTerm]);
+    return resources.filter((request) => {
+      // 1. Resource filter
+      if (selectedResource !== "all") {
+        const hasResource = request.borrowedItems.some(
+          (item) => item.resourceId === selectedResource,
+        );
+        if (!hasResource) return false;
+      }
 
-  const handleApprove = (reservationId: string) => {
-    editStatusMutation(
-      {
-        id: reservationId,
-        reservationStatus: "approved",
-        borrowingStatus: "approved",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Reservation approved!");
-          refetchVenueReservations();
-        },
-        onError: () => {
-          toast.error("Failed to approve reservation!");
-        },
-      },
-    );
+      // 2. Search filter
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch =
+          request.borrowerName.toLowerCase().includes(searchLower) ||
+          request.purpose.toLowerCase().includes(searchLower) ||
+          request.representativeBorrower.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+
+      return true;
+    });
+  }, [resources, selectedResource, searchTerm]);
+
+  const handleApprove = (resourceId: string) => {
+    toast.success("Resource approved!");
   };
 
-  const handleReject = (reservationId: string) => {
-    editStatusMutation(
-      {
-        id: reservationId,
-        reservationStatus: "rejected",
-        borrowingStatus: "rejected",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Reservation rejected!");
-          refetchVenueReservations();
-        },
-        onError: () => {
-          toast.error("Failed to reject reservation!");
-        },
-      },
-    );
+  const handleCancel = (resourceId: string) => {
+    toast.success("Reservation canceled!");
   };
 
-  const handleCancel = (reservationId: string) => {
-    editStatusMutation(
-      {
-        id: reservationId,
-        reservationStatus: "canceled",
-        borrowingStatus: "canceled",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Reservation canceled!");
-          refetchVenueReservations();
-        },
-        onError: () => {
-          toast.error("Failed to cancel reservation!");
-        },
-      },
-    );
+  const handleReject = (resourceId: string) => {
+    toast.success("Reservation rejected!");
+  };
+
+  const handleReturn = (resourceId: string) => {
+    toast.success("Reservation returned!");
   };
 
   const getStatusIcon = (status: string) => {
@@ -181,6 +159,8 @@ export default function VenueReservation() {
         return <XCircle className="h-4 w-4 text-red-600" />;
       case "canceled":
         return <CircleOff className="h-4 w-4 text-orange-600" />;
+      case "returned":
+        return <Undo2 className="h-4 w-4 text-blue-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-yellow-600" />;
     }
@@ -194,6 +174,8 @@ export default function VenueReservation() {
         return "bg-red-100 text-red-800 border-red-200";
       case "canceled":
         return "bg-orange-100 text-orange-800 border-orange-200";
+      case "returned":
+        return "bg-blue-100 text-blue-800 border-blue-200";
       default:
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
@@ -203,13 +185,13 @@ export default function VenueReservation() {
     <div className="space-y-4">
       <div className="space-y-5">
         <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">Venue Request</h2>
+          <h2 className="text-2xl font-bold">Resource Request</h2>
           <p className="text-muted-foreground">
-            Review and manage venue reservations
+            Review and manage resource reservations
           </p>
         </div>
 
-        {/* Filter Section */}
+        {/* Filter  Section*/}
         <div className="flex flex-row items-center gap-2">
           <Filter className="h-5 w-5" />
           <h3 className="font-semibold">Filters</h3>
@@ -229,15 +211,18 @@ export default function VenueReservation() {
           </div>
 
           <div className="space-y-2">
-            <Select value={selectedVenue} onValueChange={setSelectedVenue}>
+            <Select
+              value={selectedResource}
+              onValueChange={setSelectedResource}
+            >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Venue" />
+                <SelectValue placeholder="Select Resource" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Venues</SelectItem>
-                {uniqueVenues.map((venue) => (
-                  <SelectItem key={venue.id} value={venue.id}>
-                    {venue.name}
+                <SelectItem value="all">All Resources</SelectItem>
+                {uniqueResources.map((resource) => (
+                  <SelectItem key={resource.id} value={resource.id}>
+                    {resource.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -268,16 +253,16 @@ export default function VenueReservation() {
                     Approved
                   </div>
                 </SelectItem>
+                <SelectItem value="returned">
+                  <div className="flex items-center gap-2">
+                    <Undo2 className="h-4 w-4 text-blue-600" />
+                    Returned
+                  </div>
+                </SelectItem>
                 <SelectItem value="rejected">
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-600" />
                     Rejected
-                  </div>
-                </SelectItem>
-                <SelectItem value="canceled">
-                  <div className="flex items-center gap-2">
-                    <CircleOff className="h-4 w-4 text-orange-600" />
-                    Canceled
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -348,27 +333,32 @@ export default function VenueReservation() {
           </div>
         </div>
 
-        {/* Clear Filters */}
-        {(selectedVenue !== "all" || startDate || endDate || searchTerm) && (
+        {/* Clear filters button */}
+        {(selectedResource !== "all" ||
+          selectedStatus !== "all" ||
+          startDate ||
+          endDate ||
+          searchTerm) && (
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setSelectedVenue("all");
+              setSelectedResource("all");
+              setSelectedStatus("all");
               setStartDate(undefined);
               setEndDate(undefined);
               setSearchTerm("");
             }}
             className="mt-2"
           >
-            <CircleX /> Clear Filters
+            Clear Filters
           </Button>
         )}
       </div>
 
-      {/* Reservation Lists */}
+      {/*Resource Reservations*/}
       <div className="grid gap-4">
-        {filteredReservations.length === 0 ? (
+        {filteredRequests.length === 0 ? (
           <Card className="border-border">
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -383,116 +373,115 @@ export default function VenueReservation() {
             </CardContent>
           </Card>
         ) : (
-          filteredReservations.map((reservation) => (
+          filteredRequests.map((request) => (
             <Card
-              key={reservation.venueReservationId}
+              key={request.id}
               className="border-border transition-shadow hover:shadow-md"
             >
               <CardContent className="p-4">
-                <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
-                  <div className="item-start flex gap-4">
+                <div className="mb-4 flex items-start justify-between">
+                  <div className="flex items-start gap-4">
                     <div className="flex-1">
                       <div className="flex flex-row gap-2">
                         <h3 className="text-medium font-semibold text-gray-800">
-                          {reservation.purpose}
+                          {request.purpose}
                         </h3>
                         <Badge
-                          className={`${getStatusColor(reservation.status)} flex items-center gap-1`}
+                          className={`${getStatusColor(request.status)} flex items-center gap-1`}
                         >
-                          {getStatusIcon(reservation.status)}
-                          {reservation.status.charAt(0).toUpperCase() +
-                            reservation.status.slice(1)}
+                          {getStatusIcon(request.status)}
+                          {request.status.charAt(0).toUpperCase() +
+                            request.status.slice(1)}
                         </Badge>
                       </div>
 
-                      <div className="text-muted-foreground justitfy-between flex flex-col gap-4 pt-2 lg:flex-row">
-                        <div className="flex items-center gap-1">
+                      <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                        <div className="flex items-center gap-2">
                           <User className="h-4 w-4" />
-                          <span>{reservation.reserverName}</span>
+                          <span>{request.borrowerName}</span>
                         </div>
 
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{reservation.venueName}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                           <CalendarIcon className="h-4 w-4" />
                           <span>
-                            {formatDate(reservation.date.toISOString())}
+                            {request.dateBorrowed
+                              ? formatDate(request.dateBorrowed.toISOString())
+                              : "N/A"}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4" />
                           <span>
                             {
                               TIME_MAP[
-                                reservation.startTime as keyof typeof TIME_MAP
+                                request.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
-                            {
-                              TIME_MAP[
-                                reservation.endTime as keyof typeof TIME_MAP
-                              ]
-                            }
+                            {TIME_MAP[request.endTime as keyof typeof TIME_MAP]}
                           </span>
                         </div>
                       </div>
 
-                      {reservation.borrowingTransaction &&
-                        reservation.borrowingTransaction.itemsBorrowed.length >
-                          0 && (
-                          <div className="mt-3 p-3">
-                            <div className="flex items-center gap-2">
-                              <Package className="h-4 w-4" />
-                              <h4 className="text-medium font-semibold text-gray-800">
-                                Resources Requested:
-                              </h4>
-                            </div>
-                            <ScrollArea className="h-32 w-full">
-                              <div className="space-y-2">
-                                {reservation.borrowingTransaction.itemsBorrowed.map(
-                                  (item) => (
-                                    <div
-                                      key={item.id}
-                                      className="bg-background flex items-center justify-between rounded border p-2"
-                                    >
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm font-medium">
-                                            {item.name}
-                                          </span>
-                                          <Badge
-                                            variant="outline"
-                                            className="text-xs"
-                                          >
-                                            × {item.quantity}
-                                          </Badge>
-                                        </div>
-                                        <p className="text-muted-foreground mt-1 text-xs">
-                                          {item.description}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
-                              </div>
-                            </ScrollArea>
+                      {request.borrowedItems.length > 0 && (
+                        <div className="mt-3 p-3">
+                          <div className="flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            <h4 className="text-medium font-semibold text-gray-800">
+                              Resources Requested:
+                            </h4>
                           </div>
-                        )}
+                          <ScrollArea className="h-32 w-full">
+                            <div className="space-y-2">
+                              {request.borrowedItems.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="bg-background flex items-center justify-between rounded border p-2"
+                                >
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-medium">
+                                        {item.resourceName}
+                                      </span>
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        × {item.quantity}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-muted-foreground text-xs">
+                                      {item.resourceDescription}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </div>
+                      )}
+                      {/*representative borrower change the position */}
+                      {request.representativeBorrower && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <h4 className="font-semibold text-gray-800">
+                            Representative:
+                          </h4>
+                          <UserCheck className="h-4 w-4" />
+                          <span>{request.representativeBorrower}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="ml-4 flex items-center gap-2">
-                    {reservation.fileUrl && (
+                    {request.fileUrl && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          reservation.fileUrl &&
-                          window.open(reservation.fileUrl, "_blank")
+                          request.fileUrl &&
+                          window.open(request.fileUrl, "_blank")
                         }
                         className="flex items-center gap-1"
                       >
@@ -501,50 +490,61 @@ export default function VenueReservation() {
                       </Button>
                     )}
 
-                    {reservation.status === "pending" && (
+                    {request.status === "pending" && (
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            handleReject(reservation.venueReservationId)
-                          }
+                          onClick={() => handleReject(request.id)}
                           className="border-red-200 text-red-600 hover:bg-red-50"
                         >
-                          <XCircle className="h-4 w-4" />
+                          <XCircle className="mr-1 h-4 w-4" />
                           Reject
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() =>
-                            handleApprove(reservation.venueReservationId)
-                          }
+                          onClick={() => handleApprove(request.id)}
                           className="bg-green-600 text-white hover:bg-green-700"
                         >
-                          <CheckCircle className="h-4 w-4" />
+                          <CheckCircle className="mr-1 h-4 w-4" />
                           Approve
                         </Button>
                       </div>
                     )}
 
-                    {reservation.status === "approved" && (
+                    {request.status === "approved" && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
-                          handleCancel(reservation.venueReservationId)
-                        }
+                        onClick={() => handleCancel(request.id)}
                         className="border-orange-200 text-orange-600 hover:bg-orange-50"
                       >
-                        <XCircle className="h-4 w-4" />
+                        <XCircle className="mr-1 h-4 w-4" />
                         Cancel
+                      </Button>
+                    )}
+
+                    {request.status === "approved" && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleReturn(request.id)}
+                        className="bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <Undo2 className="mr-1 h-4 w-4" />
+                        Return
                       </Button>
                     )}
                   </div>
                 </div>
-                <div className="text-muted-foreground border-border border-t pt-3 text-sm">
-                  Submitted on {formatDate(reservation.createdAt.toISOString())}{" "}
-                  ( {reservation.createdAt.toLocaleTimeString()})
+
+                <div className="text-muted-foreground border-border border-t pt-3 text-xs">
+                  Requested on {formatDate(request.dateRequested.toISOString())}
+                  {request.dateReturned && (
+                    <span className="ml-4">
+                      • Returned on{" "}
+                      {formatDate(request.dateReturned.toISOString())}
+                    </span>
+                  )}
                 </div>
               </CardContent>
             </Card>
