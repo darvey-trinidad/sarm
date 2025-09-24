@@ -36,6 +36,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  CircleOff,
 } from "lucide-react";
 
 // Helper function to format time
@@ -177,6 +178,8 @@ export default function VenueReservation() {
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "rejected":
         return <XCircle className="h-4 w-4 text-red-600" />;
+      case "canceled":
+        return <CircleOff className="h-4 w-4 text-orange-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-yellow-600" />;
     }
@@ -188,6 +191,8 @@ export default function VenueReservation() {
         return "bg-green-100 text-green-800 border-green-200";
       case "rejected":
         return "bg-red-100 text-red-800 border-red-200";
+      case "canceled":
+        return "bg-orange-100 text-orange-800 border-orange-200";
       default:
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
@@ -266,6 +271,12 @@ export default function VenueReservation() {
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-600" />
                     Rejected
+                  </div>
+                </SelectItem>
+                <SelectItem value="canceled">
+                  <div className="flex items-center gap-2">
+                    <CircleOff className="h-4 w-4 text-orange-600" />
+                    Canceled
                   </div>
                 </SelectItem>
               </SelectContent>
