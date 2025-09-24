@@ -434,6 +434,15 @@ export default function ResourceReservation() {
                           {request.status.charAt(0).toUpperCase() +
                             request.status.slice(1)}
                         </Badge>
+                        {request.venueReservationId && (
+                          <Badge
+                            className="ml-2 flex items-center gap-1 bg-sky-100 text-sky-800 border-sky-200"
+                            title="This request has a linked venue reservation"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            With Venue
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">

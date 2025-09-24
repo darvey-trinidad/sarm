@@ -109,6 +109,7 @@ export const getAllBorrowingTransactions = async ({
         dateBorrowed: borrowingTransaction.dateBorrowed,
         dateReturned: borrowingTransaction.dateReturned,
         fileUrl: borrowingTransaction.fileUrl,
+        venueReservationId: borrowingTransaction.venueReservationId,
 
         resourceBorrowingId: resourceBorrowing.id,
         resourceId: resourceBorrowing.resourceId,
@@ -144,6 +145,7 @@ export const getAllBorrowingTransactions = async ({
           dateBorrowed: row.dateBorrowed,
           dateReturned: row.dateReturned,
           fileUrl: row.fileUrl,
+          venueReservationId: row.venueReservationId,
           borrowedItems: [],
         });
 
@@ -190,5 +192,6 @@ type BorrowingTransaction = {
   dateBorrowed: Date | null;
   dateReturned: Date | null;
   fileUrl: string | null;
+  venueReservationId: string | null;
   borrowedItems: BorrowedItems[];
 };
