@@ -1,7 +1,7 @@
 import React from "react";
 import { type Metadata } from "next";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
-import VenueReservation from "./_components/venue-reservation";
+import RequestTabContent from "./_components/request-tab-content";
 export const metadata: Metadata = {
   title: "Requests",
 };
@@ -11,7 +11,7 @@ const Requests = () => {
     <div className="flex w-full flex-col space-y-4">
       <BreadcrumbLayout currentPage="Requests" />
 
-      <VenueReservation />
+      <RequestTabContent />
     </div>
   );
 };
