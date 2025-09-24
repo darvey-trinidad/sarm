@@ -84,9 +84,9 @@ export function ConfirmationDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="w-[300px] md:w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
+          <AlertDialogTitle className="flex items-start gap-2 lg:items-center">
             <Icon className={`h-5 w-5 ${config.iconClass}`} />
             {title}
           </AlertDialogTitle>

@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { TIME_MAP } from "@/constants/timeslot";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import {
   Select,
   SelectContent,
@@ -39,6 +40,7 @@ import {
   CircleOff,
   Package,
 } from "lucide-react";
+import { ConfirmationDialog } from "@/components/dialog/confirmation-dialog";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -65,6 +67,7 @@ export default function VenueReservation() {
   const [selectedStatus, setSelectedStatus] = useState<
     ReservationStatus | "all"
   >("all");
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
   const { mutate: editStatusMutation } =
     api.venue.editVenueReservationAndBorrowingStatus.useMutation();
@@ -117,60 +120,87 @@ export default function VenueReservation() {
   }, [venues, searchTerm]);
 
   const handleApprove = (reservationId: string) => {
-    editStatusMutation(
-      {
-        id: reservationId,
-        reservationStatus: "approved",
-        borrowingStatus: "approved",
+    showConfirmation({
+      title: "Approve Reservation",
+      description: "Are you sure you want to approve this reservation?",
+      confirmText: "Approve",
+      cancelText: "Cancel",
+      variant: "success",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: reservationId,
+            reservationStatus: "approved",
+            borrowingStatus: "approved",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation approved!");
+              refetchVenueReservations();
+            },
+            onError: () => {
+              toast.error("Failed to approve reservation!");
+            },
+          },
+        );
       },
-      {
-        onSuccess: () => {
-          toast.success("Reservation approved!");
-          refetchVenueReservations();
-        },
-        onError: () => {
-          toast.error("Failed to approve reservation!");
-        },
-      },
-    );
+    });
   };
 
   const handleReject = (reservationId: string) => {
-    editStatusMutation(
-      {
-        id: reservationId,
-        reservationStatus: "rejected",
-        borrowingStatus: "rejected",
+    showConfirmation({
+      title: "Reject Reservation",
+      description: "Are you sure you want to reject this reservation?",
+      confirmText: "Reject",
+      cancelText: " Cancel",
+      variant: "destructive",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: reservationId,
+            reservationStatus: "rejected",
+            borrowingStatus: "rejected",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation rejected!");
+              refetchVenueReservations();
+            },
+            onError: () => {
+              toast.error("Failed to reject reservation!");
+            },
+          },
+        );
       },
-      {
-        onSuccess: () => {
-          toast.success("Reservation rejected!");
-          refetchVenueReservations();
-        },
-        onError: () => {
-          toast.error("Failed to reject reservation!");
-        },
-      },
-    );
+    });
   };
 
   const handleCancel = (reservationId: string) => {
-    editStatusMutation(
-      {
-        id: reservationId,
-        reservationStatus: "canceled",
-        borrowingStatus: "canceled",
+    showConfirmation({
+      title: "Cancel Reservation",
+      description: "Are you sure you want to cancel this reservation?",
+      confirmText: "Cancel",
+      cancelText: "Cancel",
+      variant: "destructive",
+      onConfirm: async () => {
+        await editStatusMutation(
+          {
+            id: reservationId,
+            reservationStatus: "canceled",
+            borrowingStatus: "canceled",
+          },
+          {
+            onSuccess: () => {
+              toast.success("Reservation canceled!");
+              refetchVenueReservations();
+            },
+            onError: () => {
+              toast.error("Failed to cancel reservation!");
+            },
+          },
+        );
       },
-      {
-        onSuccess: () => {
-          toast.success("Reservation canceled!");
-          refetchVenueReservations();
-        },
-        onError: () => {
-          toast.error("Failed to cancel reservation!");
-        },
-      },
-    );
+    });
   };
 
   const getStatusIcon = (status: string) => {
@@ -551,6 +581,7 @@ export default function VenueReservation() {
           ))
         )}
       </div>
+      {ConfirmationDialog}
     </div>
   );
 }
