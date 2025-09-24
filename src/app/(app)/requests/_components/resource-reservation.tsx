@@ -41,6 +41,7 @@ import {
   CircleOff,
   Undo2,
 } from "lucide-react";
+import type { BorrowingStatus } from "@/constants/borrowing-status";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -59,19 +60,15 @@ const formatDate = (dateString: string) => {
 };
 
 export default function ResourceReservation() {
-  type ReservationStatus =
-    | "returned"
-    | "pending"
-    | "approved"
-    | "rejected"
-    | "canceled";
   const [selectedResource, setSelectedResource] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<
-    ReservationStatus | "all"
+    BorrowingStatus | "all"
   >("all");
+
+  const { mutate: editStatusMutation } = api.resource.editBorrowingTransaction.useMutation();
 
   const filter = useMemo(
     () => ({
@@ -135,20 +132,64 @@ export default function ResourceReservation() {
     });
   }, [resources, selectedResource, searchTerm]);
 
-  const handleApprove = (resourceId: string) => {
-    toast.success("Resource approved!");
+  const handleApprove = (borrowingTransactionId: string) => {
+    editStatusMutation({
+      id: borrowingTransactionId,
+      status: "approved",
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation approved!");
+        refetchResourcesReservations();
+      },
+      onError: () => {
+        toast.error("Failed to approve reservation!");
+      },
+    });
   };
 
-  const handleCancel = (resourceId: string) => {
-    toast.success("Reservation canceled!");
+  const handleCancel = (borrowingTransactionId: string) => {
+    editStatusMutation({
+      id: borrowingTransactionId,
+      status: "canceled",
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation canceled!");
+        refetchResourcesReservations();
+      },
+      onError: () => {
+        toast.error("Failed to cancel reservation!");
+      },
+    });
   };
 
-  const handleReject = (resourceId: string) => {
-    toast.success("Reservation rejected!");
+  const handleReject = (borrowingTransactionId: string) => {
+    editStatusMutation({
+      id: borrowingTransactionId,
+      status: "rejected",
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation rejected!");
+        refetchResourcesReservations();
+      },
+      onError: () => {
+        toast.error("Failed to reject reservation!");
+      },
+    });
   };
 
-  const handleReturn = (resourceId: string) => {
-    toast.success("Reservation returned!");
+  const handleReturn = (borrowingTransactionId: string) => {
+    editStatusMutation({
+      id: borrowingTransactionId,
+      status: "returned",
+    }, {
+      onSuccess: () => {
+        toast.success("Reservation returned!");
+        refetchResourcesReservations();
+      },
+      onError: () => {
+        toast.error("Failed to return reservation!");
+      },
+    });
   };
 
   const getStatusIcon = (status: string) => {
@@ -233,7 +274,7 @@ export default function ResourceReservation() {
             <Select
               value={selectedStatus}
               onValueChange={(value) =>
-                setSelectedStatus(value as ReservationStatus | "all")
+                setSelectedStatus(value as BorrowingStatus | "all")
               }
             >
               <SelectTrigger className="w-full">
@@ -339,21 +380,21 @@ export default function ResourceReservation() {
           startDate ||
           endDate ||
           searchTerm) && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedResource("all");
-              setSelectedStatus("all");
-              setStartDate(undefined);
-              setEndDate(undefined);
-              setSearchTerm("");
-            }}
-            className="mt-2"
-          >
-            Clear Filters
-          </Button>
-        )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedResource("all");
+                setSelectedStatus("all");
+                setStartDate(undefined);
+                setEndDate(undefined);
+                setSearchTerm("");
+              }}
+              className="mt-2"
+            >
+              Clear Filters
+            </Button>
+          )}
       </div>
 
       {/*Resource Reservations*/}
@@ -415,7 +456,7 @@ export default function ResourceReservation() {
                           <span>
                             {
                               TIME_MAP[
-                                request.startTime as keyof typeof TIME_MAP
+                              request.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
