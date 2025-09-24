@@ -33,7 +33,7 @@ export const EditResourceBorrowingSchema = z.object({
   quantity: z.number().optional(),
   dateBorrowed: requiredDateSchema().optional(),
   purpose: z.string().optional(),
-  dateReturned: requiredDateSchema().optional(),
+  dateReturned: requiredDateSchema().optional().default(new Date()),
 
   venueReservationId: z.string().optional(),
   fileUrl: z.string().optional(),
@@ -61,6 +61,12 @@ export const createBorrowingTransactionSchema = z.object({
     })
   ),
 });
+
+export const getAllBorrowingTransactionsSchema = z.object({
+  status: z.enum(BORROWING_STATUS).optional(),
+  startDate: requiredDateSchema().optional(),
+  endDate: requiredDateSchema().optional(),
+})
 
 export const editBorrowingTransactionSchema = z.object({
   id: z.string(),

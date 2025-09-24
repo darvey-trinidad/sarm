@@ -1,7 +1,8 @@
 import type { TimeInt } from "@/constants/timeslot";
-import { db, eq, sql, and, inArray, lt, gt, desc } from "@/server/db";
+import { db, eq, sql, and, inArray, lte, gte, desc } from "@/server/db";
 import { resource, resourceBorrowing, borrowingTransaction } from "@/server/db/schema/resource";
 import { user } from "@/server/db/schema/auth";
+import type { BorrowingStatus } from "@/constants/borrowing-status";
 
 export const getAllResources = async () => {
   try {
@@ -74,8 +75,22 @@ export const getAllAvailableResources = async (
 };
 
 
-export const getAllResourceBorrowings = async () => {
+export const getAllBorrowingTransactions = async ({
+  status,
+  startDate,
+  endDate,
+}: {
+  status?: BorrowingStatus;
+  startDate?: Date;   // filter reservations on/after this date
+  endDate?: Date;     // filter reservations on/before this date
+}) => {
   try {
+
+    const conditions = [];
+    if (status) conditions.push(eq(borrowingTransaction.status, status));
+    if (startDate) conditions.push(gte(borrowingTransaction.dateBorrowed, startDate));
+    if (endDate) conditions.push(lte(borrowingTransaction.dateBorrowed, endDate));
+
     const rows = await db
       .select({
         transactionId: borrowingTransaction.id,
@@ -103,12 +118,13 @@ export const getAllResourceBorrowings = async () => {
         eq(resourceBorrowing.transactionId, borrowingTransaction.id)
       )
       .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(borrowingTransaction.dateRequested))
       .all();
 
     // ---- Group by transactionId ----
     const borrowings = Object.values(
-      rows.reduce<Record<string, BorrowingGroup>>((acc, row) => {
+      rows.reduce<Record<string, BorrowingTransaction>>((acc, row) => {
         // Initialize group if missing
         const group =
           acc[row.transactionId] ??= {
@@ -148,14 +164,14 @@ export const getAllResourceBorrowings = async () => {
   }
 };
 
-type BorrowingItem = {
+type BorrowedItems = {
   id: string;
   resourceId: string;
   resourceName: string;
   quantity: number;
 };
 
-type BorrowingGroup = {
+type BorrowingTransaction = {
   id: string;
   borrowerId: string;
   borrowerName: string;
@@ -168,5 +184,5 @@ type BorrowingGroup = {
   dateBorrowed: Date | null;
   dateReturned: Date | null;
   fileUrl: string | null;
-  borrowedItems: BorrowingItem[];
+  borrowedItems: BorrowedItems[];
 };
