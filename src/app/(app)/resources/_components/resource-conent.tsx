@@ -10,9 +10,9 @@ export default function ResourceContent() {
     <div className="space-y-4">
       <div className="flex flex-col justify-between space-y-4 sm:flex-row">
         <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">Venue Request</h2>
+          <h2 className="text-2xl font-bold">Resources Reservation</h2>
           <p className="text-muted-foreground">
-            Review and manage venue reservations
+            Request for resources to be reserved
           </p>
         </div>
         <RequestResourcesDialog
