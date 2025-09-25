@@ -43,6 +43,13 @@
       "when": 1758524110720,
       "tag": "0005_cheerful_tigra",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1758773796066,
+      "tag": "0006_elite_banshee",
+      "breakpoints": true
     }
   ]
 }
