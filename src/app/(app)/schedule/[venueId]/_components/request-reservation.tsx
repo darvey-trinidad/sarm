@@ -56,7 +56,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UploadButton } from "@/utils/uploadthing";
-import { fileURLToPath } from "url";
 import { DEFAULT_BORROWING_STATUS } from "@/constants/borrowing-status";
 
 type VenuePageProps = {
@@ -128,12 +127,15 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             dateBorrowed: newDate(data.date),
             fileUrl: data.fileUrl,
 
-            status: data.status == "approved" ? data.status : DEFAULT_BORROWING_STATUS,
+            status:
+              data.status == "approved"
+                ? data.status
+                : DEFAULT_BORROWING_STATUS,
             itemsBorrowed: data.borrowItems.map((item) => ({
               resourceId: item.id,
               quantity: item.quantity,
-            }))
-          }
+            })),
+          },
         },
         {
           onSuccess: () => {
@@ -385,7 +387,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                         variant="outline"
                         onClick={() => append({ id: "", quantity: 1 })}
                       >
-                        <Plus className="mr-1 h-4 w-4" />
+                        <Plus className="h-4 w-4" />
                         Add Item
                       </Button>
 

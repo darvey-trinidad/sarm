@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { RESERVATION_STATUS } from "@/constants/reservation-status";
-import { file } from "better-auth";
 
 export const VenueSchema = z.object({
   date: z.date(),
   startTime: z.number(),
   endTime: z.number(),
-  purpose: z.string(),
+  purpose: z
+    .string()
+    .min(1, { message: "Please enter purpose for reservation" }),
   status: z.enum(RESERVATION_STATUS),
   representativeBorrower: z.string().optional(),
   borrowItems: z
