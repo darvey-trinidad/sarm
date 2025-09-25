@@ -1,5 +1,5 @@
 import { db, eq } from "@/server/db";
-import type { EditBorrowingTransaction, EditResourceBorrowing, NewBorrowingTransaction, NewResource, NewResourceBorrowing } from "@/server/db/types/resource";
+import type { EditBorrowingTransaction, NewBorrowingTransaction, NewResource, NewResourceBorrowing } from "@/server/db/types/resource";
 import { borrowingTransaction, resource, resourceBorrowing } from "@/server/db/schema/resource";
 
 export const createResource = async (data: NewResource) => {
