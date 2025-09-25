@@ -1,0 +1,1 @@
+ALTER TABLE `facility_issue_report` ADD `image_url` text;

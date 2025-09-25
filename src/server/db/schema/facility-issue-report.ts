@@ -17,6 +17,7 @@ export const facilityIssueReport = sqliteTable("facility_issue_report", {
   description: text('description').notNull(),
   details: text('details'),
   status: text('status', { enum: REPORT_STATUS }).notNull().default(DEFAULT_REPORT_STATUS),
+  imageUrl: text('image_url'),
 
   dateReported: integer('date_reported', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   dateUpdated: integer('date_updated', { mode: 'timestamp' }).$defaultFn(() => new Date()),
