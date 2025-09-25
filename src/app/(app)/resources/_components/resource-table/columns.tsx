@@ -1,9 +1,8 @@
 "use client";
+
 import { type ColumnDef } from "@tanstack/react-table";
 import { createSortableHeader } from "@/components/table/data-table";
 import { createActionColumn } from "@/components/table/action-column";
-import { Plus } from "lucide-react";
-import ResourceQuantityForm from "../action-column/resource-quantity-form";
 import { RESOURCE_CATEGORY } from "@/constants/resource-category";
 
 interface Resource {
@@ -12,6 +11,7 @@ interface Resource {
   description: string | null;
   category: (typeof RESOURCE_CATEGORY)[number];
   stock: number;
+  available: number;
 }
 
 const getCategory = (category: string | null) => {
@@ -47,24 +47,16 @@ export const columns: ColumnDef<Resource>[] = [
     header: "Description",
   },
   {
-    accessorKey: "stock",
-    header: "Stock",
-  },
-  {
     accessorKey: "category",
     header: "Category",
     cell: (info) => getCategory(info.row.original.category),
   },
-  createActionColumn<Resource>([
-    {
-      label: "Edit Quantity",
-      icon: <Plus className="h-4 w-4" />,
-      render: (resource) => (
-        <ResourceQuantityForm
-          resourceId={resource.id}
-          resourceName={resource.name}
-        />
-      ),
-    },
-  ]),
+  {
+    accessorKey: "stock",
+    header: "Stock",
+  },
+  {
+    accessorKey: "available",
+    header: "Available",
+  },
 ];

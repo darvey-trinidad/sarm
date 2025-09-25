@@ -19,6 +19,7 @@ export default function ResourceTable() {
       ) : (
         <DataTableSkeleton />
       )}
+      e
     </div>
   );
 }
