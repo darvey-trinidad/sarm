@@ -9,7 +9,7 @@ export const VenueSchema = z.object({
     .string()
     .min(1, { message: "Please enter purpose for reservation" }),
   status: z.enum(RESERVATION_STATUS),
-  representativeBorrower: z.string().optional(),
+  representativeBorrower: z.string(),
   borrowItems: z
     .array(
       z.object({

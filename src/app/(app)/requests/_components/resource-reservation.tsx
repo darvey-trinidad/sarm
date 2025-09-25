@@ -42,6 +42,8 @@ import {
   Undo2,
 } from "lucide-react";
 import type { BorrowingStatus } from "@/constants/borrowing-status";
+import { formatLocalTime } from "@/lib/utils";
+import { formatISODate } from "@/lib/utils";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -639,12 +641,13 @@ export default function ResourceReservation() {
                   </div>
                 </div>
 
-                <div className="text-muted-foreground border-border border-t pt-3 text-xs">
-                  Requested on {formatDate(request.dateRequested.toISOString())}
+                <div className="text-muted-foreground border-border flex border-t pt-3 text-sm">
+                  Submitted on {formatISODate(request.dateRequested)} {""}(
+                  {formatLocalTime(request.dateRequested)})
                   {request.dateReturned && (
-                    <span className="ml-4">
-                      • Returned on{" "}
-                      {formatDate(request.dateReturned.toISOString())}
+                    <span>
+                      Returned on {formatISODate(request.dateReturned)} (
+                      {formatLocalTime(request.dateReturned)})
                     </span>
                   )}
                 </div>

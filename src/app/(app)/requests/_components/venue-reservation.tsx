@@ -41,6 +41,8 @@ import {
   CircleOff,
   Package,
 } from "lucide-react";
+import { formatLocalTime } from "@/lib/utils";
+import { formatISODate } from "@/lib/utils";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -572,8 +574,8 @@ export default function VenueReservation() {
                   </div>
                 </div>
                 <div className="text-muted-foreground border-border border-t pt-3 text-sm">
-                  Submitted on {formatDate(reservation.createdAt.toISOString())}{" "}
-                  ( {reservation.createdAt.toLocaleTimeString()})
+                  Submitted on {formatISODate(reservation.createdAt)} (
+                  {formatLocalTime(reservation.createdAt)})
                 </div>
               </CardContent>
             </Card>
