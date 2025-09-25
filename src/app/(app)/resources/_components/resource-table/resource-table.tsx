@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Filter, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { TIME_OPTIONS } from "@/constants/timeslot";
+import { newDate } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -43,7 +44,7 @@ export default function ResourceTable({
 }: ResourceTableProps) {
   const filter = useMemo(
     () => ({
-      requestedDate: requestedDate || new Date(),
+      requestedDate: newDate(requestedDate || new Date()),
       requestedStartTime: requestedStartTime || "700",
       requestedEndTime: requestedEndTime || "2000",
     }),

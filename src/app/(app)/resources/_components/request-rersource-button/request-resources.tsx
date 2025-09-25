@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useFieldArray } from "react-hook-form";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -19,9 +18,7 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -52,7 +49,8 @@ import { UploadButton } from "@/utils/uploadthing";
 import { ResourceScehma } from "./schema";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BORROWING_STATUS } from "@/constants/borrowing-status";
-
+import { DEFAULT_BORROWING_STATUS } from "@/constants/borrowing-status";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 type RequestResourcesDialogProps = {
   requestedDate: Date | null;
   requestedStartTime: string;
@@ -67,6 +65,7 @@ export default function RequestResourcesDialog({
   const { data: session } = authClient.useSession();
   const [pdfUrl, setPdfUrl] = useState<string>("");
   const [pdfName, setPdfName] = useState<string>("");
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
   api.resource.createResourceBorrowing;
   const form = useForm<z.infer<typeof ResourceScehma>>({
@@ -112,6 +111,44 @@ export default function RequestResourcesDialog({
   const { mutate: createResourceBorrowing } =
     api.resource.createResourceBorrowing.useMutation();
 
+  const handleSubmit = (data: z.infer<typeof ResourceScehma>) => {
+    setIsSubmitting(true);
+    console.log("Data", data);
+
+    createResourceBorrowing(
+      {
+        borrowerId: session?.user.id || "",
+        startTime: data.startTime,
+        endTime: data.endTime,
+        dateBorrowed: newDate(data.dateBorrowed),
+        purpose: data.purpose,
+        status:
+          data.status == "approved" ? data.status : DEFAULT_BORROWING_STATUS,
+        fileUrl: data.fileUrl,
+        representativeBorrower: data.representativeBorrower || "",
+        itemsBorrowed: data.itemsBorrowed.map((item) => ({
+          resourceId: item.id,
+          quantity: item.quantity,
+        })),
+      },
+      {
+        onSuccess: () => {
+          setIsSubmitting(false);
+          toast.success("Request submitted successfully!");
+          form.reset();
+          setPdfUrl("");
+          setPdfName("");
+        },
+        onError: (error) => {
+          setIsSubmitting(false);
+          toast.error(error.message);
+        },
+      },
+    );
+  };
+
+  const startTime = form.watch("startTime");
+  const endTime = form.watch("endTime");
   return (
     <div>
       <Dialog>
@@ -130,7 +167,19 @@ export default function RequestResourcesDialog({
           </DialogHeader>
 
           <Form {...form}>
-            <form className="space-y-6">
+            <form
+              className="space-y-6"
+              onSubmit={form.handleSubmit((data) =>
+                showConfirmation({
+                  title: "Confirm Resource Request",
+                  description: "Are you sure you want to submit this request?",
+                  confirmText: "Submit",
+                  cancelText: "Cancel",
+                  variant: "success",
+                  onConfirm: () => handleSubmit(data),
+                }),
+              )}
+            >
               <ScrollArea className="h-95">
                 <div className="space-y-4">
                   {/* Date Borrowed */}
@@ -470,6 +519,12 @@ export default function RequestResourcesDialog({
                   </div>
                 </div>
               </ScrollArea>
+              {/* Validation Messages */}
+              {Number(startTime) >= Number(endTime) && (
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600">
+                  End time must be after start time
+                </div>
+              )}
               <DialogFooter>
                 <Button
                   type="submit"
@@ -486,6 +541,7 @@ export default function RequestResourcesDialog({
           </Form>
         </DialogContent>
       </Dialog>
+      {ConfirmationDialog}
     </div>
   );
 }

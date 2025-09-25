@@ -5,10 +5,14 @@ export const ResourceScehma = z.object({
   dateBorrowed: z.date(),
   startTime: z.string(),
   endTime: z.string(),
-  purpose: z.string(),
+  purpose: z
+    .string()
+    .min(1, { message: "Please enter purpose for reservation" }),
   status: z.enum(BORROWING_STATUS),
-  representativeBorrower: z.string().optional(),
-  fileUrl: z.string().optional(),
+  representativeBorrower: z
+    .string()
+    .min(1, { message: "Please enter representative's name" }),
+  fileUrl: z.string(),
   itemsBorrowed: z.array(
     z.object({
       id: z.string(),

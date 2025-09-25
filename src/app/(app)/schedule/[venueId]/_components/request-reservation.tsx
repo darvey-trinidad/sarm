@@ -144,6 +144,8 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             );
             form.reset();
             setIsSubmitting(false);
+            setPdfUrl("");
+            setPdfName("");
           },
           onError: (err) => {
             console.log(err);
