@@ -3,18 +3,22 @@ import { facilityIssueReport } from "@/server/db/schema/facility-issue-report";
 import { user } from "@/server/db/schema/auth";
 import { building, classroom } from "@/server/db/schema/classroom";
 import type { ReportStatus } from "@/constants/report-status";
+import type { ReportCategory } from "@/constants/report-category";
 
 export const getAllFacilityIssueReports = async ({
+  category,
   status,
   startDate,
   endDate,
 }: {
+  category?: ReportCategory;
   status?: ReportStatus;
   startDate?: Date;
   endDate?: Date;
 }) => {
   try {
     const conditions = [];
+    if (category) conditions.push(eq(facilityIssueReport.category, category));
     if (status) conditions.push(eq(facilityIssueReport.status, status));
     if (startDate) conditions.push(gte(facilityIssueReport.dateReported, startDate));
     if (endDate) conditions.push(lte(facilityIssueReport.dateReported, endDate));

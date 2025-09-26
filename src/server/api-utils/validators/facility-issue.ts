@@ -17,6 +17,7 @@ export const createFacilityIssueReportSchema = z.object({
 })
 
 export const getAllFacilityIssueReportsSchema = z.object({
+  category: z.enum(REPORT_CATEGORY).optional(),
   status: z.enum(REPORT_STATUS).optional(),
   startDate: requiredDateSchema().optional(),
   endDate: requiredDateSchema().optional(),
