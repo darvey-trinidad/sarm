@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ReportForm from "./submit/report-form";
+import ReportListContent from "./report-list-conent";
 
 export default function ReportsTabContent() {
   const [tab, setTab] = useState("submit");
@@ -35,7 +36,9 @@ export default function ReportsTabContent() {
           </div>
         </TabsContent>
 
-        <TabsContent value="myReports" className="space-y-4"></TabsContent>
+        <TabsContent value="myReports" className="space-y-4">
+          <ReportListContent />
+        </TabsContent>
 
         <TabsContent value="allReports" className="space-y-4"></TabsContent>
       </div>

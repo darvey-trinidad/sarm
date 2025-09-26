@@ -31,6 +31,14 @@ export function formatISODate(date: Date | string): string {
   return format(d, "PPP");
 }
 
+export function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 // export function isTimeInt(value: number): value is TimeInt {
 //   return TIME_ENTRIES.map(([key]) => key).includes(value as TimeInt);
 // }
