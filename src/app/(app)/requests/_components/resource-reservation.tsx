@@ -46,6 +46,7 @@ import {
   AlertCircle,
   CircleOff,
   Undo2,
+  Loader2,
 } from "lucide-react";
 import type { BorrowingStatus } from "@/constants/borrowing-status";
 
@@ -425,7 +426,7 @@ export default function ResourceReservation() {
 
       {/*Resource Reservations*/}
       <div className="grid gap-4">
-        {filteredRequests.length === 0 ? (
+        {!isLoading && filteredRequests.length === 0 ? (
           <Card className="border-border">
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -439,6 +440,18 @@ export default function ResourceReservation() {
               </div>
             </CardContent>
           </Card>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
+              <h3 className="text-foreground text-lg font-semibold">
+                Loading resources reservations...
+              </h3>
+              <p className="text-muted-foreground">
+                Please wait while we fetch the data.
+              </p>
+            </div>
+          </div>
         ) : (
           filteredRequests.map((request) => (
             <Card
