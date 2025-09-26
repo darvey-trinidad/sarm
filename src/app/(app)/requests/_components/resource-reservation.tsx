@@ -66,12 +66,8 @@ export default function ResourceReservation() {
     () => ({
       resource: selectedResource === "all" ? undefined : selectedResource,
       status: selectedStatus === "all" ? undefined : selectedStatus,
-      startDate: startDate
-        ? newDate(startDate).toISOString().split("T")[0]
-        : undefined,
-      endDate: endDate
-        ? newDate(endDate).toISOString().split("T")[0]
-        : undefined,
+      startDate: startDate ? newDate(startDate) : undefined,
+      endDate: endDate ? newDate(endDate) : undefined,
     }),
     [selectedResource, selectedStatus, startDate, endDate],
   );
@@ -397,16 +393,6 @@ export default function ResourceReservation() {
                   selected={endDate ?? undefined}
                   onSelect={setEndDate}
                   captionLayout="dropdown"
-                  disabled={(date) =>
-                    date < new Date("1900-01-01") ||
-                    (startDate && date < startDate) ||
-                    !!(
-                      startDate &&
-                      endDate &&
-                      date >= startDate &&
-                      date <= endDate
-                    )
-                  }
                   required={false}
                 />
               </PopoverContent>

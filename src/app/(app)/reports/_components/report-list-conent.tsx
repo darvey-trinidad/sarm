@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
-import { cn, formatDate, formatISODate, formatLocalTime } from "@/lib/utils";
+import { cn, newDate, formatISODate } from "@/lib/utils";
 import { format } from "date-fns";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ import {
   AlertTriangle,
   CheckCircle,
   AlertCircle,
+  Loader2,
   Zap,
   Wrench,
   Settings,
@@ -59,14 +60,23 @@ export default function ReportListContent() {
     () => ({
       status: selectedStatus === "all" ? undefined : selectedStatus,
       category: selectedCategory === "all" ? undefined : selectedCategory,
-      startDate: startDate ? startDate.toISOString().split("T")[0] : undefined,
-      endDate: endDate ? endDate.toISOString().split("T")[0] : undefined,
+      startDate: startDate ? newDate(startDate) : undefined,
+      endDate: endDate ? newDate(endDate) : undefined,
     }),
     [selectedStatus, selectedCategory, startDate, endDate],
   );
 
   const { data: reports, isLoading } =
-    api.facilityIssue.getAllFacilityIssueReports.useQuery(filters);
+    api.facilityIssue.getAllFacilityIssueReports.useQuery({
+      status: filters.status,
+      category: filters.category,
+      startDate: filters.startDate && newDate(filters.startDate),
+      endDate:
+        filters.endDate &&
+        newDate(
+          new Date(filters.endDate?.setDate(filters.endDate.getDate() + 1)),
+        ),
+    });
   const filteredReports = useMemo(() => {
     if (!reports) return [];
 
@@ -142,6 +152,7 @@ export default function ReportListContent() {
         return "bg-purple-100 text-purple-800 border-purple-200";
     }
   };
+
   return (
     <div className="space-y-4">
       <div className="space-y-5">
@@ -303,16 +314,6 @@ export default function ReportListContent() {
                   selected={endDate}
                   onSelect={setEndDate}
                   captionLayout="dropdown"
-                  disabled={(date) =>
-                    date < new Date("1900-01-01") ||
-                    (startDate && date < startDate) ||
-                    !!(
-                      startDate &&
-                      endDate &&
-                      date >= startDate &&
-                      date <= endDate
-                    )
-                  }
                 />
               </PopoverContent>
             </Popover>
@@ -343,7 +344,7 @@ export default function ReportListContent() {
 
       {/* Report lists */}
       <div className="grid gap-4">
-        {filteredReports.length === 0 ? (
+        {!isLoading && filteredReports.length === 0 ? (
           <Card className="border-border">
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -357,6 +358,18 @@ export default function ReportListContent() {
               </div>
             </CardContent>
           </Card>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
+              <h3 className="text-foreground text-lg font-semibold">
+                Loading facility reports...
+              </h3>
+              <p className="text-muted-foreground">
+                Please wait while we fetch the data.
+              </p>
+            </div>
+          </div>
         ) : (
           filteredReports.map((report) => (
             <Card
