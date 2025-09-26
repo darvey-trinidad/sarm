@@ -24,7 +24,7 @@ export const notifyPeInstructors = async (venueReservationId: string) => {
   if (!reservation) return;
 
   const reservationVenue = reservation?.venue.name.toLowerCase().replace(" ", "");
-  if (reservationVenue.includes("activitycenter")) return;
+  if (!(reservationVenue.includes("activitycenter"))) return;
 
   const emailHtml = await render(
     VenueReservationEmail({
@@ -53,6 +53,5 @@ export const notifyPeInstructors = async (venueReservationId: string) => {
     subject: "New Event Scheduled on Activity Center",
     html: emailHtml,
   });
-  console.log("Email sent to Pe Instructors: ", info);
   return info;
 }

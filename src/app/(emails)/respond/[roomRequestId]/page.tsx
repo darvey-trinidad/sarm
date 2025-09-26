@@ -8,6 +8,7 @@ import { TIME_MAP } from "@/constants/timeslot";
 import { toTimeInt } from "@/lib/utils";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import { toast } from "sonner";
+import { env } from "@/env";
 
 export default function RespondPage() {
   const [responded, setResponded] = useState(false);
@@ -57,8 +58,7 @@ export default function RespondPage() {
         <div className="bg-[#8A350E] px-6 py-5 text-white">
           <h1 className="text-xl font-bold">Room Request</h1>
           <p className="text-sm text-[#fcd9c5]">
-            {roomRequestData.requestorName} is requesting{" "}
-            {roomRequestData.classroomName}
+            Someone is requesting to borrow your room.
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export default function RespondPage() {
             <span className="font-semibold text-blue-700">
               {roomRequestData.requestorName}
             </span>{" "}
-            is requesting to use{" "}
+            is requesting to use room{" "}
             <span className="font-semibold text-gray-900">
               {roomRequestData.classroomName}
             </span>
@@ -157,7 +157,7 @@ export default function RespondPage() {
 
         {/* Footer */}
         <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 text-center text-xs text-gray-500">
-          Scheduling and Resource Management System.
+          <a className="underline" target="_blank" href={env.NEXT_PUBLIC_APP_URL}>Scheduling and Resource Management System</a>
         </div>
       </div>
     </div>

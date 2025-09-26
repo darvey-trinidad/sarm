@@ -22,14 +22,28 @@ export const venueRouter = createTRPCRouter({
   }),
   createVenueReservation: protectedProcedure
     .input(createVenueReservationSchema)
-    .mutation(({ input }) => {
-      return createVenueReservation({ id: generateUUID(), ...input });
+    .mutation(async ({ input }) => {
+      const venueReservation = await createVenueReservation({ id: generateUUID(), ...input });
+
+      if (venueReservation.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
+        await notifyPeInstructors(venueReservation.id);
+      }
+
+      return {
+        success: true,
+        message: "Venue reservation created successfully",
+        data: venueReservation
+      }
     }),
   createVenueReservationWithBorrowing: protectedProcedure
     .input(createVenueReservationWithBorrowingSchema)
     .mutation(async ({ input }) => {
       const venueReservation = await createVenueReservation({ id: generateUUID(), ...input.venue });
       if (!venueReservation) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create venue reservation" });
+
+      if (venueReservation.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
+        await notifyPeInstructors(venueReservation.id);
+      }
 
       const { itemsBorrowed, ...borrowingTransactionDetails } = input.borrowing;
       const borrowingTransaction = await createBorrowingTransaction({
@@ -69,42 +83,6 @@ export const venueRouter = createTRPCRouter({
   getAllPendingVenueReservations: protectedProcedure.query(async () => {
     return await getAllPendingVenueReservations();
   }),
-  editVenueReservation: protectedProcedure
-    .input(editVenueReservationWithBorrowingSchema)
-    .mutation(({ input }) => {
-      try {
-        const { id: venueReservationId, ...venueReservationData } = input.venue;
-        const updatedVenueReservation = editVenueReservation(venueReservationId, venueReservationData);
-
-        if (input.borrowing) {
-          const { id: borrowingTransactionId, ...borrowingData } = input.borrowing;
-          const updatedBorrowingTransaction = editBorrowingTransaction(
-            borrowingTransactionId,
-            borrowingData
-          );
-          console.log(updatedVenueReservation, updatedBorrowingTransaction);
-          return {
-            success: true,
-            message: "Venue reservation and borrowing transaction updated successfully",
-            data: {
-              updatedVenueReservation,
-              updatedBorrowingTransaction
-            }
-          };
-        } else {
-          return {
-            success: true,
-            message: "Venue reservation updated successfully",
-            data: {
-              updatedVenueReservation,
-              updatedBorrowingTransaction: null
-            }
-          };
-        }
-      } catch (error) {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation" });
-      }
-    }),
   editVenueReservationAndBorrowingStatus: protectedProcedure
     .input(editVenueReservationAndBorrowingStatusSchema)
     .mutation(async ({ input }) => {

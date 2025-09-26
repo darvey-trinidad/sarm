@@ -26,6 +26,7 @@ import { render } from "@react-email/render";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -135,6 +136,7 @@ export const classroomScheduleRouter = createTRPCRouter({
           })
         }
         updateRoomRequestStatus(input.roomRequestId, input.status);
+        notifyRoomRequestor(input.roomRequestId);
 
         return { info: "Room Request Responded", status: 200 };
       } catch (error) {

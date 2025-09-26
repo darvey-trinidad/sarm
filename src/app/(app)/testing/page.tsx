@@ -1,19 +1,21 @@
+import { notifyRoomRequestor } from '@/emails/notify-room-requestor'
+import { RoomRequestResponseEmail } from '@/emails/room-request-response'
 import React from 'react'
-import { BorrowingUpdateEmail } from '@/emails/borrowing-update'
-import { notifyResourceBorrower } from '@/emails/notify-resource-borrower'
+
 
 const page = () => {
-  //notifyResourceBorrower('b0a9bdcb-b4ca-4c9c-b501-e46285aacf74');
+  //notifyRoomRequestor("878be8c7-441d-4a08-b2c4-542a69ac7f8c")
   return (
-    <div>
-      <BorrowingUpdateEmail
-        date='2025-09-26'
-        time='12:00 AM'
-        purpose='testing'
-        status='testing'
-        borrowedItems={[{ name: 'testing1', quantity: 1 }, { name: 'testing2', quantity: 1 }]}
-      />
-    </div>
+    <RoomRequestResponseEmail
+      classroomName="Room 1"
+      date={new Date()}
+      startTime={700}
+      endTime={800}
+      subject="Web Development"
+      section="BSIT 3D"
+      responderName="John Doe"
+      status="accepted"
+    />
   )
 }
 

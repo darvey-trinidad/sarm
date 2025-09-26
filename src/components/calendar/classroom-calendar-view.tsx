@@ -13,6 +13,7 @@ import { authClient } from "@/lib/auth-client";
 import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
 import { getScheduleColor } from "@/constants/schedule-colors";
+import { SCHEDULE_SOURCE } from "@/constants/schedule";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -139,7 +140,7 @@ export default function ClassroomCalendarView({
       schedDate < dateToday ||
       (schedDate.getTime() === dateToday.getTime() &&
         schedule.endTime <
-          now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+        now.getHours() * 100 + (now.getMinutes() * 100) / 60);
 
     if (schedIsPast) return;
 
@@ -227,9 +228,8 @@ export default function ClassroomCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
+                        }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -289,6 +289,11 @@ export default function ClassroomCalendarView({
                         ? `${schedule.subject} - ${schedule.section}`
                         : schedule.source}
                     </div>
+                    {schedule.source === SCHEDULE_SOURCE.Borrowing &&
+                      <div className="truncate text-xs font-medium">
+                        {`${schedule.subject} - ${schedule.section}`}
+                      </div>
+                    }
                     <div className="text-muted-foreground truncate text-xs">
                       {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
                     </div>

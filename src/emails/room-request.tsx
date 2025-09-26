@@ -63,9 +63,15 @@ export const RequestRoomEmail = ({
               📢
             </span>
             <div>
-              <h1 style={{ margin: 0, fontSize: "20px", fontWeight: "bold" }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "18px", // smaller and consistent
+                  fontWeight: "bold",
+                }}
+              >
                 Room Request
-              </h1>
+              </p>
               <p
                 style={{
                   margin: 0,
@@ -99,106 +105,8 @@ export const RequestRoomEmail = ({
               {DAYS[date.getDay()]})
             </strong>{" "}
             from <strong>{startTimeStr}</strong> to{" "}
-            <strong>{endTimeStr}</strong>.
+            <strong>{endTimeStr}</strong> for <strong>{subject} - {section}</strong>.
           </p>
-
-          {/* Request Details */}
-          <div
-            style={{
-              border: "1px solid #e2e8f0",
-              borderRadius: "6px",
-              marginTop: "24px",
-              padding: "20px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                marginBottom: "16px",
-                color: "#1e293b",
-              }}
-            >
-              Request Details
-            </div>
-
-            {/* Subject */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "12px",
-                backgroundColor: "#fef7f5",
-                borderRadius: "6px",
-                marginBottom: "12px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "18px",
-                  display: "inline-block",
-                  width: "24px",
-                  textAlign: "center",
-                  verticalAlign: "middle",
-                  marginRight: "12px",
-                }}
-              >
-                📘
-              </span>
-              <div>
-                <span style={{ fontSize: "13px", color: "#8A350E" }}>
-                  Subject
-                </span>
-                <p
-                  style={{
-                    margin: 0,
-                    fontWeight: "600",
-                    color: "#0f172a",
-                  }}
-                >
-                  {subject}
-                </p>
-              </div>
-            </div>
-
-            {/* Section */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "12px",
-                backgroundColor: "#fef7f5",
-                borderRadius: "6px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "18px",
-                  display: "inline-block",
-                  width: "24px",
-                  textAlign: "center",
-                  verticalAlign: "middle",
-                  marginRight: "12px",
-                }}
-              >
-                👥
-              </span>
-              <div>
-                <span style={{ fontSize: "13px", color: "#8A350E" }}>
-                  Section
-                </span>
-                <p
-                  style={{
-                    margin: 0,
-                    fontWeight: "600",
-                    color: "#0f172a",
-                  }}
-                >
-                  {section}
-                </p>
-              </div>
-            </div>
-          </div>
 
           {/* CTA Button */}
           <div style={{ textAlign: "center", marginTop: "24px" }}>

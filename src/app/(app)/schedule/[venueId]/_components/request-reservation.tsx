@@ -515,7 +515,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                         name="representativeBorrower"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Representative Borrower</FormLabel>
+                            <FormLabel className="mt-4">Representative Borrower</FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="Representative's full name"
