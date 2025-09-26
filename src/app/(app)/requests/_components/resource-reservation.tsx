@@ -7,7 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
-import { cn, newDate } from "@/lib/utils";
+import {
+  cn,
+  newDate,
+  formatLocalTime,
+  formatISODate,
+  formatDate,
+} from "@/lib/utils";
 import { format } from "date-fns";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -42,24 +48,6 @@ import {
   Undo2,
 } from "lucide-react";
 import type { BorrowingStatus } from "@/constants/borrowing-status";
-import { formatLocalTime } from "@/lib/utils";
-import { formatISODate } from "@/lib/utils";
-
-// Helper function to format time
-const formatTime = (time: number) => {
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-};
-
-// Helper function to format date
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
 
 export default function ResourceReservation() {
   const [selectedResource, setSelectedResource] = useState<string>("all");
