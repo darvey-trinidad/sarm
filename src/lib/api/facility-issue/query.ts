@@ -58,3 +58,35 @@ export const getAllFacilityIssueReports = async ({
     throw error;
   }
 };
+
+export const getAllFacilityIssueReportsByUser = async (userId: string) => {
+  try {
+    return await db
+      .select({
+        id: facilityIssueReport.id,
+        reportedByName: user.name,
+        category: facilityIssueReport.category,
+        description: facilityIssueReport.description,
+        buildingId: building.id,
+        buildingName: building.name,
+        classroomId: classroom.id,
+        classroomName: classroom.name,
+        location: facilityIssueReport.location,
+        details: facilityIssueReport.details,
+        status: facilityIssueReport.status,
+        imageUrl: facilityIssueReport.imageUrl,
+        dateReported: facilityIssueReport.dateReported,
+        dateUpdated: facilityIssueReport.dateUpdated,
+      })
+      .from(facilityIssueReport)
+      .innerJoin(user, eq(user.id, facilityIssueReport.reportedBy))
+      .leftJoin(building, eq(building.id, facilityIssueReport.buildingId))
+      .leftJoin(classroom, eq(classroom.id, facilityIssueReport.classroomId))
+      .orderBy(desc(facilityIssueReport.dateReported))
+      .where(eq(facilityIssueReport.reportedBy, userId))
+      .all();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
