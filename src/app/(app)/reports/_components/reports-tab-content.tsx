@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ReportForm from "./submit/report-form";
-import ReportTable from "./reports-lists/reports-table";
 
 export default function ReportsTabContent() {
   const [tab, setTab] = useState("submit");
@@ -36,33 +35,9 @@ export default function ReportsTabContent() {
           </div>
         </TabsContent>
 
-        <TabsContent value="myReports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Reports</CardTitle>
-              <CardDescription>
-                View and manage your submitted reports.
-              </CardDescription>
-              <CardContent className="px-0 pt-3">
-                <ReportTable filter="my-reports" />
-              </CardContent>
-            </CardHeader>
-          </Card>
-        </TabsContent>
+        <TabsContent value="myReports" className="space-y-4"></TabsContent>
 
-        <TabsContent value="allReports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Reports</CardTitle>
-              <CardDescription>
-                View and manage reports across campus.
-              </CardDescription>
-              <CardContent className="px-0 pt-3">
-                <ReportTable filter="all-reports" />
-              </CardContent>
-            </CardHeader>
-          </Card>
-        </TabsContent>
+        <TabsContent value="allReports" className="space-y-4"></TabsContent>
       </div>
     </Tabs>
   );

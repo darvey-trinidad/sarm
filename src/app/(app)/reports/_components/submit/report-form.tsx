@@ -35,6 +35,7 @@ import { api } from "@/trpc/react";
 export default function ReportForm() {
   const { data: session } = authClient.useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [selectedClassroom, setSelectedClassroom] = useState<string | null>(
@@ -241,34 +242,53 @@ export default function ReportForm() {
           <FormField
             control={form.control}
             name="imageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Upload Image</FormLabel>
-                <FormControl>
-                  <UploadDropzone<OurFileRouter, "imageUploader">
-                    endpoint="imageUploader"
-                    appearance={{
-                      container: "!p-5",
-                      uploadIcon: "!text-primary",
-                      button: "!bg-primary !text-white !text-sm !font-medium",
-                    }}
-                    onClientUploadComplete={(res) => {
-                      if (res && res[0]) {
-                        field.onChange(res[0].ufsUrl); // store single file URL
-                        toast.success("Image uploaded successfully!");
-                      }
-                    }}
-                    onUploadError={(error: Error) => {
-                      toast.error(`Upload failed: ${error.message}`);
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Upload up to 1 image (max 1MB each) related to the issue.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const uploadedImage = form.watch("imageUrl");
+
+              return (
+                <FormItem>
+                  <FormLabel>Upload Image</FormLabel>
+                  {uploadedImage && (
+                    <p className="mt-2 text-sm">
+                      Image uploaded:{" "}
+                      <a
+                        href={uploadedImage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline"
+                      >
+                        {uploadedFileName || "View Image"}
+                      </a>
+                    </p>
+                  )}
+                  <FormControl>
+                    <UploadDropzone<OurFileRouter, "imageUploader">
+                      endpoint="imageUploader"
+                      appearance={{
+                        container: "!p-5",
+                        uploadIcon: "!text-primary",
+                        button: "!bg-primary !text-white !text-sm !font-medium",
+                      }}
+                      onClientUploadComplete={(res) => {
+                        if (res && res[0]) {
+                          field.onChange(res[0].ufsUrl); // store single file URL
+                          setUploadedFileName(res[0].name);
+                          toast.success("Image uploaded successfully!");
+                        }
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast.error(`Upload failed: ${error.message}`);
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormDescription>
+                    Upload up to 1 image (max 1MB each) related to the issue.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField
