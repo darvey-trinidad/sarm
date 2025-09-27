@@ -14,10 +14,10 @@ export default function ReportsTabContent() {
     <Tabs value={tab} onValueChange={setTab} className="space-y-2">
       <TabsList>
         <TabsTrigger value="submit">Submit Report</TabsTrigger>
-        <TabsTrigger value="myReports">My Reports</TabsTrigger>
         {isFacilityManager && (
           <TabsTrigger value="allReports">All Reports</TabsTrigger>
         )}
+        <TabsTrigger value="myReports">My Reports</TabsTrigger>
       </TabsList>
 
       <div className="mt-1 w-full">
@@ -34,15 +34,15 @@ export default function ReportsTabContent() {
           </div>
         </TabsContent>
 
-        <TabsContent value="myReports" className="space-y-4">
-          <ReportListUser />
-        </TabsContent>
-
         {isFacilityManager && (
           <TabsContent value="allReports" className="space-y-4">
             <ReportListContent />
           </TabsContent>
         )}
+
+        <TabsContent value="myReports" className="space-y-4">
+          <ReportListUser />
+        </TabsContent>
       </div>
     </Tabs>
   );

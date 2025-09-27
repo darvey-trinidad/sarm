@@ -54,6 +54,7 @@ export default function ReportListContent() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const [selectedStatus, setSelectedStatus] = useState<ReportStatus | "all">(
     "all",
   );
@@ -108,21 +109,34 @@ export default function ReportListContent() {
   }, [reports, searchTerm]);
 
   const handleUpdateStatus = (reportId: string, newStatus: ReportStatus) => {
-    editStatusMutation(
-      {
-        id: reportId,
-        status: newStatus,
+    showConfirmation({
+      title: "Update Report Status",
+      description: `Are you sure you want to update the status of this report to ${newStatus}?`,
+      confirmText: "Update",
+      cancelText: "Cancel",
+      variant: "success",
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reportId,
+              status: newStatus,
+            },
+            {
+              onSuccess: () => {
+                toast.success(`Report status updated to ${newStatus}`);
+                refetchReports();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to update report status!");
+                resolve(false);
+              },
+            },
+          );
+        });
       },
-      {
-        onSuccess: () => {
-          toast.success(`Report status updated to ${newStatus}`);
-          refetchReports();
-        },
-        onError: () => {
-          toast.error("Failed to update report status!");
-        },
-      },
-    );
+    });
   };
 
   const getCategoryIcon = (category: string) => {
@@ -506,6 +520,7 @@ export default function ReportListContent() {
           ))
         )}
       </div>
+      {ConfirmationDialog}
     </div>
   );
 }
