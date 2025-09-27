@@ -128,22 +128,26 @@ export default function ResourceReservation() {
       confirmText: "Approve",
       cancelText: "Cancel",
       variant: "success",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: borrowingTransactionId,
-            status: "approved",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation approved!");
-              refetchResourcesReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: borrowingTransactionId,
+              status: "approved",
             },
-            onError: () => {
-              toast.error("Failed to approve reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation approved!");
+                refetchResourcesReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to approve reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -155,22 +159,26 @@ export default function ResourceReservation() {
       confirmText: "Cancel",
       cancelText: "Cancel",
       variant: "destructive",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: borrowingTransactionId,
-            status: "canceled",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation canceled!");
-              refetchResourcesReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: borrowingTransactionId,
+              status: "canceled",
             },
-            onError: () => {
-              toast.error("Failed to cancel reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation canceled!");
+                refetchResourcesReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to cancel reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -182,22 +190,26 @@ export default function ResourceReservation() {
       confirmText: "Reject",
       cancelText: "Cancel",
       variant: "destructive",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: borrowingTransactionId,
-            status: "rejected",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation rejected!");
-              refetchResourcesReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: borrowingTransactionId,
+              status: "rejected",
             },
-            onError: () => {
-              toast.error("Failed to reject reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation rejected!");
+                refetchResourcesReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to reject reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -209,22 +221,26 @@ export default function ResourceReservation() {
       confirmText: "Return",
       cancelText: "Cancel",
       variant: "default",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: borrowingTransactionId,
-            status: "returned",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation returned!");
-              refetchResourcesReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: borrowingTransactionId,
+              status: "returned",
             },
-            onError: () => {
-              toast.error("Failed to return reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation returned!");
+                refetchResourcesReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to return reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };

@@ -128,23 +128,27 @@ export default function VenueReservation() {
       confirmText: "Approve",
       cancelText: "Cancel",
       variant: "success",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: reservationId,
-            reservationStatus: "approved",
-            borrowingStatus: "approved",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation approved!");
-              refetchVenueReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reservationId,
+              reservationStatus: "approved",
+              borrowingStatus: "approved",
             },
-            onError: () => {
-              toast.error("Failed to approve reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation approved!");
+                refetchVenueReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to approve reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -156,23 +160,27 @@ export default function VenueReservation() {
       confirmText: "Reject",
       cancelText: " Cancel",
       variant: "destructive",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: reservationId,
-            reservationStatus: "rejected",
-            borrowingStatus: "rejected",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation rejected!");
-              refetchVenueReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reservationId,
+              reservationStatus: "rejected",
+              borrowingStatus: "rejected",
             },
-            onError: () => {
-              toast.error("Failed to reject reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation rejected!");
+                refetchVenueReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to reject reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -184,23 +192,27 @@ export default function VenueReservation() {
       confirmText: "Cancel",
       cancelText: "Cancel",
       variant: "destructive",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: reservationId,
-            reservationStatus: "canceled",
-            borrowingStatus: "canceled",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation canceled!");
-              refetchVenueReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reservationId,
+              reservationStatus: "canceled",
+              borrowingStatus: "canceled",
             },
-            onError: () => {
-              toast.error("Failed to cancel reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation canceled!");
+                refetchVenueReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to cancel reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
