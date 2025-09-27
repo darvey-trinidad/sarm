@@ -43,11 +43,18 @@ import {
   Camera,
 } from "lucide-react";
 import type { ReportCategory } from "@/constants/report-category";
-import { ReportStatusValues, type ReportStatus } from "@/constants/report-status";
+import {
+  ReportStatusValues,
+  type ReportStatus,
+} from "@/constants/report-status";
+import NoReports from "@/components/loading-state/no-reports";
+import LoadingMessage from "@/components/loading-state/loading-message";
+
 export default function ReportListContent() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const [selectedStatus, setSelectedStatus] = useState<ReportStatus | "all">(
     "all",
   );
@@ -65,19 +72,23 @@ export default function ReportListContent() {
     [selectedStatus, selectedCategory, startDate, endDate],
   );
 
-  const { mutate: editStatusMutation } = api.facilityIssue.editFacilityIssueReportStatus.useMutation();
+  const { mutate: editStatusMutation } =
+    api.facilityIssue.editFacilityIssueReportStatus.useMutation();
 
-  const { data: reports, isLoading, refetch: refetchReports } =
-    api.facilityIssue.getAllFacilityIssueReports.useQuery({
-      status: filters.status,
-      category: filters.category,
-      startDate: filters.startDate && newDate(filters.startDate),
-      endDate:
-        filters.endDate &&
-        newDate(
-          new Date(filters.endDate?.setDate(filters.endDate.getDate() + 1)),
-        ),
-    });
+  const {
+    data: reports,
+    isLoading,
+    refetch: refetchReports,
+  } = api.facilityIssue.getAllFacilityIssueReports.useQuery({
+    status: filters.status,
+    category: filters.category,
+    startDate: filters.startDate && newDate(filters.startDate),
+    endDate:
+      filters.endDate &&
+      newDate(
+        new Date(filters.endDate?.setDate(filters.endDate.getDate() + 1)),
+      ),
+  });
   const filteredReports = useMemo(() => {
     if (!reports) return [];
 
@@ -98,12 +109,33 @@ export default function ReportListContent() {
   }, [reports, searchTerm]);
 
   const handleUpdateStatus = (reportId: string, newStatus: ReportStatus) => {
-    editStatusMutation({
-      id: reportId,
-      status: newStatus
-    }, {
-      onSuccess: () => { toast.success(`Report status updated to ${newStatus}`); refetchReports(); },
-      onError: () => { toast.error("Failed to update report status!"); },
+    showConfirmation({
+      title: "Update Report Status",
+      description: `Are you sure you want to update the status of this report to ${newStatus}?`,
+      confirmText: "Update",
+      cancelText: "Cancel",
+      variant: "success",
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reportId,
+              status: newStatus,
+            },
+            {
+              onSuccess: () => {
+                toast.success(`Report status updated to ${newStatus}`);
+                refetchReports();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to update report status!");
+                resolve(false);
+              },
+            },
+          );
+        });
+      },
     });
   };
 
@@ -331,51 +363,29 @@ export default function ReportListContent() {
           startDate ||
           endDate ||
           searchTerm) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedCategory("all");
-                setSelectedStatus("all");
-                setStartDate(undefined);
-                setEndDate(undefined);
-                setSearchTerm("");
-              }}
-              className="mt-2"
-            >
-              Clear Filters
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSelectedCategory("all");
+              setSelectedStatus("all");
+              setStartDate(undefined);
+              setEndDate(undefined);
+              setSearchTerm("");
+            }}
+            className="mt-2"
+          >
+            Clear Filters
+          </Button>
+        )}
       </div>
 
       {/* Report lists */}
       <div className="grid gap-4">
         {!isLoading && filteredReports.length === 0 ? (
-          <Card className="border-border">
-            <CardContent className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <AlertCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <h3 className="text-foreground text-lg font-semibold">
-                  No reports found
-                </h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your filters to see more results.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <NoReports />
         ) : isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
-              <h3 className="text-foreground text-lg font-semibold">
-                Loading facility reports...
-              </h3>
-              <p className="text-muted-foreground">
-                Please wait while we fetch the data.
-              </p>
-            </div>
-          </div>
+          <LoadingMessage />
         ) : (
           filteredReports.map((report) => (
             <Card
@@ -469,7 +479,10 @@ export default function ReportListContent() {
                         <Button
                           size="sm"
                           onClick={() =>
-                            handleUpdateStatus(report.id, ReportStatusValues.Ongoing)
+                            handleUpdateStatus(
+                              report.id,
+                              ReportStatusValues.Ongoing,
+                            )
                           }
                           className="bg-orange-600 text-white hover:bg-orange-700"
                         >
@@ -483,7 +496,10 @@ export default function ReportListContent() {
                       <Button
                         size="sm"
                         onClick={() =>
-                          handleUpdateStatus(report.id, ReportStatusValues.Resolved)
+                          handleUpdateStatus(
+                            report.id,
+                            ReportStatusValues.Resolved,
+                          )
                         }
                         className="bg-green-600 text-white hover:bg-green-700"
                       >
@@ -504,6 +520,7 @@ export default function ReportListContent() {
           ))
         )}
       </div>
+      {ConfirmationDialog}
     </div>
   );
 }

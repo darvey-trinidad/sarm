@@ -11,7 +11,7 @@ export interface ConfirmationOptions {
   confirmText?: string;
   cancelText?: string;
   variant?: ConfirmationVariant;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: () => boolean | void | Promise<boolean | void>;
 }
 
 export function useConfirmationDialog() {
@@ -33,7 +33,14 @@ export function useConfirmationDialog() {
 
     setLoading(true);
     try {
-      await options.onConfirm();
+      const shouldClose = await options.onConfirm();
+
+      if (shouldClose !== false) {
+        setIsOpen(false);
+        setOptions(null);
+      }
+    } catch (e) {
+      console.error("Confirmation failed:", e);
     } finally {
       setLoading(false);
     }

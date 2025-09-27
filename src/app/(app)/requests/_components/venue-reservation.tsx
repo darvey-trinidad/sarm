@@ -44,6 +44,8 @@ import {
 } from "lucide-react";
 import { formatLocalTime } from "@/lib/utils";
 import { formatISODate } from "@/lib/utils";
+import LoadingMessage from "@/components/loading-state/loading-message";
+import NoReports from "@/components/loading-state/no-reports";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -128,23 +130,27 @@ export default function VenueReservation() {
       confirmText: "Approve",
       cancelText: "Cancel",
       variant: "success",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: reservationId,
-            reservationStatus: "approved",
-            borrowingStatus: "approved",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation approved!");
-              refetchVenueReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reservationId,
+              reservationStatus: "approved",
+              borrowingStatus: "approved",
             },
-            onError: () => {
-              toast.error("Failed to approve reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation approved!");
+                refetchVenueReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to approve reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -156,23 +162,27 @@ export default function VenueReservation() {
       confirmText: "Reject",
       cancelText: " Cancel",
       variant: "destructive",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: reservationId,
-            reservationStatus: "rejected",
-            borrowingStatus: "rejected",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation rejected!");
-              refetchVenueReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reservationId,
+              reservationStatus: "rejected",
+              borrowingStatus: "rejected",
             },
-            onError: () => {
-              toast.error("Failed to reject reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation rejected!");
+                refetchVenueReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to reject reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -184,23 +194,27 @@ export default function VenueReservation() {
       confirmText: "Cancel",
       cancelText: "Cancel",
       variant: "destructive",
-      onConfirm: async () => {
-        await editStatusMutation(
-          {
-            id: reservationId,
-            reservationStatus: "canceled",
-            borrowingStatus: "canceled",
-          },
-          {
-            onSuccess: () => {
-              toast.success("Reservation canceled!");
-              refetchVenueReservations();
+      onConfirm: () => {
+        return new Promise<boolean>((resolve) => {
+          editStatusMutation(
+            {
+              id: reservationId,
+              reservationStatus: "canceled",
+              borrowingStatus: "canceled",
             },
-            onError: () => {
-              toast.error("Failed to cancel reservation!");
+            {
+              onSuccess: () => {
+                toast.success("Reservation canceled!");
+                refetchVenueReservations();
+                resolve(true);
+              },
+              onError: () => {
+                toast.error("Failed to cancel reservation!");
+                resolve(false);
+              },
             },
-          },
-        );
+          );
+        });
       },
     });
   };
@@ -363,16 +377,6 @@ export default function VenueReservation() {
                   selected={endDate ?? undefined}
                   onSelect={setEndDate}
                   captionLayout="dropdown"
-                  disabled={(date) =>
-                    date < new Date("1900-01-01") ||
-                    (startDate && date < startDate) ||
-                    !!(
-                      startDate &&
-                      endDate &&
-                      date >= startDate &&
-                      date <= endDate
-                    )
-                  }
                   required={false}
                 />
               </PopoverContent>
@@ -401,31 +405,9 @@ export default function VenueReservation() {
       {/* Reservation Lists */}
       <div className="grid gap-4">
         {!isLoading && filteredReservations.length === 0 ? (
-          <Card className="border-border">
-            <CardContent className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <AlertCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <h3 className="text-foreground text-lg font-semibold">
-                  No reservations found
-                </h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your filters to see more results.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <NoReports />
         ) : isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
-              <h3 className="text-foreground text-lg font-semibold">
-                Loading venue reservations...
-              </h3>
-              <p className="text-muted-foreground">
-                Please wait while we fetch the data.
-              </p>
-            </div>
-          </div>
+          <LoadingMessage />
         ) : (
           filteredReservations.map((reservation) => (
             <Card
