@@ -43,7 +43,7 @@ import {
   Camera,
 } from "lucide-react";
 import type { ReportCategory } from "@/constants/report-category";
-import type { ReportStatus } from "@/constants/report-status";
+import { ReportStatusValues, type ReportStatus } from "@/constants/report-status";
 export default function ReportListContent() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -65,7 +65,9 @@ export default function ReportListContent() {
     [selectedStatus, selectedCategory, startDate, endDate],
   );
 
-  const { data: reports, isLoading } =
+  const { mutate: editStatusMutation } = api.facilityIssue.editFacilityIssueReportStatus.useMutation();
+
+  const { data: reports, isLoading, refetch: refetchReports } =
     api.facilityIssue.getAllFacilityIssueReports.useQuery({
       status: filters.status,
       category: filters.category,
@@ -95,9 +97,14 @@ export default function ReportListContent() {
     );
   }, [reports, searchTerm]);
 
-  const handleUpdateStatus = (reportId: string, newStatus: string) => {
-    console.log(`Updating report ${reportId} to status: ${newStatus}`);
-    // Implementation for status update logic
+  const handleUpdateStatus = (reportId: string, newStatus: ReportStatus) => {
+    editStatusMutation({
+      id: reportId,
+      status: newStatus
+    }, {
+      onSuccess: () => { toast.success(`Report status updated to ${newStatus}`); refetchReports(); },
+      onError: () => { toast.error("Failed to update report status!"); },
+    });
   };
 
   const getCategoryIcon = (category: string) => {
@@ -324,21 +331,21 @@ export default function ReportListContent() {
           startDate ||
           endDate ||
           searchTerm) && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedCategory("all");
-              setSelectedStatus("all");
-              setStartDate(undefined);
-              setEndDate(undefined);
-              setSearchTerm("");
-            }}
-            className="mt-2"
-          >
-            Clear Filters
-          </Button>
-        )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedCategory("all");
+                setSelectedStatus("all");
+                setStartDate(undefined);
+                setEndDate(undefined);
+                setSearchTerm("");
+              }}
+              className="mt-2"
+            >
+              Clear Filters
+            </Button>
+          )}
       </div>
 
       {/* Report lists */}
@@ -457,12 +464,12 @@ export default function ReportListContent() {
                         </Button>
                       )}
 
-                    {report.status === "reported" && (
+                    {report.status === ReportStatusValues.Reported && (
                       <div className="flex gap-2">
                         <Button
                           size="sm"
                           onClick={() =>
-                            handleUpdateStatus(report.id, "ongoing")
+                            handleUpdateStatus(report.id, ReportStatusValues.Ongoing)
                           }
                           className="bg-orange-600 text-white hover:bg-orange-700"
                         >
@@ -472,11 +479,11 @@ export default function ReportListContent() {
                       </div>
                     )}
 
-                    {report.status === "ongoing" && (
+                    {report.status === ReportStatusValues.Ongoing && (
                       <Button
                         size="sm"
                         onClick={() =>
-                          handleUpdateStatus(report.id, "resolved")
+                          handleUpdateStatus(report.id, ReportStatusValues.Resolved)
                         }
                         className="bg-green-600 text-white hover:bg-green-700"
                       >
