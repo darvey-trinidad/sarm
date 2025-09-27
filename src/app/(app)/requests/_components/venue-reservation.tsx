@@ -44,6 +44,8 @@ import {
 } from "lucide-react";
 import { formatLocalTime } from "@/lib/utils";
 import { formatISODate } from "@/lib/utils";
+import LoadingMessage from "@/components/loading-state/loading-message";
+import NoReports from "@/components/loading-state/no-reports";
 
 // Helper function to format time
 const formatTime = (time: number) => {
@@ -375,16 +377,6 @@ export default function VenueReservation() {
                   selected={endDate ?? undefined}
                   onSelect={setEndDate}
                   captionLayout="dropdown"
-                  disabled={(date) =>
-                    date < new Date("1900-01-01") ||
-                    (startDate && date < startDate) ||
-                    !!(
-                      startDate &&
-                      endDate &&
-                      date >= startDate &&
-                      date <= endDate
-                    )
-                  }
                   required={false}
                 />
               </PopoverContent>
@@ -413,31 +405,9 @@ export default function VenueReservation() {
       {/* Reservation Lists */}
       <div className="grid gap-4">
         {!isLoading && filteredReservations.length === 0 ? (
-          <Card className="border-border">
-            <CardContent className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <AlertCircle className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <h3 className="text-foreground text-lg font-semibold">
-                  No reservations found
-                </h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your filters to see more results.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <NoReports />
         ) : isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
-              <h3 className="text-foreground text-lg font-semibold">
-                Loading venue reservations...
-              </h3>
-              <p className="text-muted-foreground">
-                Please wait while we fetch the data.
-              </p>
-            </div>
-          </div>
+          <LoadingMessage />
         ) : (
           filteredReservations.map((reservation) => (
             <Card
