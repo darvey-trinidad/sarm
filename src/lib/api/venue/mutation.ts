@@ -34,6 +34,27 @@ export const createVenueReservation = async (data: VenueReservation) => {
 
 export const editVenueReservation = async (id: string, data: EditVenueReservation) => {
   try {
+    const reservationRecord = await db.select().from(venueReservation).where(eq(venueReservation.id, id)).get();
+
+    if (!reservationRecord) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Venue reservation not found",
+      });
+    }
+
+    const { id: reservationId, ...rest } = reservationRecord;
+
+    const conflicts = await checkVenueReservationConflicts(rest);
+
+    if (conflicts.length > 0) {
+      throw new TRPCError({
+        code: "CONFLICT", // or "BAD_REQUEST", whichever fits best
+        message: "Venue reservation conflict detected",
+        cause: conflicts,
+      });
+    }
+
     return await db.update(venueReservation).set(data).where(eq(venueReservation.id, id)).returning().get();
   } catch (error) {
     console.error(error);

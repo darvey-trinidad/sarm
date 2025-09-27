@@ -28,8 +28,6 @@ export const notifyResourceBorrower = async (borrowingTransactionId: string) => 
     .innerJoin(resource, eq(resource.id, resourceBorrowing.resourceId))
     .all();
 
-  console.log(borrowingItems);
-
   const emailHtml = await render(
     BorrowingUpdateEmail({
       date: borrowing.borrowing_transaction.dateBorrowed ? borrowing.borrowing_transaction.dateBorrowed.toLocaleDateString('en-PH', {
@@ -58,6 +56,5 @@ export const notifyResourceBorrower = async (borrowingTransactionId: string) => 
     subject: "Reservation Update",
     html: emailHtml,
   });
-  console.log("Email sent: ", info);
   return info;
 }

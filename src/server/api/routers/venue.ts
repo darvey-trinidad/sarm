@@ -87,7 +87,9 @@ export const venueRouter = createTRPCRouter({
     .input(editVenueReservationAndBorrowingStatusSchema)
     .mutation(async ({ input }) => {
       try {
-        editVenueReservation(input.id, { status: input.reservationStatus });
+        const editVenueReservationRes = await editVenueReservation(input.id, { status: input.reservationStatus });
+        console.log("editVenueReservationRes", editVenueReservationRes);
+        if (!editVenueReservationRes) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation status!!!" });
 
         const res = await editBorrowingTransactionByVenueReservationId(input.id, { status: input.borrowingStatus });
 
@@ -110,7 +112,14 @@ export const venueRouter = createTRPCRouter({
           message: `Reservation ${input.reservationStatus} successfully`
         };
       } catch (error) {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation status" });
+        // ✅ If it's already a TRPCError (like your CONFLICT), rethrow it as-is
+        if (error instanceof TRPCError) throw error;
+
+        // ❌ Otherwise, wrap it in a generic TRPCError
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not update venue reservation status",
+        });
       }
     })
 });

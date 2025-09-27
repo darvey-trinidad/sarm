@@ -18,8 +18,6 @@ export const notifyVenueReserver = async (venueReservationId: string) => {
     .innerJoin(user, eq(user.id, venueReservation.reserverId))
     .get();
 
-  console.log(reservation);
-
   if (!reservation) return;
 
   const emailHtml = await render(
@@ -50,6 +48,5 @@ export const notifyVenueReserver = async (venueReservationId: string) => {
     subject: "Reservation Update",
     html: emailHtml,
   });
-  console.log("Email sent: ", info);
   return info;
 }
