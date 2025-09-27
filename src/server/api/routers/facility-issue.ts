@@ -1,4 +1,5 @@
-import { createFacilityIssueReport } from "@/lib/api/facility-issue/mutation";
+import { REPORT_STATUS } from "@/constants/report-status";
+import { createFacilityIssueReport, editFacilityIssueReportStatus } from "@/lib/api/facility-issue/mutation";
 import { getAllFacilityIssueReports, getAllFacilityIssueReportsByUser } from "@/lib/api/facility-issue/query";
 import { generateUUID } from "@/lib/utils";
 import { createFacilityIssueReportSchema, getAllFacilityIssueReportsSchema } from "@/server/api-utils/validators/facility-issue";
@@ -21,5 +22,10 @@ export const facilityIssueRouter = createTRPCRouter({
     .input(z.object({ userId: z.string() }))
     .query(({ input }) => {
       return getAllFacilityIssueReportsByUser(input.userId);
+    }),
+  editFacilityIssueReportStatus: protectedProcedure
+    .input(z.object({ id: z.string(), status: z.enum(REPORT_STATUS) }))
+    .mutation(({ input }) => {
+      return editFacilityIssueReportStatus(input.id, input.status);
     }),
 });
