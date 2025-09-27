@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { cn, newDate, formatISODate } from "@/lib/utils";
 import { format } from "date-fns";
@@ -157,9 +156,9 @@ export default function ReportListContent() {
     <div className="space-y-4">
       <div className="space-y-5">
         <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">My Reports</h2>
+          <h2 className="text-2xl font-bold">All Reports</h2>
           <p className="text-muted-foreground">
-            View and manage your facility issue reports.
+            View and manage all facility issue reports.
           </p>
         </div>
 

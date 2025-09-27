@@ -1,16 +1,9 @@
 "use client";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import ReportForm from "./submit/report-form";
-import ReportListContent from "./report-list-conent";
-
+import ReportListContent from "./report-list/report-list-conent";
+import ReportListUser from "./report-list/report-list-user";
 export default function ReportsTabContent() {
   const [tab, setTab] = useState("submit");
 
@@ -37,10 +30,12 @@ export default function ReportsTabContent() {
         </TabsContent>
 
         <TabsContent value="myReports" className="space-y-4">
-          <ReportListContent />
+          <ReportListUser />
         </TabsContent>
 
-        <TabsContent value="allReports" className="space-y-4"></TabsContent>
+        <TabsContent value="allReports" className="space-y-4">
+          <ReportListContent />
+        </TabsContent>
       </div>
     </Tabs>
   );
