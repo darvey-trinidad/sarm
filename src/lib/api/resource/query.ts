@@ -7,6 +7,7 @@ import {
 } from "@/server/db/schema/resource";
 import { user } from "@/server/db/schema/auth";
 import type { BorrowingStatus } from "@/constants/borrowing-status";
+import { venueReservation } from "@/server/db/schema/venue";
 
 export const getAllResources = async () => {
   try {
@@ -110,6 +111,7 @@ export const getAllBorrowingTransactions = async ({
         dateReturned: borrowingTransaction.dateReturned,
         fileUrl: borrowingTransaction.fileUrl,
         venueReservationId: borrowingTransaction.venueReservationId,
+        venueReservationStatus: venueReservation.status,
 
         resourceBorrowingId: resourceBorrowing.id,
         resourceId: resourceBorrowing.resourceId,
@@ -124,6 +126,7 @@ export const getAllBorrowingTransactions = async ({
         eq(resourceBorrowing.transactionId, borrowingTransaction.id),
       )
       .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
+      .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(borrowingTransaction.dateRequested))
       .all();
@@ -146,6 +149,7 @@ export const getAllBorrowingTransactions = async ({
           dateReturned: row.dateReturned,
           fileUrl: row.fileUrl,
           venueReservationId: row.venueReservationId,
+          venueReservationStatus: row.venueReservationStatus,
           borrowedItems: [],
         });
 
@@ -193,5 +197,6 @@ type BorrowingTransaction = {
   dateReturned: Date | null;
   fileUrl: string | null;
   venueReservationId: string | null;
+  venueReservationStatus: string | null;
   borrowedItems: BorrowedItems[];
 };
