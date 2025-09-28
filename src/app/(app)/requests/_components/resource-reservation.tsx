@@ -143,8 +143,8 @@ export default function ResourceReservation() {
                 refetchResourcesReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to approve reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },
@@ -174,8 +174,8 @@ export default function ResourceReservation() {
                 refetchResourcesReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to cancel reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },
@@ -205,8 +205,8 @@ export default function ResourceReservation() {
                 refetchResourcesReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to reject reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },
@@ -236,8 +236,8 @@ export default function ResourceReservation() {
                 refetchResourcesReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to return reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },

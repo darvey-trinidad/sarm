@@ -56,12 +56,13 @@ export const resourceRouter = createTRPCRouter({
         const { id, ...data } = input;
         const editedBorrowing = await editBorrowingTransaction(id, data);
 
-        if (editedBorrowing) {
+        if (editedBorrowing?.status === "approved" || editedBorrowing?.status === "rejected") {
           await notifyResourceBorrower(editedBorrowing.id);
         }
 
         return editedBorrowing;
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update borrowing transaction status" });
       }
     }),

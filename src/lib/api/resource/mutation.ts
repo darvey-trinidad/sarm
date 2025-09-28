@@ -1,6 +1,9 @@
 import { db, eq } from "@/server/db";
 import type { EditBorrowingTransaction, NewBorrowingTransaction, NewResource, NewResourceBorrowing } from "@/server/db/types/resource";
 import { borrowingTransaction, resource, resourceBorrowing } from "@/server/db/schema/resource";
+import { en } from "zod/v4/locales";
+import { getAllAvailableResources } from "./query";
+import { TRPCError } from "@trpc/server";
 
 export const createResource = async (data: NewResource) => {
   try {
@@ -35,6 +38,38 @@ export const createBorrowingTransaction = async (data: NewBorrowingTransaction) 
 
 export const editBorrowingTransaction = async (id: string, data: EditBorrowingTransaction) => {
   try {
+    if (data.status === "approved") {
+      const current = await db.select({
+        transactionId: borrowingTransaction.id,
+        dateBorrowed: borrowingTransaction.dateBorrowed,
+        startTime: borrowingTransaction.startTime,
+        endTime: borrowingTransaction.endTime,
+        borrowingId: resourceBorrowing.id,
+        resourceId: resourceBorrowing.resourceId,
+        quantity: resourceBorrowing.quantity
+      })
+        .from(borrowingTransaction)
+        .innerJoin(resourceBorrowing, eq(borrowingTransaction.id, resourceBorrowing.transactionId))
+        .where(eq(borrowingTransaction.id, id));
+
+      if (!current[0]?.dateBorrowed) return null;
+
+      const availableResources = await getAllAvailableResources(current[0].dateBorrowed, current[0].startTime, current[0].endTime);
+
+      for (const item of current) {
+        const match = availableResources.find(r => r.id === item.resourceId);
+        console.log("MATCH: ", match);
+        console.log("ITEM: ", item);
+
+        if (!match || item.quantity > match.available) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Not enough available stock for resource: ${match?.name || item.resourceId}. `
+          })
+        }
+      }
+    }
+
     return await db.update(borrowingTransaction).set(data).where(eq(borrowingTransaction.id, id)).returning().get();
   } catch (error) {
     console.error(error);

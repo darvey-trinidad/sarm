@@ -51,11 +51,16 @@ export const getAllAvailableResources = async (
         eq(borrowingTransaction.id, resourceBorrowing.transactionId),
       );
 
+    const isSameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
     // filter borrowings for this exact date + overlapping times
     const filtered = borrowings.filter(
       (b) =>
         b.dateBorrowed !== null &&
-        b.dateBorrowed.getTime() === requestedDate.getTime() &&
+        isSameDay(b.dateBorrowed, requestedDate) &&
         b.status === "approved" &&
         b.startTime < requestedEndTime &&
         b.endTime > requestedStartTime,
