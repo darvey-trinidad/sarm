@@ -74,7 +74,7 @@ export default function VenueReservation() {
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
   const { mutate: editStatusMutation } =
-    api.venue.editVenueReservationAndBorrowingStatus.useMutation();
+    api.venue.editVenueReservationStatus.useMutation();
 
   const filters = useMemo(
     () => ({
@@ -135,8 +135,7 @@ export default function VenueReservation() {
           editStatusMutation(
             {
               id: reservationId,
-              reservationStatus: "approved",
-              borrowingStatus: "approved",
+              status: ReservationStatus.Approved
             },
             {
               onSuccess: () => {
@@ -144,8 +143,8 @@ export default function VenueReservation() {
                 refetchVenueReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to approve reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },
@@ -167,8 +166,7 @@ export default function VenueReservation() {
           editStatusMutation(
             {
               id: reservationId,
-              reservationStatus: "rejected",
-              borrowingStatus: "rejected",
+              status: ReservationStatus.Rejected,
             },
             {
               onSuccess: () => {
@@ -176,8 +174,8 @@ export default function VenueReservation() {
                 refetchVenueReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to reject reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },
@@ -199,8 +197,7 @@ export default function VenueReservation() {
           editStatusMutation(
             {
               id: reservationId,
-              reservationStatus: "canceled",
-              borrowingStatus: "canceled",
+              status: ReservationStatus.Canceled,
             },
             {
               onSuccess: () => {
@@ -208,8 +205,8 @@ export default function VenueReservation() {
                 refetchVenueReservations();
                 resolve(true);
               },
-              onError: () => {
-                toast.error("Failed to cancel reservation!");
+              onError: (error) => {
+                toast.error(error.message);
                 resolve(false);
               },
             },
@@ -429,6 +426,15 @@ export default function VenueReservation() {
                           {reservation.status.charAt(0).toUpperCase() +
                             reservation.status.slice(1)}
                         </Badge>
+                        {reservation.borrowingTransaction && (
+                          <Badge
+                            className="ml-2 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800"
+                            title="This request has a linked resource borrowing"
+                          >
+                            <Package className="h-3 w-3" />
+                            With {reservation.borrowingTransaction.status} borrowing
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="text-muted-foreground justitfy-between flex flex-col gap-4 pt-2 lg:flex-row">
@@ -454,60 +460,18 @@ export default function VenueReservation() {
                           <span>
                             {
                               TIME_MAP[
-                                reservation.startTime as keyof typeof TIME_MAP
+                              reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                                reservation.endTime as keyof typeof TIME_MAP
+                              reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>
                         </div>
                       </div>
-
-                      {reservation.borrowingTransaction &&
-                        reservation.borrowingTransaction.itemsBorrowed.length >
-                          0 && (
-                          <div className="mt-3 p-3">
-                            <div className="flex items-center gap-2">
-                              <Package className="h-4 w-4" />
-                              <h4 className="text-medium font-semibold text-gray-800">
-                                Resources Requested:
-                              </h4>
-                            </div>
-                            <ScrollArea className="h-32 w-full">
-                              <div className="space-y-2">
-                                {reservation.borrowingTransaction.itemsBorrowed.map(
-                                  (item) => (
-                                    <div
-                                      key={item.id}
-                                      className="bg-background flex items-center justify-between rounded border p-2"
-                                    >
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm font-medium">
-                                            {item.name}
-                                          </span>
-                                          <Badge
-                                            variant="outline"
-                                            className="text-xs"
-                                          >
-                                            × {item.quantity}
-                                          </Badge>
-                                        </div>
-                                        <p className="text-muted-foreground mt-1 text-xs">
-                                          {item.description}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
-                              </div>
-                            </ScrollArea>
-                          </div>
-                        )}
                     </div>
                   </div>
 

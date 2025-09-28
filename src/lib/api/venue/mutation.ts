@@ -3,6 +3,7 @@ import { venue, venueReservation } from "@/server/db/schema/venue";
 import { checkVenueReservationConflicts } from "@/lib/api/venue/query";
 import { TRPCError } from "@trpc/server";
 import type { EditVenueReservation, Venue, VenueReservation } from "@/server/db/types/venue";
+import { ReservationStatus } from "@/constants/reservation-status";
 
 export const createVenue = async (data: Venue) => {
   try {
@@ -43,16 +44,18 @@ export const editVenueReservation = async (id: string, data: EditVenueReservatio
       });
     }
 
-    const { id: reservationId, ...rest } = reservationRecord;
+    if (data?.status === ReservationStatus.Approved) {
+      const { id: reservationId, ...rest } = reservationRecord;
 
-    const conflicts = await checkVenueReservationConflicts(rest);
+      const conflicts = await checkVenueReservationConflicts(rest);
 
-    if (conflicts.length > 0) {
-      throw new TRPCError({
-        code: "CONFLICT", // or "BAD_REQUEST", whichever fits best
-        message: "Venue reservation conflict detected",
-        cause: conflicts,
-      });
+      if (conflicts.length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT", // or "BAD_REQUEST", whichever fits best
+          message: "Venue reservation conflict detected",
+          cause: conflicts,
+        });
+      }
     }
 
     return await db.update(venueReservation).set(data).where(eq(venueReservation.id, id)).returning().get();

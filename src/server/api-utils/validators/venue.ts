@@ -55,6 +55,11 @@ export const editVenueReservationAndBorrowingStatusSchema = z.object({
   borrowingStatus: z.enum(BORROWING_STATUS).optional()
 })
 
+export const editVenueReservationStatusSchema = z.object({
+  id: z.string(),
+  status: z.enum(RESERVATION_STATUS),
+})
+
 export const editVenueReservationWithBorrowingSchema = z.object({
   venue: editVenueReservationSchema,
   borrowing: editBorrowingTransactionSchema.optional()
