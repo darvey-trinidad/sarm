@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -21,11 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   CalendarIcon,
   Clock,
   User,
@@ -33,8 +27,6 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { type FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
@@ -42,7 +34,7 @@ import { type BetterAuthSession } from "@/lib/auth-client";
 import { type BorrowingData } from "@/hooks/use-schedule-action";
 import { toTimeInt } from "@/lib/utils";
 
-type UserSession = BetterAuthSession["user"] | undefined;
+export type UserSession = BetterAuthSession["user"] | undefined;
 
 interface ScheduleActionDialogProps {
   open: boolean;
@@ -103,7 +95,7 @@ export default function ScheduleActionDialog({
     selectedItem.source === SCHEDULE_SOURCE.Borrowing &&
     selectedItem.facultyId === currentUser?.id;
   const isOthersSchedule =
-    !isOwnSchedule && !isVacantSlot && !isUnoccupiedSlot && !isBorrowedByUser;
+    !isOwnSchedule && !isVacantSlot && !isUnoccupiedSlot && !isBorrowedByUser && selectedItem.source !== SCHEDULE_SOURCE.Borrowing;
 
   const canMarkVacant = isOwnSchedule;
   const canClaim = isVacantSlot || isUnoccupiedSlot;
@@ -582,7 +574,8 @@ export default function ScheduleActionDialog({
                   <strong>Current Owner:</strong> {selectedItem.facultyName}
                 </p>
                 <p className="mt-1 text-xs text-purple-600">
-                  You can request to borrow this time slot. The owner will be notified.
+                  You can request to borrow this time slot. The owner will be
+                  notified.
                 </p>
               </div>
 
@@ -590,7 +583,9 @@ export default function ScheduleActionDialog({
                 {/* Subject and Section */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Subject <span className="text-red-600">*</span></Label>
+                    <Label htmlFor="subject">
+                      Subject <span className="text-red-600">*</span>
+                    </Label>
                     <Input
                       id="subject"
                       placeholder="e.g., IT401"
@@ -604,7 +599,9 @@ export default function ScheduleActionDialog({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="section">Section <span className="text-red-600">*</span></Label>
+                    <Label htmlFor="section">
+                      Section <span className="text-red-600">*</span>
+                    </Label>
                     <Input
                       id="section"
                       placeholder="e.g., BSIT 4D"
@@ -622,7 +619,9 @@ export default function ScheduleActionDialog({
                 {/* Time Selection */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="startTime">Start Time <span className="text-red-600">*</span></Label>
+                    <Label htmlFor="startTime">
+                      Start Time <span className="text-red-600">*</span>
+                    </Label>
                     <Select
                       value={borrowingData.startTime.toString()}
                       onValueChange={(value) =>
@@ -637,7 +636,10 @@ export default function ScheduleActionDialog({
                       </SelectTrigger>
                       <SelectContent>
                         {getAvailableStartTimes().map((option) => (
-                          <SelectItem key={option.value} value={option.value.toString()}>
+                          <SelectItem
+                            key={option.value}
+                            value={option.value.toString()}
+                          >
                             {option.label}
                           </SelectItem>
                         ))}
@@ -645,7 +647,9 @@ export default function ScheduleActionDialog({
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="endTime">End Time <span className="text-red-600">*</span></Label>
+                    <Label htmlFor="endTime">
+                      End Time <span className="text-red-600">*</span>
+                    </Label>
                     <Select
                       value={borrowingData.endTime.toString()}
                       onValueChange={(value) =>
@@ -660,7 +664,10 @@ export default function ScheduleActionDialog({
                       </SelectTrigger>
                       <SelectContent>
                         {getAvailableEndTimes().map((option) => (
-                          <SelectItem key={option.value} value={option.value.toString()}>
+                          <SelectItem
+                            key={option.value}
+                            value={option.value.toString()}
+                          >
                             {option.label}
                           </SelectItem>
                         ))}

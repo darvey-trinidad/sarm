@@ -1,9 +1,9 @@
 export const BORROWING_STATUS = [
-  "pending", 
-  "for_submission", 
-  "borrowed", 
+  "pending",
+  "approved",
   "returned",
-  "rejected"
+  "rejected",
+  "canceled"
 ] as const;
 
 export const DEFAULT_BORROWING_STATUS = BORROWING_STATUS[0];

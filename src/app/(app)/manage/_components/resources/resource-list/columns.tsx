@@ -4,21 +4,13 @@ import { createSortableHeader } from "@/components/table/data-table";
 import { createActionColumn } from "@/components/table/action-column";
 import { Plus } from "lucide-react";
 import ResourceQuantityForm from "../action-column/resource-quantity-form";
-import { resource } from "@/server/db/schema/resource";
+import { RESOURCE_CATEGORY } from "@/constants/resource-category";
+
 interface Resource {
   id: string;
   name: string;
   description: string | null;
-  category:
-    | "audio"
-    | "electrical"
-    | "electronics"
-    | "visual"
-    | "furniture"
-    | "event_materials"
-    | "office_supply"
-    | "cleaning_equipment"
-    | "laboratory_equipment";
+  category: (typeof RESOURCE_CATEGORY)[number];
   stock: number;
 }
 

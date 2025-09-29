@@ -15,9 +15,10 @@ import {
   cancelClassroomBorrowingSchema,
   createRoomRequestSchema,
   respondToRoomRequestSchema,
+  getAvailableClassroomsSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
-import { getRoomRequestById, getWeeklyClassroomSchedule } from "@/lib/api/classroom-schedule/query";
-import { mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
+import { getAvailableClassrooms, getRoomRequestById, getWeeklyClassroomSchedule, getWeeklyInitialClassroomSchedule } from "@/lib/api/classroom-schedule/query";
+import { mergeAdjacentInitialSchedules, mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 import { env } from "@/env";
 import { RequestRoomEmail } from "@/emails/room-request";
 import { generateUUID } from "@/lib/utils";
@@ -26,6 +27,7 @@ import { render } from "@react-email/render";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -46,8 +48,20 @@ export const classroomScheduleRouter = createTRPCRouter({
   getWeeklyClassroomSchedule: protectedProcedure
     .input(getWeeklyClassroomScheduleSchema)
     .query(async ({ input }) => {
-      return getWeeklyClassroomSchedule(input.classroomId, input.startDate, input.endDate)
+      const res = await getWeeklyClassroomSchedule(input.classroomId, input.startDate, input.endDate)
         .then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      return res;
+    }),
+  getWeeklyInitialClassroomSchedule: protectedProcedure
+    .input(z.object({ classroomId: z.string() }))
+    .query(async ({ input }) => {
+      return getWeeklyInitialClassroomSchedule(input.classroomId)
+        .then((timeslots) => mergeAdjacentInitialSchedules(timeslots));
+    }),
+  getAvailableClassrooms: protectedProcedure
+    .input(getAvailableClassroomsSchema)
+    .query(({ input }) => {
+      return getAvailableClassrooms(input.date, input.startTime, input.endTime, input.filters);
     }),
   cancelClassroomBorrowing: protectedProcedure
     .input(cancelClassroomBorrowingSchema)
@@ -129,6 +143,7 @@ export const classroomScheduleRouter = createTRPCRouter({
           })
         }
         updateRoomRequestStatus(input.roomRequestId, input.status);
+        notifyRoomRequestor(input.roomRequestId);
 
         return { info: "Room Request Responded", status: 200 };
       } catch (error) {

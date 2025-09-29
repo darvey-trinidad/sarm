@@ -15,273 +15,311 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { UploadDropzone } from "@uploadthing/react";
+import { type OurFileRouter } from "@/app/api/uploadthing/core";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { ReportSchema } from "./schema";
 import { REPORT_CATEGORY } from "@/constants/report-category";
-import { PRIORITY_LEVEL } from "@/constants/priority-level";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { api } from "@/trpc/react";
+
 export default function ReportForm() {
+  const { data: session } = authClient.useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+  const [selectedClassroom, setSelectedClassroom] = useState<string | null>(
+    null,
+  );
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
 
+  const { mutate: createFacilityIssueReport } =
+    api.facilityIssue.createFacilityIssueReport.useMutation();
   const form = useForm<z.infer<typeof ReportSchema>>({
     resolver: zodResolver(ReportSchema),
     defaultValues: {
-      title: "",
       description: "",
-      building: "",
-      room: "",
+      details: "",
+      buildingId: undefined,
+      classroomId: undefined,
       location: "",
-      priority: "low",
-      datenoticed: new Date(),
+      imageUrl: "",
+      category: undefined,
     },
   });
 
-  return (
-    <Form {...form}>
-      <form className="space-y-3 px-0 md:space-y-5">
-        <div className="align-items-center grid grid-cols-1 gap-5 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Issue Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g Broken Ceiling Fan" {...field} />
-                </FormControl>
-                <FormDescription className="pt-0">
-                  Provide a brief title that describes the issue.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {REPORT_CATEGORY.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Select the category that best describes the issue.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+  const handleSubmit = (data: z.infer<typeof ReportSchema>) => {
+    setIsSubmitting(true);
+    console.log("Data", data);
 
-        <div className="grid grid-cols-1 gap-5 space-y-2 md:grid-cols-3 md:space-y-5">
-          <FormField
-            control={form.control}
-            name="building"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Building</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+    createFacilityIssueReport(
+      {
+        reportedBy: session?.user.id || "",
+        description: data.description,
+        details: data.details,
+        buildingId: data.buildingId,
+        classroomId: data.classroomId,
+        location: data.location,
+        imageUrl: data.imageUrl,
+        category: data.category,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Report submitted successfully!");
+          form.reset();
+          setIsSubmitting(false);
+        },
+        onError: () => {
+          toast.error("Failed to submit report");
+          setIsSubmitting(false);
+        },
+      },
+    );
+  };
+
+  const classrooms =
+    buildings?.find((b) => b.buildingId === selectedBuilding)?.classrooms ?? [];
+
+  return (
+    <div>
+      <Form {...form}>
+        <form
+          className="space-y-3 px-0 md:space-y-5"
+          onSubmit={form.handleSubmit((data) =>
+            showConfirmation({
+              title: "Submit Report",
+              description: "Are you sure you want to submit this report?",
+              confirmText: "Submit",
+              cancelText: "Cancel",
+              variant: "success",
+              onConfirm: () => handleSubmit(data),
+            }),
+          )}
+        >
+          <div className="align-items-center grid grid-cols-1 gap-5 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Issue Description</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a building" />
-                    </SelectTrigger>
+                    <Input placeholder="e.g Broken Ceiling Fan" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    {buildings?.map(
-                      (building: { buildingId: string; name: string }) => (
+                  <FormDescription className="pt-0">
+                    Provide a brief title that describes the issue.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {REPORT_CATEGORY.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Select the category that best describes the issue.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 space-y-2 md:grid-cols-3 md:space-y-5">
+            <FormField
+              control={form.control}
+              name="buildingId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Building</FormLabel>
+                  <Select
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      setSelectedBuilding(val);
+                      setSelectedClassroom(null);
+                    }}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a building" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {buildings?.map((building) => (
                         <SelectItem
                           key={building.buildingId}
-                          value={building.name}
+                          value={building.buildingId}
                         >
-                          {building.name}
+                          {building.name} - {building.description}
                         </SelectItem>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-                <FormDescription></FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="room"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Room Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 101" {...field} />
-                </FormControl>
-                <FormDescription></FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="">Specific Location</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Near the whiteboard" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Provide details about the specific location.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="priority"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Priority</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+            <FormField
+              control={form.control}
+              name="classroomId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Room Number</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select priority level" />
-                    </SelectTrigger>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        setSelectedClassroom(val);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a room" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classrooms.map((classroom) => (
+                          <SelectItem key={classroom.id} value={classroom.id}>
+                            {classroom.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
-                  <SelectContent>
-                    {PRIORITY_LEVEL.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Indicate how urgent this issue is.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+                  <FormDescription></FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">Specific Location</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Near the whiteboard" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Provide details about the specific location.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => {
+              const uploadedImage = form.watch("imageUrl");
+
+              return (
+                <FormItem>
+                  <FormLabel>Upload Image</FormLabel>
+                  {uploadedImage && (
+                    <p className="mt-2 text-sm">
+                      Image uploaded:{" "}
+                      <a
+                        href={uploadedImage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline"
+                      >
+                        {uploadedFileName || "View Image"}
+                      </a>
+                    </p>
+                  )}
+                  <FormControl>
+                    <UploadDropzone<OurFileRouter, "imageUploader">
+                      endpoint="imageUploader"
+                      appearance={{
+                        container: "!p-5",
+                        uploadIcon: "!text-primary",
+                        button: "!bg-primary !text-white !text-sm !font-medium",
+                      }}
+                      onClientUploadComplete={(res) => {
+                        if (res && res[0]) {
+                          field.onChange(res[0].ufsUrl); // store single file URL
+                          setUploadedFileName(res[0].name);
+                          toast.success("Image uploaded successfully!");
+                        }
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast.error(`Upload failed: ${error.message}`);
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormDescription>
+                    Upload up to 1 image (max 1MB each) related to the issue.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField
             control={form.control}
-            name="datenoticed"
+            name="details"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Date Noticed</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      captionLayout="dropdown"
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  When did you first notice this issue?
-                </FormDescription>
+              <FormItem>
+                <FormLabel>Issue Details</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Please provide detailed information about the issue..."
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Please provide detailed information about the issue..."
-                  className="min-h-[120px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Describe the issue in detail. Include any relevant information
-                that might help maintenance staff.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSubmitting ? "Submitting..." : "Submit Report"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {isSubmitting ? "Submitting..." : "Submit Report"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+      {ConfirmationDialog}
+    </div>
   );
 }

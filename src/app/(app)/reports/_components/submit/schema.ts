@@ -1,26 +1,15 @@
 import { z } from "zod";
-
+import { REPORT_CATEGORY } from "@/constants/report-category";
 export const ReportSchema = z.object({
-  title: z.string().min(5, {
-    message: "Title must be at least 5 characters",
+  description: z.string().min(1, {
+    message: "Please enter a description",
   }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters",
+  details: z.string().min(1, {
+    message: "Describe the issue in details",
   }),
-  building: z.string({
-    message: "Please select a building",
-  }),
-  room: z.string({
-    message: "Please select a room",
-  }),
-  location: z.string({
-    message: "Please specify a valid location",
-  }),
-  priority: z.string(),
-  datenoticed: z.date({
-    message: "Please select a date when the issue was noticed",
-  }),
-  category: z.string({
-    message: "Please select a category",
-  }),
+  buildingId: z.string().optional(),
+  classroomId: z.string().optional(),
+  location: z.string().min(1, { message: "Please enter a location" }),
+  imageUrl: z.string().optional(),
+  category: z.enum(REPORT_CATEGORY, { message: "Please select a category" }),
 });

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { timeIntSchema } from "@/constants/timeslot";
 import { requiredDateSchema } from "@/server/api-utils/validators/date";
 import { ROOM_REQUEST_STATUS } from "@/constants/room-request-status";
+import { CLASSROOM_TYPE } from "@/constants/classroom-type";
 
 export const createClassroomScheduleSchema = z.object({
   classroomId: z.string(),
@@ -62,6 +63,16 @@ export const getWeeklyClassroomScheduleSchema = z.object({
   classroomId: z.string(),
   startDate: requiredDateSchema(),
   endDate: requiredDateSchema()
+})
+
+export const getAvailableClassroomsSchema = z.object({
+  date: requiredDateSchema(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema,
+  filters: z.object({
+    buildingId: z.string().optional(),
+    type: z.enum(CLASSROOM_TYPE).optional(),
+  }).optional()
 })
 
 export const cancelClassroomBorrowingSchema = z.object({

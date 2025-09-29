@@ -41,6 +41,10 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (password !== confirmPassword)
+      return toast.error("Sign up failed: Passwords do not match!");
+
     signUpMutation(
       {
         email,
@@ -54,7 +58,7 @@ export default function SignUpPage() {
           toast.success("Sign up successful!");
         },
         onError: (error) => {
-          toast.error(`Sign up failed: ${error.message}`);
+          toast.error(`Sign up failed: ${error.message}!`);
         },
       },
     );
@@ -267,7 +271,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Right Side - University Gate Illustration */}
-        <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-white">
+        <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-white lg:flex">
           <div className="max-w-1xl absolute h-full w-full">
             <Image
               src="/login-page-gate.png"

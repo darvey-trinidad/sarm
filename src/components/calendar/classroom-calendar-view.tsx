@@ -12,7 +12,8 @@ import { newDate } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
-
+import { getScheduleColor } from "@/constants/schedule-colors";
+import { SCHEDULE_SOURCE } from "@/constants/schedule";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -41,9 +42,10 @@ export default function ClassroomCalendarView({
   const weekEnd = addDays(weekStart, 5);
   const { data: session } = authClient.useSession();
 
-  const { markAsVacant, claimSlot, cancelBorrowing, requestToBorrow } = useScheduleActions({
-    onRefresh: () => refetch(),
-  });
+  const { markAsVacant, claimSlot, cancelBorrowing, requestToBorrow } =
+    useScheduleActions({
+      onRefresh: () => refetch(),
+    });
 
   const {
     data: scheduleData,
@@ -77,19 +79,6 @@ export default function ClassroomCalendarView({
   };
 
   const getDayOfWeek = (date: Date) => (date.getDay() + 6) % 7;
-
-  const getScheduleColor = (source: string) => {
-    switch (source) {
-      case "Vacancy":
-        return "#10b981";
-      case "Borrowing":
-        return "#f59e0b";
-      case "Unoccupied":
-        return "#6b7280";
-      default:
-        return "#3b82f6";
-    }
-  };
 
   const getScheduleStyle = (schedule: FinalClassroomSchedule) => {
     const startPos = timeToPosition(schedule.startTime);
@@ -136,12 +125,22 @@ export default function ClassroomCalendarView({
 
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
     const now = new Date();
-    const dateToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const schedDate = new Date(schedule.date.getFullYear(), schedule.date.getMonth(), schedule.date.getDate());
+    const dateToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const schedDate = new Date(
+      schedule.date.getFullYear(),
+      schedule.date.getMonth(),
+      schedule.date.getDate(),
+    );
 
     const schedIsPast =
-      (schedDate < dateToday) ||
-      (schedDate.getTime() === dateToday.getTime() && schedule.endTime < now.getHours() * 100 + now.getMinutes() * 100 / 60);
+      schedDate < dateToday ||
+      (schedDate.getTime() === dateToday.getTime() &&
+        schedule.endTime <
+        now.getHours() * 100 + (now.getMinutes() * 100) / 60);
 
     if (schedIsPast) return;
 
@@ -290,6 +289,11 @@ export default function ClassroomCalendarView({
                         ? `${schedule.subject} - ${schedule.section}`
                         : schedule.source}
                     </div>
+                    {schedule.source === SCHEDULE_SOURCE.Borrowing &&
+                      <div className="truncate text-xs font-medium">
+                        {`${schedule.subject} - ${schedule.section}`}
+                      </div>
+                    }
                     <div className="text-muted-foreground truncate text-xs">
                       {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
                     </div>

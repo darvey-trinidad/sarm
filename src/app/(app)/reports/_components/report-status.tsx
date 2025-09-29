@@ -1,11 +1,17 @@
+"use client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Clock, Wrench, CircleCheck } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function reportCards() {
+  const { data: session } = authClient.useSession();
   const Pending = 12;
   const InProgress = 2;
   const Completed = 8;
+
+  if (session?.user.role !== "facility_manager") {
+    return null;
+  }
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Pending */}

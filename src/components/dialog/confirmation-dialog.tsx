@@ -17,6 +17,7 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
+import { on } from "node:events";
 
 export type ConfirmationVariant =
   | "default"
@@ -76,21 +77,24 @@ export function ConfirmationDialog({
   const handleConfirm = async () => {
     try {
       await onConfirm();
-      onOpenChange(false);
-
-      toast.success("Action completed successfully");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Something went wrong",
-      );
+      console.error("Error confirming:", error);
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        // Don’t allow closing if we are loading
+        if (!loading) {
+          onOpenChange(nextOpen);
+        }
+      }}
+    >
+      <AlertDialogContent className="w-[300px] md:w-[400px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
+          <AlertDialogTitle className="flex items-start gap-2 lg:items-center">
             <Icon className={`h-5 w-5 ${config.iconClass}`} />
             {title}
           </AlertDialogTitle>
@@ -99,11 +103,12 @@ export function ConfirmationDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>{cancelText}</AlertDialogCancel>
           <Button
-            onClick={handleConfirm}
+            type="button"
+            onClick={onConfirm}
             disabled={loading}
             className={config.confirmClass}
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Processing..." : confirmText}
           </Button>
         </AlertDialogFooter>

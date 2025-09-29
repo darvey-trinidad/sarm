@@ -1,14 +1,15 @@
 import { db, and, eq, inArray, gte, lte } from "@/server/db";
-import { classroom } from "@/server/db/schema/classroom";
+import { building, classroom } from "@/server/db/schema/classroom";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
-import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import type { FinalClassroomSchedule, InitialClassroomSchedule } from "@/types/clasroom-schedule";
 import { user } from "@/server/db/schema/auth";
 import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
+import type { ClassroomType } from "@/constants/classroom-type";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
@@ -256,6 +257,63 @@ export const getWeeklyClassroomSchedule = async (
   }
 };
 
+export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => {
+  try {
+    const rows = await db
+      .select({
+        id: classroomSchedule.id,
+        classroomId: classroomSchedule.classroomId,
+        facultyId: classroomSchedule.facultyId,
+        facultyName: user.name,
+        day: classroomSchedule.day,
+        startTime: classroomSchedule.startTime,
+        endTime: classroomSchedule.endTime,
+        subject: classroomSchedule.subject,
+        section: classroomSchedule.section,
+      })
+      .from(classroomSchedule)
+      .leftJoin(user, eq(classroomSchedule.facultyId, user.id))
+      .where(eq(classroomSchedule.classroomId, classroomId))
+      .orderBy(classroomSchedule.day, classroomSchedule.startTime);
+
+    const results: InitialClassroomSchedule[] = [];
+
+    // Loop over days (Mon–Sat)
+    for (let day = 1; day <= 6; day++) {
+      TIME_ENTRIES.slice(0, -1).forEach(([time]) => {
+        const schedule = rows.find(
+          (s) => s.startTime === time && s.day === day
+        );
+
+        if (schedule) {
+          const { startTime, endTime, ...rest } = schedule;
+          results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
+            ...rest
+          });
+        } else {
+          results.push({
+            id: null,
+            classroomId,
+            facultyId: null,
+            facultyName: null,
+            subject: null,
+            section: null,
+            day,
+            startTime: time,
+            endTime: toTimeInt(time + TIME_INTERVAL),
+          });
+        }
+      });
+    }
+
+    return results;
+  } catch (error) {
+    console.log("Failed to get weekly initial classroom schedule:", error);
+    throw new Error("Could not get weekly initial classroom schedule");
+  }
+};
 
 
 /*
@@ -313,3 +371,212 @@ export const getClassroomBorrowingConflicts = async (newBorrowing: ClassroomBorr
     throw new Error("Could not get classroom vacancy conflicts");
   }
 }
+
+/*
+*** available classrooms 
+*/
+export const getAvailableClassrooms = async (
+  date: Date,
+  startTime: number,
+  endTime: number,
+  filters?: { buildingId?: string; type?: ClassroomType }
+) => {
+  try {
+    // 1️⃣ Fetch all classrooms (with filters)
+    const classrooms = await db
+      .select({
+        classroomId: classroom.id,
+        classroomName: classroom.name,
+        buildingId: classroom.buildingId,
+        type: classroom.type,
+        capacity: classroom.capacity,
+        floor: classroom.floor,
+      })
+      .from(classroom)
+      .where(
+        and(
+          filters?.buildingId ? eq(classroom.buildingId, filters.buildingId) : undefined,
+          filters?.type ? eq(classroom.type, filters.type) : undefined
+        )
+      );
+
+    if (!classrooms.length) return [];
+
+    const classroomIds = classrooms.map((c) => c.classroomId);
+    const systemDay = date.getDay(); // 1–6 only, no Sundays
+
+    // 2️⃣ Bulk fetch all related schedule data
+
+    // Initial schedules
+    const initialSchedules = await db
+      .select({
+        classroomId: classroomSchedule.classroomId,
+        day: classroomSchedule.day,
+        startTime: classroomSchedule.startTime,
+        endTime: classroomSchedule.endTime,
+      })
+      .from(classroomSchedule)
+      .where(
+        and(
+          inArray(classroomSchedule.classroomId, classroomIds),
+          eq(classroomSchedule.day, systemDay)
+        )
+      );
+
+    // Vacancies
+    const vacancies = await db
+      .select({
+        classroomId: classroomVacancy.classroomId,
+        date: classroomVacancy.date,
+        startTime: classroomVacancy.startTime,
+        endTime: classroomVacancy.endTime,
+      })
+      .from(classroomVacancy)
+      .where(
+        and(
+          inArray(classroomVacancy.classroomId, classroomIds),
+          eq(classroomVacancy.date, date)
+        )
+      );
+
+    // Borrowings
+    const borrowings = await db
+      .select({
+        classroomId: classroomBorrowing.classroomId,
+        date: classroomBorrowing.date,
+        startTime: classroomBorrowing.startTime,
+        endTime: classroomBorrowing.endTime,
+      })
+      .from(classroomBorrowing)
+      .where(
+        and(
+          inArray(classroomBorrowing.classroomId, classroomIds),
+          eq(classroomBorrowing.date, date)
+        )
+      );
+
+    // 3️⃣ Prepare 30-minute blocks
+    const timeBlocks: { start: number; end: number }[] = [];
+    for (let t = startTime; t < endTime; t += TIME_INTERVAL) {
+      timeBlocks.push({ start: t, end: t + TIME_INTERVAL });
+    }
+
+    const availableClassrooms: {
+      classroomId: string;
+      classroomName: string;
+      buildingId: string;
+      buildingName: string;
+      type: string;
+      capacity: number;
+      floor: string;
+    }[] = [];
+
+    // Preload building names
+    const buildings = await db.select().from(building);
+    const buildingMap = new Map(buildings.map((b) => [b.id, b.name]));
+
+    // 4️⃣ Check each room across all blocks
+    for (const room of classrooms) {
+      let isAvailable = true;
+
+      for (const block of timeBlocks) {
+        const { start, end } = block;
+
+        // Borrowing check (highest priority, treated as OCCUPIED)
+        const borrowed = borrowings.some(
+          (b) =>
+            b.classroomId === room.classroomId &&
+            b.startTime < end &&
+            b.endTime > start
+        );
+        if (borrowed) {
+          isAvailable = false;
+          break;
+        }
+
+        // Vacancy check (treated as AVAILABLE, overrides schedule)
+        const vacated = vacancies.some(
+          (v) =>
+            v.classroomId === room.classroomId &&
+            v.startTime < end &&
+            v.endTime > start
+        );
+        if (vacated) {
+          continue;
+        }
+
+        // Initial schedule check (treated as OCCUPIED if no vacancy overrides it)
+        const scheduled = initialSchedules.some(
+          (s) =>
+            s.classroomId === room.classroomId &&
+            s.startTime < end &&
+            s.endTime > start
+        );
+        if (scheduled) {
+          isAvailable = false;
+          break;
+        }
+
+        // Otherwise unoccupied => AVAILABLE, continue
+      }
+
+      if (isAvailable) {
+        availableClassrooms.push({
+          classroomId: room.classroomId,
+          classroomName: room.classroomName,
+          buildingId: room.buildingId,
+          buildingName: buildingMap.get(room.buildingId) || "",
+          type: room.type,
+          capacity: room.capacity,
+          floor: room.floor,
+        });
+      }
+    }
+
+    type GroupedAvailable = {
+      buildingId: string;
+      buildingName: string;
+      classrooms: {
+        classroomId: string;
+        classroomName: string;
+        type: string;
+        capacity: number;
+        floor: string;
+      }[];
+    };
+
+    const groups = new Map<string, GroupedAvailable>();
+
+    for (const room of availableClassrooms) {
+      if (!groups.has(room.buildingId)) {
+        groups.set(room.buildingId, {
+          buildingId: room.buildingId,
+          buildingName: room.buildingName,
+          classrooms: [],
+        });
+      }
+
+      const group = groups.get(room.buildingId); // safe because we just set it
+      if (!group) continue; // should never happen
+      group.classrooms.push({
+        classroomId: room.classroomId,
+        classroomName: room.classroomName,
+        type: room.type,
+        capacity: room.capacity,
+        floor: room.floor,
+      });
+    }
+
+    // (optional) sort classrooms by name, buildings by name
+    for (const g of groups.values()) {
+      g.classrooms.sort((a, b) => a.classroomName.localeCompare(b.classroomName));
+    }
+    const grouped: GroupedAvailable[] = Array.from(groups.values())
+      .sort((a, b) => a.buildingName.localeCompare(b.buildingName));
+
+    return grouped;
+  } catch (error) {
+    console.error("Failed to get available classrooms:", error);
+    throw new Error("Could not fetch available classrooms");
+  }
+};
