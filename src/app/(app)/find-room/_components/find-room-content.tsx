@@ -39,6 +39,9 @@ import {
 import ReadySearch from "@/components/loading-state/ready-search";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import { env } from "@/env";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+
 export default function FindRoomContent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date(),
@@ -236,92 +239,98 @@ export default function FindRoomContent() {
         ) : availableClassrooms && totalClassrooms > 0 ? (
           <div className="space-y-6">
             {availableClassrooms.map((building) => (
-              <Card key={building.buildingId} className="border-border">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-xl">
-                      <Building className="h-5 w-5" />
-                      {building.buildingName}
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-sm">
-                        {building.classrooms.length} available
-                      </Badge>
+              <div>
+                <Card
+                  key={building.buildingId}
+                  className="border-none shadow-none"
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2 text-xl">
+                        <Building className="h-5 w-5" />
+                        {building.buildingName}
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-sm">
+                          {building.classrooms.length} available
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {building.classrooms.map((classroom) => (
-                      <Card
-                        key={classroom.classroomId}
-                        className="border-border transition-shadow hover:shadow-md"
-                      >
-                        <CardContent className="p-4">
-                          <div className="space-y-3">
-                            {/* Header */}
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-foreground text-lg font-semibold">
-                                Room {classroom.classroomName}
-                              </h3>
-                              <Badge
-                                className={`${getTypeColor(
-                                  classroom.type as ClassroomType,
-                                )} flex items-center gap-1`}
-                              >
-                                {getTypeIcon(classroom.type as ClassroomType)}
-                                {classroom.type.charAt(0).toUpperCase() +
-                                  classroom.type.slice(1)}
-                              </Badge>
-                            </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {building.classrooms.map((classroom) => (
+                        <Card
+                          key={classroom.classroomId}
+                          className="border-border transition-shadow hover:shadow-md"
+                        >
+                          <CardContent className="p-4">
+                            <div className="space-y-3">
+                              {/* Header */}
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-foreground text-lg font-semibold">
+                                  Room {classroom.classroomName}
+                                </h3>
+                                <Badge
+                                  className={`${getTypeColor(
+                                    classroom.type as ClassroomType,
+                                  )} flex items-center gap-1`}
+                                >
+                                  {getTypeIcon(classroom.type as ClassroomType)}
+                                  {classroom.type.charAt(0).toUpperCase() +
+                                    classroom.type.slice(1)}
+                                </Badge>
+                              </div>
 
-                            {/* Details */}
-                            <div className="text-muted-foreground space-y-2 text-sm">
-                              <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4" />
-                                <span>
-                                  Capacity: {classroom.capacity} people
-                                </span>
+                              {/* Details */}
+                              <div className="text-muted-foreground space-y-2 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4" />
+                                  <span>
+                                    Capacity: {classroom.capacity} people
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>Floor: {classroom.floor}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4" />
+                                  <span>
+                                    Available:{" "}
+                                    {startTime
+                                      ? TIME_MAP[startTime as TimeInt]
+                                      : "--"}{" "}
+                                    -{" "}
+                                    {endTime
+                                      ? TIME_MAP[endTime as TimeInt]
+                                      : "--"}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4" />
-                                <span>Floor: {classroom.floor}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                <span>
-                                  Available:{" "}
-                                  {startTime
-                                    ? TIME_MAP[startTime as TimeInt]
-                                    : "--"}{" "}
-                                  -{" "}
-                                  {endTime
-                                    ? TIME_MAP[endTime as TimeInt]
-                                    : "--"}
-                                </span>
-                              </div>
-                            </div>
 
-                            {/* Action */}
-                            <div className="border-border border-t pt-2">
-                              <Button
-                                className="w-full"
-                                size="sm"
-                                onClick={() =>
-                                  handleOpenClassroom(classroom.classroomId)
-                                }
-                              >
-                                <ExternalLink className="mr-1 h-4 w-4" /> Open
-                                Classroom
-                              </Button>
+                              {/* Action */}
+                              <div className="border-border border-t pt-2">
+                                <Button
+                                  className="w-full"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleOpenClassroom(classroom.classroomId)
+                                  }
+                                >
+                                  <ExternalLink className="mr-1 h-4 w-4" /> Open
+                                  Classroom
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Separator className="my-4" />
+              </div>
             ))}
           </div>
         ) : (
