@@ -24,7 +24,6 @@ export const authRouter = createTRPCRouter({
     .input(getAllSchedulableFacultySchema)
     .query(({ input }) => {
       const data = getAllSchedulableFaculty(input.role, input.departmentOrOrganization);
-      console.log("INSIDE TRPC", data, "INPUT", input);
       return data;
     }),
   getAllUsers: publicProcedure.query(() => {
