@@ -26,4 +26,7 @@ export enum PageRoutes {
 
   //Management
   MANAGEMENT = "/management",
+
+  //Find Room
+  FIND_ROOM = "/find-room",
 }
