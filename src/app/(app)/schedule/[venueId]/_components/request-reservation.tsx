@@ -155,6 +155,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             console.log(err);
             toast.error(err.message || "Failed to create requests");
             setIsSubmitting(false);
+            setTimeout(() => setReservationError(""), 5000);
           },
         },
       );
@@ -181,6 +182,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             console.log(err);
             toast.error(err.message || "Failed to create reservation");
             setIsSubmitting(false);
+            setTimeout(() => setReservationError(""), 5000);
           },
         },
       );
@@ -594,7 +596,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
               )}
 
               {reservationError && (
-                <div className="rounded bg-red-50 p-2 text-sm text-red-600">
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600 text-center">
                   {reservationError}
                 </div>
               )}

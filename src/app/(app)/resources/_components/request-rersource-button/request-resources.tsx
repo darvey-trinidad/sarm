@@ -61,6 +61,7 @@ export default function RequestResourcesDialog({
   requestedStartTime,
   requestedEndTime,
 }: RequestResourcesDialogProps) {
+  const [borrowingError, setBorrowingError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: session } = authClient.useSession();
   const [pdfUrl, setPdfUrl] = useState<string>("");
@@ -142,6 +143,7 @@ export default function RequestResourcesDialog({
         onError: (error) => {
           setIsSubmitting(false);
           toast.error(error.message);
+          setBorrowingError(error.message);
         },
       },
     );
@@ -165,7 +167,7 @@ export default function RequestResourcesDialog({
 
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Request Resource Reservation</DialogTitle>
+            <DialogTitle>Request Resource Borrowing</DialogTitle>
             <DialogDescription>
               Fill out the form below to request resource. Your request will be
               marked as <span className="font-semibold">Pending</span> until
@@ -533,6 +535,11 @@ export default function RequestResourcesDialog({
               {Number(startTime) >= Number(endTime) && (
                 <div className="rounded bg-red-50 p-2 text-sm text-red-600">
                   End time must be after start time
+                </div>
+              )}
+              {borrowingError && (
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600 text-center">
+                  {borrowingError}
                 </div>
               )}
               <DialogFooter>
