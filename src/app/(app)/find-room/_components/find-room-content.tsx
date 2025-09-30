@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, newDate } from "@/lib/utils";
 import {
   Clock,
   MapPin,
@@ -57,7 +57,7 @@ export default function FindRoomContent() {
     () => ({
       startTime: String(startTime),
       endTime: String(endTime),
-      date: selectedDate?.toISOString(),
+      date: selectedDate ? newDate(selectedDate) : newDate(new Date()),
       filters: {
         type: selectedType === "all" ? undefined : selectedType,
       },
