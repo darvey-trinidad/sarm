@@ -5,11 +5,11 @@ import Link from "next/link";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
 import ClassroomCalendarView from "@/components/calendar/classroom-calendar-view";
 import { getClassroomWithBuilding } from "@/lib/api/classroom/query";
-interface PageProps {
-  params: {
+type PageProps = {
+  params: Promise<{
     roomId: string;
-  };
-}
+  }>;
+};
 
 export const metadata: Metadata = {
   title: "Room",
