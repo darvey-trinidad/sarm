@@ -37,6 +37,11 @@ const items = [
     icon: CalendarRange,
   },
   {
+    title: "Find Room",
+    href: "/find-room",
+    icon: Search,
+  },
+  {
     title: "Resources",
     href: "/resources",
     icon: Shapes,
@@ -65,11 +70,6 @@ const items = [
     title: "Manage",
     href: "/manage",
     icon: Blocks,
-  },
-  {
-    title: "Find Room",
-    href: "/find-room",
-    icon: Search,
   },
 ];
 
