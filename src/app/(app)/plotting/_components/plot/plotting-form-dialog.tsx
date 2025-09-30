@@ -56,8 +56,8 @@ export default function PlottingFormDialog({
   const { data: session } = authClient.useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: faculty } = api.auth.getAllSchedulableFaculty.useQuery({
-    role: session?.user.role || "facility_manager",
-    departmentOrOrganization: session?.user.departmentOrOrganization || "itds",
+    role: session?.user.role ?? "facility_manager",
+    departmentOrOrganization: session?.user.departmentOrOrganization ?? "itds",
   });
   const [value, setValue] = useState<Option>();
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
@@ -105,16 +105,16 @@ export default function PlottingFormDialog({
       {
         subject: data.courseCode,
         section: data.section,
-        classroomId: selectedItem?.classroomId || "",
+        classroomId: selectedItem?.classroomId ?? "",
         facultyId: data.proffesor,
         startTime: data.startTime,
         endTime: data.endTime,
-        day: selectedItem?.day || 0,
+        day: selectedItem?.day ?? 0,
       },
       {
         onSuccess: () => {
-          utils.classroomSchedule.getWeeklyInitialClassroomSchedule.invalidate({
-            classroomId: selectedItem?.classroomId || "",
+          void utils.classroomSchedule.getWeeklyInitialClassroomSchedule.invalidate({
+            classroomId: selectedItem?.classroomId ?? "",
           });
           toast.success("Classroom schedule created successfully");
           form.reset();

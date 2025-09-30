@@ -71,7 +71,7 @@ export const columns: ColumnDef<Classroom>[] = [
     header: createSortableHeader("Building"),
     cell: ({ row }) => {
       const buildingName = row.original.buildingName;
-      return buildingName ? buildingName : "N/A";
+      return buildingName ?? "N/A";
     },
   },
   {

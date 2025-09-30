@@ -64,7 +64,7 @@ export default function ReportForm() {
 
     createFacilityIssueReport(
       {
-        reportedBy: session?.user.id || "",
+        reportedBy: session?.user.id ?? "",
         description: data.description,
         details: data.details,
         buildingId: data.buildingId,
@@ -257,7 +257,7 @@ export default function ReportForm() {
                         rel="noopener noreferrer"
                         className="text-primary underline"
                       >
-                        {uploadedFileName || "View Image"}
+                        {uploadedFileName ?? "View Image"}
                       </a>
                     </p>
                   )}
@@ -270,8 +270,8 @@ export default function ReportForm() {
                         button: "!bg-primary !text-white !text-sm !font-medium",
                       }}
                       onClientUploadComplete={(res) => {
-                        if (res && res[0]) {
-                          field.onChange(res[0].ufsUrl); // store single file URL
+                        if (res?.[0]) {
+                          field.onChange(res[0].ufsUrl);
                           setUploadedFileName(res[0].name);
                           toast.success("Image uploaded successfully!");
                         }

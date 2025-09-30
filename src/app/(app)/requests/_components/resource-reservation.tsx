@@ -422,8 +422,8 @@ export default function ResourceReservation() {
         {/* Clear filters button */}
         {(selectedResource !== "all" ||
           selectedStatus !== "all" ||
-          startDate ||
-          endDate ||
+          !!startDate ||
+          !!endDate ||
           searchTerm) && (
             <Button
               variant="outline"

@@ -299,11 +299,11 @@ export default function FindRoomContent() {
                                   <span>
                                     Available:{" "}
                                     {startTime
-                                      ? TIME_MAP[startTime as TimeInt]
+                                      ? TIME_MAP[startTime]
                                       : "--"}{" "}
                                     -{" "}
                                     {endTime
-                                      ? TIME_MAP[endTime as TimeInt]
+                                      ? TIME_MAP[endTime]
                                       : "--"}
                                   </span>
                                 </div>

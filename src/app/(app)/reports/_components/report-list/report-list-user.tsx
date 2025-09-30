@@ -143,13 +143,13 @@ export default function ReportListUser() {
                           <span>{report.location}</span>
                         </div>
 
-                        {(report.buildingName || report.classroomName) && (
+                        {(report.buildingName ?? report.classroomName) && (
                           <div className="flex items-center gap-2">
                             <Building className="h-4 w-4" />
                             <span>
                               {report.buildingName && report.classroomName
                                 ? `${report.buildingName} - ${report.classroomName}`
-                                : report.buildingName || report.classroomName}
+                                : report.buildingName ?? report.classroomName}
                             </span>
                           </div>
                         )}

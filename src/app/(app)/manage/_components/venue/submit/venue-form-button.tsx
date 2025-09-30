@@ -36,7 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-export default function venueFormButton() {
+export default function VenueFormButton() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [Open, setOpen] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();

@@ -34,7 +34,7 @@ export default function PlottingContent() {
 
       <div className="flex flex-row gap-2">
         <Select
-          value={selectedBuilding || ""}
+          value={selectedBuilding ?? ""}
           onValueChange={(val) => {
             setSelectedBuilding(val);
             setSelectedClassroom(null);
@@ -53,7 +53,7 @@ export default function PlottingContent() {
         </Select>
 
         <Select
-          value={selectedClassroom || ""}
+          value={selectedClassroom ?? ""}
           onValueChange={(val) => setSelectedClassroom(val)}
         >
           <SelectTrigger>

@@ -97,14 +97,11 @@ export default function ReportListContent() {
     const searchLower = searchTerm.toLowerCase();
     return reports.filter(
       (report) =>
-        (report.reportedByName &&
-          report.reportedByName.toLowerCase().includes(searchLower)) ||
+        report.reportedByName?.toLowerCase().includes(searchLower) ||
         report.description.toLowerCase().includes(searchLower) ||
         report.location.toLowerCase().includes(searchLower) ||
-        (report.buildingName &&
-          report.buildingName.toLowerCase().includes(searchLower)) ||
-        (report.classroomName &&
-          report.classroomName.toLowerCase().includes(searchLower)),
+        report.buildingName?.toLowerCase().includes(searchLower) ||
+        report.classroomName?.toLowerCase().includes(searchLower),
     );
   }, [reports, searchTerm]);
 
@@ -125,7 +122,7 @@ export default function ReportListContent() {
             {
               onSuccess: () => {
                 toast.success(`Report status updated to ${newStatus}`);
-                refetchReports();
+                void refetchReports();
                 resolve(true);
               },
               onError: () => {
@@ -363,21 +360,21 @@ export default function ReportListContent() {
           startDate ||
           endDate ||
           searchTerm) && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedCategory("all");
-              setSelectedStatus("all");
-              setStartDate(undefined);
-              setEndDate(undefined);
-              setSearchTerm("");
-            }}
-            className="mt-2"
-          >
-            Clear Filters
-          </Button>
-        )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedCategory("all");
+                setSelectedStatus("all");
+                setStartDate(undefined);
+                setEndDate(undefined);
+                setSearchTerm("");
+              }}
+              className="mt-2"
+            >
+              Clear Filters
+            </Button>
+          )}
       </div>
 
       {/* Report lists */}
@@ -427,13 +424,13 @@ export default function ReportListContent() {
                           <span>{report.location}</span>
                         </div>
 
-                        {(report.buildingName || report.classroomName) && (
+                        {(report.buildingName ?? report.classroomName) && (
                           <div className="flex items-center gap-2">
                             <Building className="h-4 w-4" />
                             <span>
                               {report.buildingName && report.classroomName
                                 ? `${report.buildingName} - ${report.classroomName}`
-                                : report.buildingName || report.classroomName}
+                                : report.buildingName ?? report.classroomName}
                             </span>
                           </div>
                         )}
