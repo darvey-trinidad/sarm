@@ -83,7 +83,7 @@ export default function ResourceReservation() {
 
   const uniqueResources = useMemo(() => {
     if (!resources) return [];
-    const resourceMap = new Map();
+    const resourceMap = new Map<string, { id: string; name: string }>();
     resources.forEach((request) => {
       request.borrowedItems.forEach((item) => {
         if (!resourceMap.has(item.resourceId)) {
@@ -140,7 +140,7 @@ export default function ResourceReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation approved!");
-                refetchResourcesReservations();
+                void refetchResourcesReservations();
                 resolve(true);
               },
               onError: (error) => {

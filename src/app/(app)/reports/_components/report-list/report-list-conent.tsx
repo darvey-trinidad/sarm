@@ -33,7 +33,6 @@ import {
   AlertTriangle,
   CheckCircle,
   AlertCircle,
-  Loader2,
   Zap,
   Wrench,
   Settings,
@@ -357,8 +356,8 @@ export default function ReportListContent() {
         {/* Clear Filters */}
         {(selectedCategory !== "all" ||
           selectedStatus !== "all" ||
-          startDate ||
-          endDate ||
+          (startDate ?? null) !== null ||
+          (endDate ?? null) !== null ||
           searchTerm) && (
             <Button
               variant="outline"
