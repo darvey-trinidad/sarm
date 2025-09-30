@@ -64,6 +64,7 @@ type VenuePageProps = {
 
 export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reservationError, setReservationError] = useState("");
   const { data: session } = authClient.useSession();
   const [isBorrowingItems, setIsBorrowingItems] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string>("");
@@ -150,9 +151,11 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             setPdfName("");
           },
           onError: (err) => {
+            setReservationError(err.message);
             console.log(err);
             toast.error(err.message || "Failed to create requests");
             setIsSubmitting(false);
+            setTimeout(() => setReservationError(""), 5000);
           },
         },
       );
@@ -175,9 +178,11 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             setIsSubmitting(false);
           },
           onError: (err) => {
+            setReservationError(err.message);
             console.log(err);
             toast.error(err.message || "Failed to create reservation");
             setIsSubmitting(false);
+            setTimeout(() => setReservationError(""), 5000);
           },
         },
       );
@@ -186,6 +191,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
 
   const startTime = form.watch("startTime");
   const endTime = form.watch("endTime");
+
+  const selectedId =
+    form
+      .watch("borrowItems")
+      ?.map((item) => item.id)
+      .filter(Boolean) ?? [];
 
   return (
     <div>
@@ -416,10 +427,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                           );
 
                           return (
-                            <div
-                              key={field.id}
-                              className="flex flex-col gap-4 md:flex-row md:items-end"
-                            >
+                            <div key={field.id} className="flex gap-4">
                               {/* Item Name */}
                               <div className="flex-1">
                                 <FormField
@@ -438,14 +446,21 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                          {availableResources?.map((item) => (
-                                            <SelectItem
-                                              key={item.id}
-                                              value={item.id}
-                                            >
-                                              {item.name}
-                                            </SelectItem>
-                                          ))}
+                                          {availableResources
+                                            ?.filter(
+                                              (item) =>
+                                                !selectedId?.includes(
+                                                  item.id,
+                                                ) || item.id === field.value,
+                                            )
+                                            .map((item) => (
+                                              <SelectItem
+                                                key={item.id}
+                                                value={item.id}
+                                              >
+                                                {item.name}
+                                              </SelectItem>
+                                            ))}
                                         </SelectContent>
                                       </Select>
                                       <FormMessage />
@@ -498,9 +513,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                               <Button
                                 type="button"
                                 size="icon"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => remove(index)}
-                                className="self-center"
+                                className="mt-5 self-center"
                               >
                                 <Minus className="h-4 w-4" />
                               </Button>
@@ -515,7 +530,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                         name="representativeBorrower"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="mt-4">Representative Borrower</FormLabel>
+                            <FormLabel className="mt-4">
+                              Representative Borrower
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="Representative's full name"
@@ -575,6 +592,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
               {startTime >= endTime && (
                 <div className="rounded bg-red-50 p-2 text-sm text-red-600">
                   End time must be after start time
+                </div>
+              )}
+
+              {reservationError && (
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600 text-center">
+                  {reservationError}
                 </div>
               )}
 

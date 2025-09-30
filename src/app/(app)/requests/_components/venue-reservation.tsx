@@ -42,8 +42,7 @@ import {
   Package,
   Loader2,
 } from "lucide-react";
-import { formatLocalTime } from "@/lib/utils";
-import { formatISODate } from "@/lib/utils";
+import { formatLocalTime, formatISODate } from "@/lib/utils";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 
@@ -135,7 +134,7 @@ export default function VenueReservation() {
           editStatusMutation(
             {
               id: reservationId,
-              status: ReservationStatus.Approved
+              status: ReservationStatus.Approved,
             },
             {
               onSuccess: () => {
@@ -432,7 +431,8 @@ export default function VenueReservation() {
                             title="This request has a linked resource borrowing"
                           >
                             <Package className="h-3 w-3" />
-                            With {reservation.borrowingTransaction.status} borrowing
+                            With {reservation.borrowingTransaction.status}{" "}
+                            borrowing
                           </Badge>
                         )}
                       </div>
@@ -460,13 +460,13 @@ export default function VenueReservation() {
                           <span>
                             {
                               TIME_MAP[
-                              reservation.startTime as keyof typeof TIME_MAP
+                                reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                              reservation.endTime as keyof typeof TIME_MAP
+                                reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>

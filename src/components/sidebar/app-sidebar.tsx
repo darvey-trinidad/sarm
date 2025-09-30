@@ -7,7 +7,7 @@ import {
   Grid2x2Check,
   Users,
   Blocks,
-  icons,
+  Search,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +35,11 @@ const items = [
     title: "Schedule",
     href: "/schedule",
     icon: CalendarRange,
+  },
+  {
+    title: "Find Room",
+    href: "/find-room",
+    icon: Search,
   },
   {
     title: "Resources",

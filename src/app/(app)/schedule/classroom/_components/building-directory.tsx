@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { env } from "@/env";
 interface Building {
   id: string;
   name: string;
@@ -32,10 +33,8 @@ const BuildingIllustration = ({ buildingId }: { buildingId: string }) => {
 };
 
 const BuildingCard = ({ building }: { building: Building }) => {
-  const router = useRouter();
-
   const handleRoomClick = (roomId: string) => {
-    router.push(`/schedule/classroom/${roomId}`);
+    window.location.href = `${env.NEXT_PUBLIC_APP_URL}/schedule/classroom/${roomId}`;
   };
 
   return (
@@ -65,9 +64,9 @@ const BuildingCard = ({ building }: { building: Building }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          {building.rooms.map((room, index) => (
+          {building.rooms.map((room) => (
             <Button
-              key={index}
+              key={room.id}
               variant="outline"
               size="sm"
               onClick={() => handleRoomClick(room.id)}
