@@ -97,6 +97,8 @@ export default function PlottingFormDialog({
     toast.success("Schedule deleted successfully");
   };
 
+  const utils = api.useUtils();
+
   const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
     setIsSubmitting(true);
     createClassroomSchedule(
@@ -111,9 +113,13 @@ export default function PlottingFormDialog({
       },
       {
         onSuccess: () => {
+          utils.classroomSchedule.getWeeklyInitialClassroomSchedule.invalidate({
+            classroomId: selectedItem?.classroomId || "",
+          });
           toast.success("Classroom schedule created successfully");
           form.reset();
           setIsSubmitting(false);
+          onOpenChange(false);
         },
         onError: (err) => {
           console.log(err);
@@ -140,23 +146,23 @@ export default function PlottingFormDialog({
             onSubmit={form.handleSubmit((data) =>
               isExistingSchedule
                 ? showConfirmation({
-                    title: "Delete Schedule Creation",
-                    description:
-                      "Are you sure you want to delete this classroom schedule?",
-                    confirmText: "Delete",
-                    cancelText: "Cancel",
-                    variant: "warning",
-                    onConfirm: () => handleDelete(),
-                  })
+                  title: "Delete Schedule Creation",
+                  description:
+                    "Are you sure you want to delete this classroom schedule?",
+                  confirmText: "Delete",
+                  cancelText: "Cancel",
+                  variant: "warning",
+                  onConfirm: () => handleDelete(),
+                })
                 : showConfirmation({
-                    title: "Confirm Schedule Creation",
-                    description:
-                      "Are you sure you want to create this classroom schedule?",
-                    confirmText: "Create",
-                    cancelText: "Cancel",
-                    variant: "success",
-                    onConfirm: () => handleSubmit(data),
-                  }),
+                  title: "Confirm Schedule Creation",
+                  description:
+                    "Are you sure you want to create this classroom schedule?",
+                  confirmText: "Create",
+                  cancelText: "Cancel",
+                  variant: "success",
+                  onConfirm: () => handleSubmit(data),
+                }),
             )}
             className="space-y-4 md:space-y-6"
           >
@@ -180,9 +186,9 @@ export default function PlottingFormDialog({
                         options={
                           faculty
                             ? faculty.map((f) => ({
-                                value: f.id,
-                                label: f.name ?? "",
-                              }))
+                              value: f.id,
+                              label: f.name ?? "",
+                            }))
                             : []
                         }
                         emptyMessage="No professor found"
