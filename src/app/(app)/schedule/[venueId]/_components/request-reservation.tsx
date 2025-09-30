@@ -64,6 +64,7 @@ type VenuePageProps = {
 
 export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reservationError, setReservationError] = useState("");
   const { data: session } = authClient.useSession();
   const [isBorrowingItems, setIsBorrowingItems] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string>("");
@@ -150,6 +151,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             setPdfName("");
           },
           onError: (err) => {
+            setReservationError(err.message);
             console.log(err);
             toast.error(err.message || "Failed to create requests");
             setIsSubmitting(false);
@@ -175,6 +177,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             setIsSubmitting(false);
           },
           onError: (err) => {
+            setReservationError(err.message);
             console.log(err);
             toast.error(err.message || "Failed to create reservation");
             setIsSubmitting(false);
@@ -575,6 +578,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
               {startTime >= endTime && (
                 <div className="rounded bg-red-50 p-2 text-sm text-red-600">
                   End time must be after start time
+                </div>
+              )}
+
+              {reservationError && (
+                <div className="rounded bg-red-50 p-2 text-sm text-red-600">
+                  {reservationError}
                 </div>
               )}
 
