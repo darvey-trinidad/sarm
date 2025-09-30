@@ -64,7 +64,7 @@ export const editBorrowingTransaction = async (id: string, data: EditBorrowingTr
         if (!match || item.quantity > match.available) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: `Not enough available stock for resource: ${match?.name || item.resourceId}. `
+            message: `Not enough available stock for resource: ${match?.name ?? item.resourceId}. `
           })
         }
       }

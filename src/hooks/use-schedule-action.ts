@@ -59,10 +59,10 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
         endTime: (data.endTime).toString(),
 
         requesterId: data.facultyId,
-        responderId: schedule.facultyId || "",
+        responderId: schedule.facultyId ?? "",
 
-        subject: data.subject || "",
-        section: data.section || ""
+        subject: data.subject ?? "",
+        section: data.section ?? ""
       }, {
         onSuccess: () => {
           toast("Room request sent");

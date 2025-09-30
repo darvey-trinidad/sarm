@@ -90,20 +90,20 @@ export const classroomScheduleRouter = createTRPCRouter({
 
         const emailHtml = await render(
           RequestRoomEmail({
-            classroomName: roomRequestRecord?.classroomName || "",
-            date: roomRequestRecord?.date || new Date(),
-            startTime: roomRequestRecord?.startTime || 700,
-            endTime: roomRequestRecord?.endTime || 2000,
-            subject: roomRequestRecord?.subject || "",
-            section: roomRequestRecord?.section || "",
-            requestorName: roomRequestRecord?.requestorName || "",
+            classroomName: roomRequestRecord?.classroomName ?? "",
+            date: roomRequestRecord?.date ?? new Date(),
+            startTime: roomRequestRecord?.startTime ?? 700,
+            endTime: roomRequestRecord?.endTime ?? 2000,
+            subject: roomRequestRecord?.subject ?? "",
+            section: roomRequestRecord?.section ?? "",
+            requestorName: roomRequestRecord?.requestorName ?? "",
             respondUrl: `${env.NEXT_PUBLIC_APP_URL}/respond/${roomRequestId}`,
           })
         );
 
         const info = await transporter.sendMail({
           from: `"SARM Notification" <${env.GOOGLE_EMAIL_USER}>`,
-          to: roomRequestRecord?.responderEmail || "",
+          to: roomRequestRecord?.responderEmail ?? "",
           subject: "Room Request",
           html: emailHtml,
         });

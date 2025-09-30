@@ -247,7 +247,9 @@ export const getWeeklyClassroomSchedule = async (
         }
       });
 
-      current.setDate(current.getDate() + 1);
+      const nextDay = new Date(current);
+      nextDay.setDate(nextDay.getDate() + 1);
+      current = nextDay;
     }
 
     return results;
@@ -525,7 +527,7 @@ export const getAvailableClassrooms = async (
           classroomId: room.classroomId,
           classroomName: room.classroomName,
           buildingId: room.buildingId,
-          buildingName: buildingMap.get(room.buildingId) || "",
+          buildingName: buildingMap.get(room.buildingId) ?? "",
           type: room.type,
           capacity: room.capacity,
           floor: room.floor,

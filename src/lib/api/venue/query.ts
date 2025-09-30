@@ -79,9 +79,9 @@ export async function getAllVenueReservations({
       if (!acc[row.venueReservationId]) {
         acc[row.venueReservationId] = {
           venueReservationId: row.venueReservationId,
-          venueId: row.venueId || "",
+          venueId: row.venueId ?? "",
           venueName: row.venueName,
-          reserverId: row.reserverId || "",
+          reserverId: row.reserverId ?? "",
           reserverName: row.reserverName,
           date: row.date,
           startTime: row.startTime,
@@ -92,10 +92,10 @@ export async function getAllVenueReservations({
           createdAt: row.createdAt,
           borrowingTransaction: row.transactionId
             ? {
-              id: row.transactionId || "",
-              venueReservationId: row.transactionVenueReservationId || "",
-              representativeBorrower: row.representativeBorrower || "",
-              status: row.transactionStatus || "",
+              id: row.transactionId ?? "",
+              venueReservationId: row.transactionVenueReservationId ?? "",
+              representativeBorrower: row.representativeBorrower ?? "",
+              status: row.transactionStatus ?? "",
               itemsBorrowed: [],
             }
             : null,
@@ -104,10 +104,10 @@ export async function getAllVenueReservations({
 
       if (row.transactionId && row.resourceId) {
         acc[row.venueReservationId]?.borrowingTransaction?.itemsBorrowed.push({
-          id: row.resourceId || "",
-          name: row.resourceName || "",
-          description: row.resourceDescription || "",
-          quantity: row.resourceQuantity || 1,
+          id: row.resourceId ?? "",
+          name: row.resourceName ?? "",
+          description: row.resourceDescription ?? "",
+          quantity: row.resourceQuantity ?? 1,
         });
       }
 
