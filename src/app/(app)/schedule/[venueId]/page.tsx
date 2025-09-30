@@ -18,7 +18,7 @@ type VenuePageProps = {
   };
 };
 export default async function Venue({ params }: VenuePageProps) {
-  const { venueId } = await params;
+  const { venueId } = params;
   const venues = await getVenueById(venueId);
   const venue = venues[0];
   return (
