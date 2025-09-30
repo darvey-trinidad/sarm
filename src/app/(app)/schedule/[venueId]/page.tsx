@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 };
 
 type VenuePageProps = {
-  params: {
+  params: Promise<{
     venueId: string;
-  };
+  }>;
 };
+
 export default async function Venue({ params }: VenuePageProps) {
-  const { venueId } = params;
+  const { venueId } = await params;
   const venues = await getVenueById(venueId);
   const venue = venues[0];
   return (
