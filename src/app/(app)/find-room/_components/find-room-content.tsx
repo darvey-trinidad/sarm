@@ -239,7 +239,7 @@ export default function FindRoomContent() {
         ) : availableClassrooms && totalClassrooms > 0 ? (
           <div className="space-y-6">
             {availableClassrooms.map((building) => (
-              <div>
+              <div key={building.buildingId}>
                 <Card
                   key={building.buildingId}
                   className="border-none shadow-none"
