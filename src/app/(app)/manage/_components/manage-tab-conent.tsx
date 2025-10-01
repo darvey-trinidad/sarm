@@ -23,71 +23,60 @@ export default function ManageTabContent() {
       <div className="mt-1 w-full">
         <TabsContent value="resources">
           <div className="space-y-4">
-            <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">Resources</h2>
-                <p className="text-muted-foreground">Manage campus recources</p>
-              </div>
-              <div>
-                <ResourceFormButton />
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Resources</h2>
+              <p className="text-muted-foreground">Manage campus recources</p>
             </div>
             <ResourceTable />
+          </div>
+          <div className="flex justify-end">
+            <ResourceFormButton />
           </div>
         </TabsContent>
 
         <TabsContent value="venue">
           <div className="space-y-4">
-            <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">Venue</h2>
-                <p className="text-muted-foreground">
-                  Manage campus Venues and facilities
-                </p>
-              </div>
-              <div>
-                <VenueFormButton />
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Venue</h2>
+              <p className="text-muted-foreground">
+                Manage campus Venues and facilities
+              </p>
             </div>
             <VenueTable />
-
+            <div className="flex justify-end">
+              <VenueFormButton />
+            </div>
             <button className="sr-only">hidden focus trap</button>
           </div>
         </TabsContent>
 
         <TabsContent value="buildings">
           <div className="space-y-4">
-            <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">Buildings</h2>
-                <p className="text-muted-foreground">
-                  Manage campus buildings and facilities
-                </p>
-              </div>
-              <div>
-                <BuildingFormButton />
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Buildings</h2>
+              <p className="text-muted-foreground">
+                Manage campus buildings and facilities
+              </p>
             </div>
             <BuildingTable />
+            <div className="flex justify-end">
+              <BuildingFormButton />
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="rooms">
           <div className="space-y-4">
-            <div className="flex flex-col justify-between space-y-4 sm:w-full sm:flex-row">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">
-                  Classrooms
-                </h2>
-                <p className="text-muted-foreground">
-                  Manage campus classrooms and learning facilities
-                </p>
-              </div>
-              <div>
-                <RoomFormButton />
-              </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Classrooms</h2>
+              <p className="text-muted-foreground">
+                Manage campus classrooms and learning facilities
+              </p>
             </div>
             <RoomTable />
+            <div className="flex justify-end">
+              <RoomFormButton />
+            </div>
           </div>
         </TabsContent>
       </div>
