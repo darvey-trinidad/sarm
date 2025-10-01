@@ -76,31 +76,30 @@ export async function getAllVenueReservations({
 
   const result = Object.values(
     rows.reduce<Record<string, ReservationWithBorrowing>>((acc, row) => {
-      if (!acc[row.venueReservationId]) {
-        acc[row.venueReservationId] ??= {
-          venueReservationId: row.venueReservationId,
-          venueId: row.venueId ?? "",
-          venueName: row.venueName,
-          reserverId: row.reserverId ?? "",
-          reserverName: row.reserverName,
-          date: row.date,
-          startTime: row.startTime,
-          endTime: row.endTime,
-          purpose: row.purpose,
-          status: row.status,
-          fileUrl: row.fileUrl,
-          createdAt: row.createdAt,
-          borrowingTransaction: row.transactionId
-            ? {
-              id: row.transactionId ?? "",
-              venueReservationId: row.transactionVenueReservationId ?? "",
-              representativeBorrower: row.representativeBorrower ?? "",
-              status: row.transactionStatus ?? "",
-              itemsBorrowed: [],
-            }
-            : null,
-        };
-      }
+      acc[row.venueReservationId] ??= {
+        venueReservationId: row.venueReservationId,
+        venueId: row.venueId ?? "",
+        venueName: row.venueName,
+        reserverId: row.reserverId ?? "",
+        reserverName: row.reserverName,
+        date: row.date,
+        startTime: row.startTime,
+        endTime: row.endTime,
+        purpose: row.purpose,
+        status: row.status,
+        fileUrl: row.fileUrl,
+        createdAt: row.createdAt,
+        borrowingTransaction: row.transactionId
+          ? {
+            id: row.transactionId ?? "",
+            venueReservationId: row.transactionVenueReservationId ?? "",
+            representativeBorrower: row.representativeBorrower ?? "",
+            status: row.transactionStatus ?? "",
+            itemsBorrowed: [],
+          }
+          : null,
+      };
+
 
       if (row.transactionId && row.resourceId) {
         acc[row.venueReservationId]?.borrowingTransaction?.itemsBorrowed.push({
