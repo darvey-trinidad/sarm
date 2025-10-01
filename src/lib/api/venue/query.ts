@@ -117,6 +117,96 @@ export async function getAllVenueReservations({
   return result;
 }
 
+export const getAllVenueReservationsByUserId = async (userId: string) => {
+  try {
+    const rows = await db
+      .select({
+        venueReservationId: venueReservation.id,
+        venueId: venue.id,
+        venueName: venue.name,
+        reserverId: user.id,
+        reserverName: user.name,
+
+        date: venueReservation.date,
+        startTime: venueReservation.startTime,
+        endTime: venueReservation.endTime,
+        purpose: venueReservation.purpose,
+        status: venueReservation.status,
+        createdAt: venueReservation.createdAt,
+        fileUrl: venueReservation.fileUrl,
+
+        transactionId: borrowingTransaction.id,
+        transactionStatus: borrowingTransaction.status,
+        transactionVenueReservationId: borrowingTransaction.venueReservationId,
+        representativeBorrower: borrowingTransaction.representativeBorrower,
+
+        resourceId: resource.id,
+        resourceName: resource.name,
+        resourceDescription: resource.description,
+        resourceQuantity: resourceBorrowing.quantity,
+      })
+      .from(venueReservation)
+      .innerJoin(venue, eq(venueReservation.venueId, venue.id))
+      .innerJoin(user, eq(venueReservation.reserverId, user.id))
+      .leftJoin(
+        borrowingTransaction,
+        eq(borrowingTransaction.venueReservationId, venueReservation.id),
+      )
+      .leftJoin(
+        resourceBorrowing,
+        eq(resourceBorrowing.transactionId, borrowingTransaction.id),
+      )
+      .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
+      .where(eq(venueReservation.reserverId, userId))
+      .orderBy(desc(venueReservation.createdAt));
+
+    const result = Object.values(
+      rows.reduce<Record<string, ReservationWithBorrowing>>((acc, row) => {
+        acc[row.venueReservationId] ??= {
+          venueReservationId: row.venueReservationId,
+          venueId: row.venueId ?? "",
+          venueName: row.venueName,
+          reserverId: row.reserverId ?? "",
+          reserverName: row.reserverName,
+          date: row.date,
+          startTime: row.startTime,
+          endTime: row.endTime,
+          purpose: row.purpose,
+          status: row.status,
+          fileUrl: row.fileUrl,
+          createdAt: row.createdAt,
+          borrowingTransaction: row.transactionId
+            ? {
+              id: row.transactionId ?? "",
+              venueReservationId: row.transactionVenueReservationId ?? "",
+              representativeBorrower: row.representativeBorrower ?? "",
+              status: row.transactionStatus ?? "",
+              itemsBorrowed: [],
+            }
+            : null,
+        };
+
+
+        if (row.transactionId && row.resourceId) {
+          acc[row.venueReservationId]?.borrowingTransaction?.itemsBorrowed.push({
+            id: row.resourceId ?? "",
+            name: row.resourceName ?? "",
+            description: row.resourceDescription ?? "",
+            quantity: row.resourceQuantity ?? 1,
+          });
+        }
+
+        return acc;
+      }, {}),
+    );
+
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export const getAllPendingVenueReservations = async () => {
   try {
     const reservations = await getAllVenueReservations({
