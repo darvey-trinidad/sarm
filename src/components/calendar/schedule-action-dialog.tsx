@@ -72,9 +72,9 @@ export default function ScheduleActionDialog({
   const [loading, setLoading] = useState(false);
   const [vacancyReason, setVacancyReason] = useState("");
   const [borrowingData, setBorrowingData] = useState<BorrowingData>({
-    classroomId: selectedItem?.classroomId || "",
-    facultyId: currentUser?.id || "",
-    date: selectedItem?.date || new Date(),
+    classroomId: selectedItem?.classroomId ?? "",
+    facultyId: currentUser?.id ?? "",
+    date: selectedItem?.date ?? new Date(),
     startTime: toTimeInt(selectedItem?.startTime),
     endTime: toTimeInt(selectedItem?.endTime),
     subject: "",
@@ -201,9 +201,9 @@ export default function ScheduleActionDialog({
       await onClaimSlot(selectedItem, borrowingData);
       onOpenChange(false);
       setBorrowingData({
-        classroomId: selectedItem?.classroomId || "",
-        facultyId: currentUser?.id || "",
-        date: selectedItem?.date || new Date(),
+        classroomId: selectedItem?.classroomId ?? "",
+        facultyId: currentUser?.id ?? "",
+        date: selectedItem?.date ?? new Date(),
         startTime: toTimeInt(selectedItem?.startTime),
         endTime: toTimeInt(selectedItem?.endTime),
         subject: "",
@@ -238,9 +238,9 @@ export default function ScheduleActionDialog({
       await onRequestToBorrow(selectedItem, borrowingData);
       onOpenChange(false);
       setBorrowingData({
-        classroomId: selectedItem?.classroomId || "",
-        facultyId: currentUser?.id || "",
-        date: selectedItem?.date || new Date(),
+        classroomId: selectedItem?.classroomId ?? "",
+        facultyId: currentUser?.id ?? "",
+        date: selectedItem?.date ?? new Date(),
         startTime: toTimeInt(selectedItem?.startTime),
         endTime: toTimeInt(selectedItem?.endTime),
         subject: "",
@@ -428,7 +428,7 @@ export default function ScheduleActionDialog({
                     <Input
                       id="subject"
                       placeholder="e.g., IT401"
-                      value={borrowingData.subject || ""}
+                      value={borrowingData.subject ?? ""}
                       onChange={(e) =>
                         setBorrowingData({
                           ...borrowingData,
@@ -445,7 +445,7 @@ export default function ScheduleActionDialog({
                     <Input
                       id="section"
                       placeholder="e.g., BSIT 4D"
-                      value={borrowingData.section || ""}
+                      value={borrowingData.section ?? ""}
                       onChange={(e) =>
                         setBorrowingData({
                           ...borrowingData,
@@ -589,7 +589,7 @@ export default function ScheduleActionDialog({
                     <Input
                       id="subject"
                       placeholder="e.g., IT401"
-                      value={borrowingData.subject || ""}
+                      value={borrowingData.subject ?? ""}
                       onChange={(e) =>
                         setBorrowingData({
                           ...borrowingData,
@@ -605,7 +605,7 @@ export default function ScheduleActionDialog({
                     <Input
                       id="section"
                       placeholder="e.g., BSIT 4D"
-                      value={borrowingData.section || ""}
+                      value={borrowingData.section ?? ""}
                       onChange={(e) =>
                         setBorrowingData({
                           ...borrowingData,

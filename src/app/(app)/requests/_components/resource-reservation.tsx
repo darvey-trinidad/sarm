@@ -171,7 +171,7 @@ export default function ResourceReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation canceled!");
-                refetchResourcesReservations();
+                void refetchResourcesReservations();
                 resolve(true);
               },
               onError: (error) => {
@@ -202,7 +202,7 @@ export default function ResourceReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation rejected!");
-                refetchResourcesReservations();
+                void refetchResourcesReservations();
                 resolve(true);
               },
               onError: (error) => {
@@ -233,7 +233,7 @@ export default function ResourceReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation returned!");
-                refetchResourcesReservations();
+                void refetchResourcesReservations();
                 resolve(true);
               },
               onError: (error) => {

@@ -44,7 +44,7 @@ export default function ClassroomCalendarView({
 
   const { markAsVacant, claimSlot, cancelBorrowing, requestToBorrow } =
     useScheduleActions({
-      onRefresh: () => refetch(),
+      onRefresh: () => void refetch(),
     });
 
   const {
@@ -279,7 +279,7 @@ export default function ClassroomCalendarView({
               {!isLoading &&
                 schedules.map((schedule) => (
                   <div
-                    key={`${schedule.date}-${schedule.startTime}`}
+                    key={`${schedule.date.toISOString()}-${schedule.startTime}`}
                     className="absolute cursor-pointer rounded-md border-l-4 p-2 transition-all hover:z-20 hover:shadow-md"
                     style={getScheduleStyle(schedule)}
                     onClick={() => handleScheduleClick(schedule)}

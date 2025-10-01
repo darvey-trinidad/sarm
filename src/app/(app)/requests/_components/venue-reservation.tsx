@@ -97,7 +97,7 @@ export default function VenueReservation() {
 
   const uniqueVenues = useMemo(() => {
     if (!venues) return [];
-    const venueMap = new Map();
+    const venueMap = new Map<string, { id: string; name: string | null }>();
     venues.forEach((reservation) => {
       if (!venueMap.has(reservation.venueId)) {
         venueMap.set(reservation.venueId, {
@@ -139,7 +139,7 @@ export default function VenueReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation approved!");
-                refetchVenueReservations();
+                void refetchVenueReservations();
                 resolve(true);
               },
               onError: (error) => {
@@ -170,7 +170,7 @@ export default function VenueReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation rejected!");
-                refetchVenueReservations();
+                void refetchVenueReservations();
                 resolve(true);
               },
               onError: (error) => {
@@ -201,7 +201,7 @@ export default function VenueReservation() {
             {
               onSuccess: () => {
                 toast.success("Reservation canceled!");
-                refetchVenueReservations();
+                void refetchVenueReservations();
                 resolve(true);
               },
               onError: (error) => {
@@ -381,7 +381,7 @@ export default function VenueReservation() {
         </div>
 
         {/* Clear Filters */}
-        {(selectedVenue !== "all" || startDate || endDate || searchTerm) && (
+        {(selectedVenue !== "all" || !!startDate || !!endDate || searchTerm) && (
           <Button
             variant="outline"
             size="sm"
@@ -460,13 +460,13 @@ export default function VenueReservation() {
                           <span>
                             {
                               TIME_MAP[
-                                reservation.startTime as keyof typeof TIME_MAP
+                              reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                                reservation.endTime as keyof typeof TIME_MAP
+                              reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>

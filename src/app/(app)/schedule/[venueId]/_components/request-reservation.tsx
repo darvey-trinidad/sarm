@@ -112,17 +112,17 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
         {
           venue: {
             venueId: venueId,
-            reserverId: session?.user.id || "",
+            reserverId: session?.user.id ?? "",
             date: newDate(data.date),
             startTime: data.startTime,
             endTime: data.endTime,
             purpose: data.purpose,
             status: data.status,
-            fileUrl: data.fileUrl || "",
+            fileUrl: data.fileUrl ?? "",
           },
           borrowing: {
-            borrowerId: session?.user.id || "",
-            representativeBorrower: data.representativeBorrower || "",
+            borrowerId: session?.user.id ?? "",
+            representativeBorrower: data.representativeBorrower ?? "",
             purpose: data.purpose,
             startTime: data.startTime.toString(),
             endTime: data.endTime.toString(),
@@ -163,13 +163,13 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
       createVenueReservation(
         {
           venueId: venueId,
-          reserverId: session?.user.id || "",
+          reserverId: session?.user.id ?? "",
           date: newDate(data.date),
           startTime: data.startTime,
           endTime: data.endTime,
           purpose: data.purpose,
           status: data.status,
-          fileUrl: data.fileUrl || "",
+          fileUrl: data.fileUrl ?? "",
         },
         {
           onSuccess: () => {
@@ -499,7 +499,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                                         <Input
                                           type="number"
                                           min={1}
-                                          max={selectedResource?.available || 1}
+                                          max={selectedResource?.available ?? 1}
                                           {...field}
                                         />
                                       </FormControl>
@@ -564,8 +564,8 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       endpoint="pdfUploader"
                       onClientUploadComplete={(res) => {
                         console.log("File uploaded:", res);
-                        const url = res[0]?.ufsUrl || "";
-                        const name = res[0]?.name || "";
+                        const url = res[0]?.ufsUrl ?? "";
+                        const name = res[0]?.name ?? "";
                         setPdfUrl(url);
                         setPdfName(name);
                         form.setValue("fileUrl", url);

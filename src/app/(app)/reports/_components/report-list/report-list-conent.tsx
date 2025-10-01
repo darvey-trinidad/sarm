@@ -81,12 +81,14 @@ export default function ReportListContent() {
   } = api.facilityIssue.getAllFacilityIssueReports.useQuery({
     status: filters.status,
     category: filters.category,
-    startDate: filters.startDate && newDate(filters.startDate),
-    endDate:
-      filters.endDate &&
-      newDate(
-        new Date(filters.endDate?.setDate(filters.endDate.getDate() + 1)),
-      ),
+    startDate: filters.startDate ? newDate(filters.startDate) : undefined,
+    endDate: filters.endDate
+      ? (() => {
+        const adjustedDate = new Date(filters.endDate);
+        adjustedDate.setDate(adjustedDate.getDate() + 1);
+        return newDate(adjustedDate);
+      })()
+      : undefined,
   });
   const filteredReports = useMemo(() => {
     if (!reports) return [];

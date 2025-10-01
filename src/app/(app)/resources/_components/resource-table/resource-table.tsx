@@ -44,9 +44,9 @@ export default function ResourceTable({
 }: ResourceTableProps) {
   const filter = useMemo(
     () => ({
-      requestedDate: newDate(requestedDate || new Date()),
-      requestedStartTime: requestedStartTime || "700",
-      requestedEndTime: requestedEndTime || "2000",
+      requestedDate: newDate(requestedDate ?? new Date()),
+      requestedStartTime: requestedStartTime ?? "700",
+      requestedEndTime: requestedEndTime ?? "2000",
     }),
     [requestedDate, requestedStartTime, requestedEndTime],
   );
@@ -84,7 +84,7 @@ export default function ResourceTable({
                 <Calendar
                   mode="single"
                   captionLayout="dropdown"
-                  selected={requestedDate || undefined}
+                  selected={requestedDate ?? undefined}
                   onSelect={setRequestedDate}
                   disabled={(date) => {
                     const today = new Date();
@@ -137,7 +137,7 @@ export default function ResourceTable({
         </div>
 
         {/* Filter Button */}
-        {(requestedDate || requestedStartTime || requestedEndTime) && (
+        {(!!requestedDate || !!requestedStartTime || !!requestedEndTime) && (
           <Button
             onClick={() => {
               setRequestedDate(new Date());

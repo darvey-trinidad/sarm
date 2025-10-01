@@ -68,7 +68,6 @@ export default function RequestResourcesDialog({
   const [pdfName, setPdfName] = useState<string>("");
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
 
-  api.resource.createResourceBorrowing;
   const form = useForm<z.infer<typeof ResourceScehma>>({
     resolver: zodResolver(ResourceScehma),
     defaultValues: {
@@ -118,7 +117,7 @@ export default function RequestResourcesDialog({
 
     createResourceBorrowing(
       {
-        borrowerId: session?.user.id || "",
+        borrowerId: session?.user.id ?? "",
         startTime: data.startTime,
         endTime: data.endTime,
         dateBorrowed: newDate(data.dateBorrowed),
@@ -473,7 +472,7 @@ export default function RequestResourcesDialog({
                                     <Input
                                       type="number"
                                       min={1}
-                                      max={selectedResource?.available || 1}
+                                      max={selectedResource?.available ?? 1}
                                       {...field}
                                     />
                                   </FormControl>
@@ -508,7 +507,7 @@ export default function RequestResourcesDialog({
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <div className="">{pdfName || "pdf"}</div>
+                        <div className="">{pdfName ?? "pdf"}</div>
                       </a>
                     ) : null}
 
@@ -517,8 +516,8 @@ export default function RequestResourcesDialog({
                       endpoint="pdfUploader"
                       onClientUploadComplete={(res) => {
                         console.log("File uploaded:", res);
-                        const url = res[0]?.ufsUrl || "";
-                        const name = res[0]?.name || "";
+                        const url = res[0]?.ufsUrl ?? "";
+                        const name = res[0]?.name ?? "";
                         setPdfUrl(url);
                         setPdfName(name);
                         form.setValue("fileUrl", url);
