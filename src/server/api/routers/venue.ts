@@ -10,6 +10,7 @@ import { notifyPeInstructors } from "@/emails/notify-pe";
 import { ReservationStatus } from "@/constants/reservation-status";
 import { notifyVenueReserver } from "@/emails/notify-venue-reserver";
 import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
+import { notifyFmReservation } from "@/emails/notify-fm-reservation";
 
 export const venueRouter = createTRPCRouter({
   createVenue: protectedProcedure
@@ -24,6 +25,9 @@ export const venueRouter = createTRPCRouter({
     .input(createVenueReservationSchema)
     .mutation(async ({ input }) => {
       const venueReservation = await createVenueReservation({ id: generateUUID(), ...input });
+
+      if (!venueReservation) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create venue reservation" });
+      await notifyFmReservation(venueReservation.id);
 
       if (venueReservation.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
         await notifyPeInstructors(venueReservation.id);
@@ -40,6 +44,8 @@ export const venueRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const venueReservation = await createVenueReservation({ id: generateUUID(), ...input.venue });
       if (!venueReservation) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create venue reservation" });
+
+      await notifyFmReservation(venueReservation.id);
 
       if (venueReservation.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
         await notifyPeInstructors(venueReservation.id);
