@@ -11,6 +11,7 @@ import { ReservationStatus } from "@/constants/reservation-status";
 import { notifyVenueReserver } from "@/emails/notify-venue-reserver";
 import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 import { notifyFmReservation } from "@/emails/notify-fm-reservation";
+import { notifyFmBorrowing } from "@/emails/notify-fm-borrowing";
 
 export const venueRouter = createTRPCRouter({
   createVenue: protectedProcedure
@@ -71,6 +72,7 @@ export const venueRouter = createTRPCRouter({
       console.log(createdBorrowings);
       if (!createdBorrowings) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create resource borrowings" });
 
+      notifyFmBorrowing(borrowingTransaction.id);
       return {
         success: true,
         message: "Venue reservation and borrowing transaction created successfully",

@@ -5,6 +5,7 @@ import { createResourceSchema, addResourceQuantitySchema, getAllAvailableResourc
 import { getAllAvailableResources, getAllBorrowingTransactions, getAllResources } from "@/lib/api/resource/query";
 import { TRPCError } from "@trpc/server";
 import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
+import { notifyFmBorrowing } from "@/emails/notify-fm-borrowing";
 
 export const resourceRouter = createTRPCRouter({
   createResource: protectedProcedure
@@ -42,7 +43,20 @@ export const resourceRouter = createTRPCRouter({
         };
       });
 
-      return createResourceBorrowing(borrowings);
+      const createdBorrowings = await createResourceBorrowing(borrowings);
+
+      if (!createdBorrowings) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create resource borrowings" });
+
+      notifyFmBorrowing(borrowingTransaction.id);
+
+      return {
+        success: true,
+        message: "Borrowing transaction created successfully",
+        data: {
+          borrowingTransaction,
+          borrowings: createdBorrowings
+        }
+      }
     }),
   getAllBorrowingTransactions: protectedProcedure
     .input(getAllBorrowingTransactionsSchema)
