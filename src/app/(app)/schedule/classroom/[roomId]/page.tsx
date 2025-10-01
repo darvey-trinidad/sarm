@@ -27,29 +27,13 @@ export default async function RoomSchedule({ params }: PageProps) {
         parentPage="Schedule"
       />
 
-      <div className="items-center justify-between gap-4">
-        <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
-          <Link href="/schedule/classroom">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center bg-transparent"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {classroom?.buildingName}
-            </h1>
-            <p className="text-muted-foreground">
-              Classroom - {classroom?.classroomName}{" "}
-              <strong>({classroom?.classroomType}</strong>)
-            </p>
-          </div>
-        </div>
-      </div>
-      <ClassroomCalendarView classroomId={roomId} />
+      <div className="items-center justify-between gap-4"></div>
+      <ClassroomCalendarView
+        classroomId={roomId}
+        buildingName={classroom?.buildingName ?? ""}
+        classroomName={classroom?.classroomName ?? ""}
+        classRoomType={classroom?.classroomType ?? "lecture"}
+      />
     </div>
   );
 }

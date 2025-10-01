@@ -214,24 +214,8 @@ export default function FindRoomContent() {
         </Select>
       </div>
 
-      {/* Clear Filters */}
-      {(startTime || endTime || selectedType !== "all" || selectedDate) && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setStartTime("");
-            setEndTime("");
-            setSelectedType("all");
-            setSelectedDate(undefined);
-          }}
-        >
-          <CircleX className="mr-1 h-4 w-4" /> Clear Filters
-        </Button>
-      )}
-
       {/* Classroom List */}
-      <div className="lg:grid-row-4 grid gap-4">
+      <div className="lg:grid-row-4 grid gap-4 pt-4">
         {!shouldFetch ? (
           <ReadySearch />
         ) : isLoading ? (
@@ -298,13 +282,8 @@ export default function FindRoomContent() {
                                   <Clock className="h-4 w-4" />
                                   <span>
                                     Available:{" "}
-                                    {startTime
-                                      ? TIME_MAP[startTime]
-                                      : "--"}{" "}
-                                    -{" "}
-                                    {endTime
-                                      ? TIME_MAP[endTime]
-                                      : "--"}
+                                    {startTime ? TIME_MAP[startTime] : "--"} -{" "}
+                                    {endTime ? TIME_MAP[endTime] : "--"}
                                   </span>
                                 </div>
                               </div>

@@ -3,15 +3,14 @@
 import { useState, useEffect } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
 import { newDate } from "@/lib/utils";
 import { toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { ReservationStatus } from "@/constants/reservation-status";
-import type { V } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
-
+import Link from "next/link";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -24,9 +23,15 @@ const DaysofWeek = [
 
 type VenueCalendarViewProps = {
   venueId: string;
+  venueName: string;
+  venueCapacity: number;
 };
 
-export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
+export default function VenueCalendarView({
+  venueId,
+  venueName,
+  venueCapacity,
+}: VenueCalendarViewProps) {
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isMobile, setIsMobile] = useState(false);
 
@@ -121,7 +126,25 @@ export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col justify-end gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-row items-center gap-4">
+          <Link href="/schedule">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center bg-transparent"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          <div className="flex flex-col">
+            <h1 className="text-3xl font-bold tracking-tight">{venueName}</h1>
+            <p className="text-muted-foreground">
+              Capacity - <strong>({venueCapacity})</strong>
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -148,11 +171,6 @@ export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
 
           <Button variant="outline" size="sm" onClick={goToCurrentWeek}>
             Today
-          </Button>
-
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
           </Button>
         </div>
       </div>
@@ -186,8 +204,9 @@ export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
-                        }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
+                        isMobile ? "w-[280px] flex-shrink-2" : ""
+                      }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
