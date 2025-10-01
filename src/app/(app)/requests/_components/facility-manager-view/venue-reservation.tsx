@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
-import { cn, newDate } from "@/lib/utils";
+import { cn, newDate, formatLocalTime, formatISODate } from "@/lib/utils";
 import { format } from "date-fns";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
@@ -39,10 +39,9 @@ import {
   CircleOff,
   Package,
 } from "lucide-react";
-import { formatLocalTime, formatISODate } from "@/lib/utils";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
-
+import { getStatusColorVenue, getStatusIconVenue } from "../icon-status";
 export default function VenueReservation() {
   const [selectedVenue, setSelectedVenue] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -108,7 +107,7 @@ export default function VenueReservation() {
     showConfirmation({
       title: "Approve Venue Reservation",
       description: "Are you sure you want to approve this reservation?",
-      confirmText: "Approve",
+      confirmText: "Confirm",
       cancelText: "Cancel",
       variant: "success",
       onConfirm: () => {
@@ -120,7 +119,7 @@ export default function VenueReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation approved!");
+                toast.success("Venue reservation approved!");
                 void refetchVenueReservations();
                 resolve(true);
               },
@@ -139,7 +138,7 @@ export default function VenueReservation() {
     showConfirmation({
       title: "Reject Venue Reservation",
       description: "Are you sure you want to reject this reservation?",
-      confirmText: "Reject",
+      confirmText: "Confirm",
       cancelText: " Cancel",
       variant: "destructive",
       onConfirm: () => {
@@ -151,7 +150,7 @@ export default function VenueReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation rejected!");
+                toast.success("Venue reservation rejected!");
                 void refetchVenueReservations();
                 resolve(true);
               },
@@ -170,7 +169,7 @@ export default function VenueReservation() {
     showConfirmation({
       title: "Cancel Venue Reservation",
       description: "Are you sure you want to cancel this reservation?",
-      confirmText: "Cancel",
+      confirmText: "Confirm",
       cancelText: "Cancel",
       variant: "destructive",
       onConfirm: () => {
@@ -182,7 +181,7 @@ export default function VenueReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation canceled!");
+                toast.success("Venue reservation canceled!");
                 void refetchVenueReservations();
                 resolve(true);
               },
@@ -195,32 +194,6 @@ export default function VenueReservation() {
         });
       },
     });
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "rejected":
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case "canceled":
-        return <CircleOff className="h-4 w-4 text-orange-600" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "rejected":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "canceled":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      default:
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    }
   };
 
   return (
@@ -384,9 +357,9 @@ export default function VenueReservation() {
                           {reservation.purpose}
                         </h3>
                         <Badge
-                          className={`${getStatusColor(reservation.status)} flex items-center gap-1`}
+                          className={`${getStatusColorVenue(reservation.status)} flex items-center gap-1`}
                         >
-                          {getStatusIcon(reservation.status)}
+                          {getStatusIconVenue(reservation.status)}
                           {reservation.status.charAt(0).toUpperCase() +
                             reservation.status.slice(1)}
                         </Badge>

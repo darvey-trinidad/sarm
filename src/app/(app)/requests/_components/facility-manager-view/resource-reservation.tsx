@@ -44,13 +44,12 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  CircleOff,
   Undo2,
-  Loader2,
 } from "lucide-react";
 import type { BorrowingStatus } from "@/constants/borrowing-status";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
+import { getStatusColorResource, getStatusIconResource } from "../icon-status";
 
 export default function ResourceReservation() {
   const [selectedResource, setSelectedResource] = useState<string>("all");
@@ -127,7 +126,7 @@ export default function ResourceReservation() {
     showConfirmation({
       title: "Approve Resource Reservation",
       description: "Are you sure you want to approve this reservation?",
-      confirmText: "Approve",
+      confirmText: "Confirm",
       cancelText: "Cancel",
       variant: "success",
       onConfirm: () => {
@@ -139,7 +138,7 @@ export default function ResourceReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation approved!");
+                toast.success("Resource reservation approved!");
                 void refetchResourcesReservations();
                 resolve(true);
               },
@@ -158,7 +157,7 @@ export default function ResourceReservation() {
     showConfirmation({
       title: "Cancel Resource Reservation",
       description: "Are you sure you want to cancel this reservation?",
-      confirmText: "Cancel",
+      confirmText: "Confirm",
       cancelText: "Cancel",
       variant: "destructive",
       onConfirm: () => {
@@ -170,7 +169,7 @@ export default function ResourceReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation canceled!");
+                toast.success("Resource reservation canceled!");
                 void refetchResourcesReservations();
                 resolve(true);
               },
@@ -189,7 +188,7 @@ export default function ResourceReservation() {
     showConfirmation({
       title: "Reject Resource Reservation",
       description: "Are you sure you want to reject this reservation?",
-      confirmText: "Reject",
+      confirmText: "Confirm",
       cancelText: "Cancel",
       variant: "destructive",
       onConfirm: () => {
@@ -201,7 +200,7 @@ export default function ResourceReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation rejected!");
+                toast.success("Resource reservation rejected!");
                 void refetchResourcesReservations();
                 resolve(true);
               },
@@ -220,7 +219,7 @@ export default function ResourceReservation() {
     showConfirmation({
       title: "Return Resource Reservation",
       description: "Are you sure you want to return this reservation?",
-      confirmText: "Return",
+      confirmText: "Confirm",
       cancelText: "Cancel",
       variant: "default",
       onConfirm: () => {
@@ -232,7 +231,7 @@ export default function ResourceReservation() {
             },
             {
               onSuccess: () => {
-                toast.success("Reservation returned!");
+                toast.success("Resource reservation returned!");
                 void refetchResourcesReservations();
                 resolve(true);
               },
@@ -245,36 +244,6 @@ export default function ResourceReservation() {
         });
       },
     });
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "rejected":
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case "canceled":
-        return <CircleOff className="h-4 w-4 text-orange-600" />;
-      case "returned":
-        return <Undo2 className="h-4 w-4 text-blue-600" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "rejected":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "canceled":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "returned":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    }
   };
 
   return (
@@ -442,9 +411,9 @@ export default function ResourceReservation() {
                         </h3>
                         <div className="flex items-center">
                           <Badge
-                            className={`${getStatusColor(request.status)} flex items-center gap-1`}
+                            className={`${getStatusColorResource(request.status)} flex items-center gap-1`}
                           >
-                            {getStatusIcon(request.status)}
+                            {getStatusIconResource(request.status)}
                             {request.status.charAt(0).toUpperCase() +
                               request.status.slice(1)}
                           </Badge>
@@ -470,7 +439,7 @@ export default function ResourceReservation() {
                           <CalendarIcon className="h-4 w-4" />
                           <span>
                             {request.dateBorrowed
-                              ? formatDate(request.dateBorrowed.toISOString())
+                              ? formatISODate(request.dateBorrowed)
                               : "N/A"}
                           </span>
                         </div>
