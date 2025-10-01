@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { cn, newDate } from "@/lib/utils";
 import { format } from "date-fns";
@@ -28,7 +27,6 @@ import {
 } from "@/components/ui/popover";
 import {
   CalendarIcon,
-  CircleX,
   Clock,
   MapPin,
   User,
@@ -40,27 +38,10 @@ import {
   AlertCircle,
   CircleOff,
   Package,
-  Loader2,
 } from "lucide-react";
 import { formatLocalTime, formatISODate } from "@/lib/utils";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
-
-// Helper function to format time
-const formatTime = (time: number) => {
-  const hours = Math.floor(time / 100);
-  const minutes = time % 100;
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-};
-
-// Helper function to format date
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
 
 export default function VenueReservation() {
   const [selectedVenue, setSelectedVenue] = useState<string>("all");
@@ -434,9 +415,7 @@ export default function VenueReservation() {
 
                         <div className="flex items-center gap-1">
                           <CalendarIcon className="h-4 w-4" />
-                          <span>
-                            {formatDate(reservation.date.toISOString())}
-                          </span>
+                          <span>{formatISODate(reservation.date)}</span>
                         </div>
 
                         <div className="flex items-center gap-1">
