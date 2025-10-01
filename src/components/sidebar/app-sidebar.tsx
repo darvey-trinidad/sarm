@@ -16,6 +16,7 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -77,14 +78,16 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="ml-4 pt-3">
-          <Image
-            src="/SARM LOGO.png"
-            alt="SARM Logo"
-            width={20}
-            height={20}
-            className="Object-contain"
-          />
+        <div className="pt-2">
+          <SidebarHeader>
+            <Image
+              src="/SARM LOGO.png"
+              alt="SARM Logo"
+              width={20}
+              height={20}
+              className="Object-contain"
+            />
+          </SidebarHeader>
         </div>
         <SidebarGroup>
           <SidebarGroupContent>

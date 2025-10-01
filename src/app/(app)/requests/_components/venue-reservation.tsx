@@ -116,7 +116,8 @@ export default function VenueReservation() {
     const searchLower = searchTerm.toLowerCase();
     return venues.filter(
       (reservation) =>
-        (reservation.reserverName?.toLowerCase().includes(searchLower) ?? false) ||
+        (reservation.reserverName?.toLowerCase().includes(searchLower) ??
+          false) ||
         reservation.purpose.toLowerCase().includes(searchLower) ||
         (reservation.venueName?.toLowerCase().includes(searchLower) ?? false),
     );
@@ -379,23 +380,6 @@ export default function VenueReservation() {
             </Popover>
           </div>
         </div>
-
-        {/* Clear Filters */}
-        {(selectedVenue !== "all" || !!startDate || !!endDate || searchTerm) && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedVenue("all");
-              setStartDate(undefined);
-              setEndDate(undefined);
-              setSearchTerm("");
-            }}
-            className="mt-2"
-          >
-            <CircleX /> Clear Filters
-          </Button>
-        )}
       </div>
 
       {/* Reservation Lists */}
@@ -460,13 +444,13 @@ export default function VenueReservation() {
                           <span>
                             {
                               TIME_MAP[
-                              reservation.startTime as keyof typeof TIME_MAP
+                                reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                              reservation.endTime as keyof typeof TIME_MAP
+                                reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>

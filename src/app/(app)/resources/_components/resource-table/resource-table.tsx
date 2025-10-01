@@ -51,12 +51,11 @@ export default function ResourceTable({
     [requestedDate, requestedStartTime, requestedEndTime],
   );
 
-  const { data, isLoading } =
-    api.resource.getAllAvailableResources.useQuery({
-      requestedDate: filter.requestedDate,
-      requestedStartTime: filter.requestedStartTime,
-      requestedEndTime: filter.requestedEndTime,
-    });
+  const { data, isLoading } = api.resource.getAllAvailableResources.useQuery({
+    requestedDate: filter.requestedDate,
+    requestedStartTime: filter.requestedStartTime,
+    requestedEndTime: filter.requestedEndTime,
+  });
 
   return (
     <div className="space-y-4">
@@ -139,21 +138,6 @@ export default function ResourceTable({
             </Select>
           </div>
         </div>
-
-        {/* Filter Button */}
-        {(!!requestedDate || !!requestedStartTime || !!requestedEndTime) && (
-          <Button
-            onClick={() => {
-              setRequestedDate(new Date());
-              setRequestedStartTime("");
-              setRequestedEndTime("");
-            }}
-            variant="outline"
-            size="sm"
-          >
-            Clear Filter
-          </Button>
-        )}
       </div>
 
       {/* Table */}
