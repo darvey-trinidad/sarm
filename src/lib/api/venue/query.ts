@@ -77,7 +77,7 @@ export async function getAllVenueReservations({
   const result = Object.values(
     rows.reduce<Record<string, ReservationWithBorrowing>>((acc, row) => {
       if (!acc[row.venueReservationId]) {
-        acc[row.venueReservationId] = {
+        acc[row.venueReservationId] ??= {
           venueReservationId: row.venueReservationId,
           venueId: row.venueId ?? "",
           venueName: row.venueName,

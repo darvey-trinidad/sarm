@@ -126,13 +126,13 @@ export const classroomScheduleRouter = createTRPCRouter({
         }
 
         if (input.status === RoomRequestStatus.Accepted) {
-          createClassroomVacancy({
+          await createClassroomVacancy({
             classroomId: roomRequestRecord.classroomId,
             date: roomRequestRecord.date,
             startTime: roomRequestRecord.startTime,
             endTime: roomRequestRecord.endTime
           });
-          createClassroomBorrowing({
+          await createClassroomBorrowing({
             classroomId: roomRequestRecord.classroomId,
             date: roomRequestRecord.date,
             startTime: roomRequestRecord.startTime,
@@ -142,8 +142,8 @@ export const classroomScheduleRouter = createTRPCRouter({
             section: roomRequestRecord.section
           })
         }
-        updateRoomRequestStatus(input.roomRequestId, input.status);
-        notifyRoomRequestor(input.roomRequestId);
+        await updateRoomRequestStatus(input.roomRequestId, input.status);
+        await notifyRoomRequestor(input.roomRequestId);
 
         return { info: "Room Request Responded", status: 200 };
       } catch (error) {

@@ -6,7 +6,7 @@ export const SCHEDULE_COLORS: Record<string, string> = {
 };
 
 export const getScheduleColor = (source: string): string => {
-  const color = SCHEDULE_COLORS[source] || SCHEDULE_COLORS.Default;
+  const color = SCHEDULE_COLORS[source] ?? SCHEDULE_COLORS.Default;
   if (color === undefined) {
     return "Default";
   }

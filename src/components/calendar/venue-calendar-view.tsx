@@ -10,6 +10,7 @@ import { newDate } from "@/lib/utils";
 import { toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { ReservationStatus } from "@/constants/reservation-status";
+import type { V } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
@@ -60,7 +61,9 @@ export default function VenueCalendarView({ venueId }: VenueCalendarViewProps) {
 
   const getDayOfWeek = (date: Date) => (date.getDay() + 6) % 7;
 
-  const getReservationStyle = (res: any) => {
+  type VenueReservation = NonNullable<typeof reservations>[number];
+
+  const getReservationStyle = (res: VenueReservation) => {
     const startPos = timeToPosition(res.startTime);
     const endPos = timeToPosition(res.endTime);
     const height = Math.max(SLOT_HEIGHT, endPos - startPos);

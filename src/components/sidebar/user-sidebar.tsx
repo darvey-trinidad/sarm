@@ -44,7 +44,7 @@ export const UserSidebar = () => {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {session?.user.name || "Login"}
+                  {session?.user.name ?? "Login"}
                 </span>
                 <span className="truncate text-xs">
                   {session?.user.role ? ROLE_LABELS[session?.user.role] : ""}
@@ -70,7 +70,7 @@ export const UserSidebar = () => {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {session?.user.name || "Login"}
+                    {session?.user.name ?? "Login"}
                   </span>
                   <span className="truncate text-xs">
                     {session?.user.role ? ROLE_LABELS[session?.user.role] : ""}
