@@ -180,6 +180,87 @@ export const getAllBorrowingTransactions = async ({
   }
 };
 
+export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
+  try {
+    const rows = await db
+      .select({
+        transactionId: borrowingTransaction.id,
+        borrowerId: borrowingTransaction.borrowerId,
+        borrowerName: user.name,
+        startTime: borrowingTransaction.startTime,
+        endTime: borrowingTransaction.endTime,
+        purpose: borrowingTransaction.purpose,
+        status: borrowingTransaction.status,
+        representativeBorrower: borrowingTransaction.representativeBorrower,
+        dateRequested: borrowingTransaction.dateRequested,
+        dateBorrowed: borrowingTransaction.dateBorrowed,
+        dateReturned: borrowingTransaction.dateReturned,
+        fileUrl: borrowingTransaction.fileUrl,
+        venueReservationId: borrowingTransaction.venueReservationId,
+        venueReservationStatus: venueReservation.status,
+
+        resourceBorrowingId: resourceBorrowing.id,
+        resourceId: resourceBorrowing.resourceId,
+        resourceName: resource.name,
+        resourceDescription: resource.description,
+        quantity: resourceBorrowing.quantity,
+      })
+      .from(borrowingTransaction)
+      .innerJoin(user, eq(borrowingTransaction.borrowerId, user.id))
+      .leftJoin(
+        resourceBorrowing,
+        eq(resourceBorrowing.transactionId, borrowingTransaction.id),
+      )
+      .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
+      .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
+      .where(eq(borrowingTransaction.borrowerId, userId))
+      .orderBy(desc(borrowingTransaction.dateRequested))
+      .all();
+
+    // ---- Group by transactionId ----
+    const borrowings = Object.values(
+      rows.reduce<Record<string, BorrowingTransaction>>((acc, row) => {
+        // Initialize group if missing
+        const group = (acc[row.transactionId] ??= {
+          id: row.transactionId,
+          borrowerId: row.borrowerId,
+          borrowerName: row.borrowerName ?? "",
+          startTime: row.startTime,
+          endTime: row.endTime,
+          purpose: row.purpose,
+          status: row.status,
+          representativeBorrower: row.representativeBorrower,
+          dateRequested: row.dateRequested,
+          dateBorrowed: row.dateBorrowed,
+          dateReturned: row.dateReturned,
+          fileUrl: row.fileUrl,
+          venueReservationId: row.venueReservationId,
+          venueReservationStatus: row.venueReservationStatus,
+          borrowedItems: [],
+        });
+
+        // Push borrowed items if present
+        if (row.resourceBorrowingId) {
+          group.borrowedItems.push({
+            id: row.resourceBorrowingId,
+            resourceId: row.resourceId ?? "",
+            resourceName: row.resourceName ?? "",
+            resourceDescription: row.resourceDescription ?? "",
+            quantity: row.quantity ?? 0,
+          });
+        }
+
+        return acc;
+      }, {}),
+    );
+
+    return borrowings;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 type BorrowedItems = {
   id: string;
   resourceId: string;

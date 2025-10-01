@@ -2,10 +2,11 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { generateUUID, toTimeInt } from "@/lib/utils";
 import { createResource, addResourceQuantity, createResourceBorrowing, createBorrowingTransaction, editBorrowingTransaction } from "@/lib/api/resource/mutation";
 import { createResourceSchema, addResourceQuantitySchema, getAllAvailableResourcesSchema, createBorrowingTransactionSchema, editBorrowingTransactionSchema, getAllBorrowingTransactionsSchema } from "@/server/api-utils/validators/resource";
-import { getAllAvailableResources, getAllBorrowingTransactions, getAllResources } from "@/lib/api/resource/query";
+import { getAllAvailableResources, getAllBorrowingTransactions, getAllBorrowingTransactionsByUserId, getAllResources } from "@/lib/api/resource/query";
 import { TRPCError } from "@trpc/server";
 import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 import { notifyFmBorrowing } from "@/emails/notify-fm-borrowing";
+import z from "zod";
 
 export const resourceRouter = createTRPCRouter({
   createResource: protectedProcedure
@@ -62,6 +63,11 @@ export const resourceRouter = createTRPCRouter({
     .input(getAllBorrowingTransactionsSchema)
     .query(({ input }) => {
       return getAllBorrowingTransactions(input);
+    }),
+  getAllBorrowingTransactionsByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ input }) => {
+      return getAllBorrowingTransactionsByUserId(input.userId);
     }),
   editBorrowingTransaction: protectedProcedure
     .input(editBorrowingTransactionSchema)
