@@ -47,7 +47,7 @@ export const resourceRouter = createTRPCRouter({
 
       if (!createdBorrowings) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create resource borrowings" });
 
-      notifyFmBorrowing(borrowingTransaction.id);
+      await notifyFmBorrowing(borrowingTransaction.id);
 
       return {
         success: true,

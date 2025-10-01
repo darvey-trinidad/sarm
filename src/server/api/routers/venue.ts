@@ -72,7 +72,7 @@ export const venueRouter = createTRPCRouter({
       console.log(createdBorrowings);
       if (!createdBorrowings) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create resource borrowings" });
 
-      notifyFmBorrowing(borrowingTransaction.id);
+      await notifyFmBorrowing(borrowingTransaction.id);
       return {
         success: true,
         message: "Venue reservation and borrowing transaction created successfully",
