@@ -52,7 +52,11 @@ export default function ResourceTable({
   );
 
   const { data, isLoading } =
-    api.resource.getAllAvailableResources.useQuery(filter);
+    api.resource.getAllAvailableResources.useQuery({
+      requestedDate: filter.requestedDate,
+      requestedStartTime: filter.requestedStartTime,
+      requestedEndTime: filter.requestedEndTime,
+    });
 
   return (
     <div className="space-y-4">
