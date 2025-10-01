@@ -1,5 +1,10 @@
 "use client";
-import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import {
+  ChevronsUpDown,
+  LogOut,
+  Settings,
+  CircleUserRound,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -35,12 +40,8 @@ export const UserSidebar = () => {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  src={"https://github.com/shadcn.png"}
-                  alt={"user-profile"}
-                />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              <Avatar className="h-9 w-9 items-center justify-center">
+                <CircleUserRound className="h-8 w-8 stroke-1" />
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
@@ -62,11 +63,7 @@ export const UserSidebar = () => {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={"https://github.com/shadcn.png"}
-                    alt={"user-profile"}
-                  />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <CircleUserRound className="h-8 w-8 stroke-1" />
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
@@ -79,20 +76,17 @@ export const UserSidebar = () => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Settings />
-                Settings
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={async () => await authClient.signOut({
-              fetchOptions: {
-                onSuccess: () => {
-                  router.push("/login"); // redirect to login page
-                },
-              },
-            })}>
+            <DropdownMenuItem
+              onClick={async () =>
+                await authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/login"); // redirect to login page
+                    },
+                  },
+                })
+              }
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

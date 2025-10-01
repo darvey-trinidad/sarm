@@ -51,10 +51,10 @@ const BuildingCard = ({ building }: { building: Building }) => {
       <CardContent className="space-y-4">
         <div className="relative mx-auto mb-4 h-32 w-32">
           <Image
-            src={"/Building-A.png"}
+            src={"/Building.png"}
             alt="Building Illustration"
-            width={128}
-            height={128}
+            width={130}
+            height={130}
             className="object-contain"
             priority
             onError={() => {

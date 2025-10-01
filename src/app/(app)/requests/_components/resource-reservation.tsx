@@ -418,28 +418,6 @@ export default function ResourceReservation() {
             </Popover>
           </div>
         </div>
-
-        {/* Clear filters button */}
-        {(selectedResource !== "all" ||
-          selectedStatus !== "all" ||
-          !!startDate ||
-          !!endDate ||
-          searchTerm) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedResource("all");
-                setSelectedStatus("all");
-                setStartDate(undefined);
-                setEndDate(undefined);
-                setSearchTerm("");
-              }}
-              className="mt-2"
-            >
-              Clear Filters
-            </Button>
-          )}
       </div>
 
       {/*Resource Reservations*/}
@@ -502,7 +480,7 @@ export default function ResourceReservation() {
                           <span>
                             {
                               TIME_MAP[
-                              request.startTime as keyof typeof TIME_MAP
+                                request.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}

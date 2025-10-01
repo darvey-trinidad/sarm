@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Filter, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
@@ -14,6 +14,8 @@ import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
 import { getScheduleColor } from "@/constants/schedule-colors";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
+import type { ClassroomType } from "@/constants/classroom-type";
+import Link from "next/link";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -26,10 +28,16 @@ const DaysofWeek = [
 
 type ClassroomCalendarViewProps = {
   classroomId: string;
+  buildingName: string;
+  classroomName: string;
+  classRoomType: ClassroomType;
 };
 
 export default function ClassroomCalendarView({
   classroomId,
+  buildingName,
+  classroomName,
+  classRoomType,
 }: ClassroomCalendarViewProps) {
   const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
   const [selectedItem, setSelectedItem] =
@@ -140,7 +148,7 @@ export default function ClassroomCalendarView({
       schedDate < dateToday ||
       (schedDate.getTime() === dateToday.getTime() &&
         schedule.endTime <
-        now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+          now.getHours() * 100 + (now.getMinutes() * 100) / 60);
 
     if (schedIsPast) return;
 
@@ -163,7 +171,27 @@ export default function ClassroomCalendarView({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col justify-end gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-row items-center gap-4">
+          <Link href="/schedule/classroom">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center bg-transparent"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {buildingName}
+            </h1>
+            <p className="text-muted-foreground">
+              Classroom - {classroomName} <strong>({classRoomType}</strong>)
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -190,11 +218,6 @@ export default function ClassroomCalendarView({
 
           <Button variant="outline" size="sm" onClick={goToCurrentWeek}>
             Today
-          </Button>
-
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
           </Button>
         </div>
       </div>
@@ -228,8 +251,9 @@ export default function ClassroomCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
-                        }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
+                        isMobile ? "w-[280px] flex-shrink-2" : ""
+                      }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -289,11 +313,11 @@ export default function ClassroomCalendarView({
                         ? `${schedule.subject} - ${schedule.section}`
                         : schedule.source}
                     </div>
-                    {schedule.source === SCHEDULE_SOURCE.Borrowing &&
+                    {schedule.source === SCHEDULE_SOURCE.Borrowing && (
                       <div className="truncate text-xs font-medium">
                         {`${schedule.subject} - ${schedule.section}`}
                       </div>
-                    }
+                    )}
                     <div className="text-muted-foreground truncate text-xs">
                       {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
                     </div>

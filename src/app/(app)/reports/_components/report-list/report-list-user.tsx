@@ -149,7 +149,7 @@ export default function ReportListUser() {
                             <span>
                               {report.buildingName && report.classroomName
                                 ? `${report.buildingName} - ${report.classroomName}`
-                                : report.buildingName ?? report.classroomName}
+                                : (report.buildingName ?? report.classroomName)}
                             </span>
                           </div>
                         )}

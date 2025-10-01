@@ -84,10 +84,10 @@ export default function ReportListContent() {
     startDate: filters.startDate ? newDate(filters.startDate) : undefined,
     endDate: filters.endDate
       ? (() => {
-        const adjustedDate = new Date(filters.endDate);
-        adjustedDate.setDate(adjustedDate.getDate() + 1);
-        return newDate(adjustedDate);
-      })()
+          const adjustedDate = new Date(filters.endDate);
+          adjustedDate.setDate(adjustedDate.getDate() + 1);
+          return newDate(adjustedDate);
+        })()
       : undefined,
   });
   const filteredReports = useMemo(() => {
@@ -355,27 +355,6 @@ export default function ReportListContent() {
             </Popover>
           </div>
         </div>
-        {/* Clear Filters */}
-        {(selectedCategory !== "all" ||
-          selectedStatus !== "all" ||
-          (startDate ?? null) !== null ||
-          (endDate ?? null) !== null ||
-          searchTerm) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedCategory("all");
-                setSelectedStatus("all");
-                setStartDate(undefined);
-                setEndDate(undefined);
-                setSearchTerm("");
-              }}
-              className="mt-2"
-            >
-              Clear Filters
-            </Button>
-          )}
       </div>
 
       {/* Report lists */}
@@ -431,7 +410,7 @@ export default function ReportListContent() {
                             <span>
                               {report.buildingName && report.classroomName
                                 ? `${report.buildingName} - ${report.classroomName}`
-                                : report.buildingName ?? report.classroomName}
+                                : (report.buildingName ?? report.classroomName)}
                             </span>
                           </div>
                         )}

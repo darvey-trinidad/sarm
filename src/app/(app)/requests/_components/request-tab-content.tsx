@@ -3,8 +3,10 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VenueReservation from "./venue-reservation";
 import ResourceReservation from "./resource-reservation";
+import { authClient } from "@/lib/auth-client";
 export default function RequestTabContent() {
   const [tab, setTab] = useState("venue");
+  const { data: session } = authClient.useSession();
   return (
     <Tabs value={tab} onValueChange={setTab} className="space-y-2">
       <TabsList>
