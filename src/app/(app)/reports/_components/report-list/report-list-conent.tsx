@@ -98,11 +98,11 @@ export default function ReportListContent() {
     const searchLower = searchTerm.toLowerCase();
     return reports.filter(
       (report) =>
-        report.reportedByName?.toLowerCase().includes(searchLower) ||
+        (report.reportedByName?.toLowerCase().includes(searchLower) ?? false) ||
         report.description.toLowerCase().includes(searchLower) ||
         report.location.toLowerCase().includes(searchLower) ||
-        report.buildingName?.toLowerCase().includes(searchLower) ||
-        report.classroomName?.toLowerCase().includes(searchLower),
+        (report.buildingName?.toLowerCase().includes(searchLower) ?? false) ||
+        (report.classroomName?.toLowerCase().includes(searchLower) ?? false),
     );
   }, [reports, searchTerm]);
 

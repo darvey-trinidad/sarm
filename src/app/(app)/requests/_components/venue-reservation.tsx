@@ -116,9 +116,9 @@ export default function VenueReservation() {
     const searchLower = searchTerm.toLowerCase();
     return venues.filter(
       (reservation) =>
-        reservation.reserverName?.toLowerCase().includes(searchLower) ||
+        (reservation.reserverName?.toLowerCase().includes(searchLower) ?? false) ||
         reservation.purpose.toLowerCase().includes(searchLower) ||
-        reservation.venueName?.toLowerCase().includes(searchLower),
+        (reservation.venueName?.toLowerCase().includes(searchLower) ?? false),
     );
   }, [venues, searchTerm]);
 
