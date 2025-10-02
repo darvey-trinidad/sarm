@@ -5,6 +5,7 @@ import { signupSchema, getAllSchedulableFacultySchema } from "@/server/api-utils
 import { getAllFaculty, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers } from "@/lib/api/auth/query";
 import { env } from "@/env";
 import { TRPCError } from "@trpc/server";
+import { toggleUserIsActive } from "@/lib/api/auth/mutation";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(signupSchema).mutation(({ input }) => {
@@ -19,6 +20,11 @@ export const authRouter = createTRPCRouter({
     });
     return res;
   }),
+  toggleUserIsActive: publicProcedure
+    .input(z.object({ id: z.string(), isActive: z.boolean() }))
+    .mutation(({ input }) => {
+      return toggleUserIsActive(input.id, input.isActive);
+    }),
   getAllFaculty: publicProcedure.query(() => {
     return getAllFaculty();
   }),
