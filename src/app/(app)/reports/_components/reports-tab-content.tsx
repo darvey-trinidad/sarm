@@ -5,16 +5,19 @@ import ReportForm from "./submit/report-form";
 import ReportListContent from "./report-list/report-list-conent";
 import ReportListUser from "./report-list/report-list-user";
 import { authClient } from "@/lib/auth-client";
-export default function ReportsTabContent() {
+import { Roles } from "@/constants/roles";
+
+type ReportStatusProps = {
+  role: string;
+};
+export default function ReportsTabContent({ role }: ReportStatusProps) {
   const [tab, setTab] = useState("submit");
-  const { data: session } = authClient.useSession();
-  const isFacilityManager = session?.user.role === "facility_manager";
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="space-y-2">
       <TabsList>
         <TabsTrigger value="submit">Submit Report</TabsTrigger>
-        {isFacilityManager && (
+        {role === Roles.FacilityManager && (
           <TabsTrigger value="allReports">All Reports</TabsTrigger>
         )}
         <TabsTrigger value="myReports">My Reports</TabsTrigger>
@@ -34,7 +37,7 @@ export default function ReportsTabContent() {
           </div>
         </TabsContent>
 
-        {isFacilityManager && (
+        {role === Roles.FacilityManager && (
           <TabsContent value="allReports" className="space-y-4">
             <ReportListContent />
           </TabsContent>
