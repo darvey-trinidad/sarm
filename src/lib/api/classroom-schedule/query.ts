@@ -582,3 +582,227 @@ export const getAvailableClassrooms = async (
     throw new Error("Could not fetch available classrooms");
   }
 };
+
+type GroupedCurrentAvailable = {
+  buildingId: string;
+  buildingName: string;
+  classrooms: {
+    classroomId: string;
+    classroomName: string;
+    type: string;
+    capacity: number;
+    floor: string;
+    availableFrom: number;
+    availableUntil: number;
+  }[];
+};
+
+export const getCurrentlyAvailableClassrooms = async (
+  date: Date,
+  startBlock: number
+) => {
+  try {
+    // 1️⃣ Fetch all classrooms (no filters)
+    const classrooms = await db
+      .select({
+        classroomId: classroom.id,
+        classroomName: classroom.name,
+        buildingId: classroom.buildingId,
+        type: classroom.type,
+        capacity: classroom.capacity,
+        floor: classroom.floor,
+      })
+      .from(classroom);
+
+    if (!classrooms.length) return [];
+
+    const classroomIds = classrooms.map((c) => c.classroomId);
+    const systemDay = date.getDay();
+
+    // 2️⃣ Fetch related schedule data
+    const initialSchedules = await db
+      .select({
+        classroomId: classroomSchedule.classroomId,
+        day: classroomSchedule.day,
+        startTime: classroomSchedule.startTime,
+        endTime: classroomSchedule.endTime,
+      })
+      .from(classroomSchedule)
+      .where(
+        and(
+          inArray(classroomSchedule.classroomId, classroomIds),
+          eq(classroomSchedule.day, systemDay)
+        )
+      );
+
+    const vacancies = await db
+      .select({
+        classroomId: classroomVacancy.classroomId,
+        date: classroomVacancy.date,
+        startTime: classroomVacancy.startTime,
+        endTime: classroomVacancy.endTime,
+      })
+      .from(classroomVacancy)
+      .where(
+        and(
+          inArray(classroomVacancy.classroomId, classroomIds),
+          eq(classroomVacancy.date, date)
+        )
+      );
+
+    const borrowings = await db
+      .select({
+        classroomId: classroomBorrowing.classroomId,
+        date: classroomBorrowing.date,
+        startTime: classroomBorrowing.startTime,
+        endTime: classroomBorrowing.endTime,
+      })
+      .from(classroomBorrowing)
+      .where(
+        and(
+          inArray(classroomBorrowing.classroomId, classroomIds),
+          eq(classroomBorrowing.date, date)
+        )
+      );
+
+    // ✅ 3️⃣ Create time blocks ONLY from startBlock → 2050
+    const TIME_INTERVAL = 50;
+    const FINAL_BLOCK = 2050;
+    const timeBlocks: { start: number; end: number }[] = [];
+
+    for (let t = startBlock; t <= FINAL_BLOCK; t += TIME_INTERVAL) {
+      timeBlocks.push({ start: t, end: t + TIME_INTERVAL });
+    }
+
+    // ✅ Preload building names
+    const buildings = await db.select().from(building);
+    const buildingMap = new Map(buildings.map((b) => [b.id, b.name]));
+
+    type AvailableRoom = {
+      classroomId: string;
+      classroomName: string;
+      buildingId: string;
+      buildingName: string;
+      type: string;
+      capacity: number;
+      floor: string;
+      availableFrom: number;
+      availableUntil: number;
+    };
+
+    const result: AvailableRoom[] = [];
+
+    // ✅ 4️⃣ Process each room
+    for (const room of classrooms) {
+      // Check the FIRST block is available
+      const firstBlock = timeBlocks[0];
+      if (!firstBlock) continue;
+      const { start: blockStart } = firstBlock;
+
+      // Borrowing check
+      const borrowed = borrowings.some(
+        (b) =>
+          b.classroomId === room.classroomId &&
+          b.startTime < blockStart + TIME_INTERVAL &&
+          b.endTime > blockStart
+      );
+      if (borrowed) continue;
+
+      // Vacancy check
+      const vacated = vacancies.some(
+        (v) =>
+          v.classroomId === room.classroomId &&
+          v.startTime < blockStart + TIME_INTERVAL &&
+          v.endTime > blockStart
+      );
+      if (!vacated) {
+        const scheduled = initialSchedules.some(
+          (s) =>
+            s.classroomId === room.classroomId &&
+            s.startTime < blockStart + TIME_INTERVAL &&
+            s.endTime > blockStart
+        );
+        if (scheduled) continue;
+      }
+
+      // ✅ First block is free → extend availability forward
+      let availableUntil = blockStart + TIME_INTERVAL;
+      for (let i = 1; i < timeBlocks.length; i++) {
+        const nextBlock = timeBlocks[i];
+        if (!nextBlock) break; // safety guard
+        const { start, end } = nextBlock;
+
+        const blockedBorrow = borrowings.some(
+          (b) =>
+            b.classroomId === room.classroomId &&
+            b.startTime < end &&
+            b.endTime > start
+        );
+        if (blockedBorrow) break;
+
+        const isVacant = vacancies.some(
+          (v) =>
+            v.classroomId === room.classroomId &&
+            v.startTime < end &&
+            v.endTime > start
+        );
+        if (!isVacant) {
+          const isScheduled = initialSchedules.some(
+            (s) =>
+              s.classroomId === room.classroomId &&
+              s.startTime < end &&
+              s.endTime > start
+          );
+          if (isScheduled) break;
+        }
+
+        availableUntil = end;
+      }
+
+      result.push({
+        classroomId: room.classroomId,
+        classroomName: room.classroomName,
+        buildingId: room.buildingId,
+        buildingName: buildingMap.get(room.buildingId) ?? "",
+        type: room.type,
+        capacity: room.capacity,
+        floor: room.floor,
+        availableFrom: blockStart,
+        availableUntil,
+      });
+    }
+
+    // ✅ Group per building
+    const groupedResult: GroupedCurrentAvailable[] = Object.values(
+      result.reduce((acc: Record<string, GroupedCurrentAvailable>, room) => {
+        let group = acc[room.buildingId];
+
+        if (!group) {
+          group = {
+            buildingId: room.buildingId,
+            buildingName: room.buildingName,
+            classrooms: [],
+          };
+          acc[room.buildingId] = group;
+        }
+
+        group.classrooms.push({
+          classroomId: room.classroomId,
+          classroomName: room.classroomName,
+          type: room.type,
+          capacity: room.capacity,
+          floor: room.floor,
+          availableFrom: room.availableFrom,
+          availableUntil: room.availableUntil,
+        });
+
+        return acc;
+      }, {})
+    );
+
+    return groupedResult;
+  } catch (error) {
+    console.error("Failed to get currently available classrooms:", error);
+    throw new Error("Could not fetch current availability");
+  }
+};

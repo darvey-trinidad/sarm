@@ -75,6 +75,11 @@ export const getAvailableClassroomsSchema = z.object({
   }).optional()
 })
 
+export const getCurrentlyAvailableClassroomsSchema = z.object({
+  date: requiredDateSchema(),
+  startBlock: timeIntSchema
+})
+
 export const cancelClassroomBorrowingSchema = z.object({
   classroomId: z.string(),
   date: requiredDateSchema(),

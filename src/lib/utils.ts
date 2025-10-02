@@ -57,3 +57,23 @@ export function toTimeInt(
 ): TimeInt {
   return value !== undefined && isTimeInt(value) ? value : fallback;
 }
+
+export function getCurrentNearestBlock(date: Date): number {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  const currentValue = hours * 100 + (minutes >= 30 ? 50 : 0);
+
+  // ✅ Explicit number type prevents literal-type locking
+  let nearest: (typeof TIME_ENTRIES)[number][0] = TIME_ENTRIES[0][0];
+
+  for (const [block] of TIME_ENTRIES) {
+    if (currentValue >= block) {
+      nearest = block; // 👈 cast fixes the literal issue
+    } else {
+      break;
+    }
+  }
+
+  return nearest;
+}
