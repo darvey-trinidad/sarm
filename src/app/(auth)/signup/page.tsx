@@ -71,7 +71,7 @@ export default function SignUpPage() {
         <div className="flex flex-1 items-center justify-center bg-white px-8 py-2">
           <div className="w-full max-w-md space-y-6">
             {/* Logo */}
-            <div className="mb-2">
+            <div className="mb-2 ml-[-10px]">
               <Image
                 src="/LOGO-DARK.png"
                 alt="Bulacan State University Logo"
@@ -244,7 +244,7 @@ export default function SignUpPage() {
 
               <Button
                 type="submit"
-                className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900"
+                className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900 mt-1"
                 disabled={isPending}
               >
                 {isPending ? (
@@ -258,12 +258,9 @@ export default function SignUpPage() {
               </Button>
             </form>
 
-            {/* Additional Links */}
-            <div className="text-start">
-              <Link
-                href={"/login"}
-                className="text-sm text-amber-700 hover:text-amber-800 hover:underline"
-              >
+
+            <div className="space-y-3">
+              <Link href="/login" className="block mx-auto text-center text-sm text-gray-600 underline">
                 Already have an account?
               </Link>
             </div>

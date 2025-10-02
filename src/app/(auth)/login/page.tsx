@@ -1,13 +1,13 @@
 "use client";
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { PageRoutes } from "@/constants/page-routes";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
@@ -16,8 +16,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("resetSuccess") === "true") {
+      toast.success("Password reset successful! Please login with your new password.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +58,7 @@ export default function LoginPage() {
         <div className="flex flex-1 items-center justify-center bg-white p-8">
           <div className="w-full max-w-md space-y-6">
             {/* Logo */}
-            <div className="mb-2">
+            <div className="mb-2 ml-[-10px]">
               <Image
                 src="/LOGO-DARK.png"
                 alt="Bulacan State University Logo"
@@ -91,12 +97,20 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1">
-                <Label
-                  htmlFor="password"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Password
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Password
+                  </Label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-amber-700 hover:text-amber-800 hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <div className="relative">
                   <Input
                     id="password"
@@ -120,14 +134,14 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="pt-2">
                 <Button
                   type="submit"
-                  className="w-full rounded-sm bg-amber-800 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-900 disabled:opacity-50"
+                  className="w-full rounded-md bg-amber-800 px-4 py-2.5 font-medium text-white transition-colors hover:bg-amber-900 disabled:opacity-50"
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className="flex items-center">
+                    <span className="flex items-center justify-center">
                       <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />
                       Logging In
                     </span>
@@ -138,21 +152,29 @@ export default function LoginPage() {
               </div>
             </form>
 
-            {/* Additional Links */}
-            <div className="mb-0 text-start">
-              <a
-                href="/forgot-password"
-                className="text-sm text-amber-700 hover:text-amber-800 hover:underline"
-              >
-                Forgot your password?
-              </a>
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-4 text-gray-500">or</span>
+              </div>
             </div>
-            <div className="text-start">
-              <Link
-                href={"/signup"}
-                className="text-sm text-amber-700 hover:text-amber-800 hover:underline"
-              >
-                Don&apos;t have an account?
+
+            {/* Sign Up Section */}
+            <div className="space-y-3">
+              <p className="text-center text-sm text-gray-600">
+                Don't have an account?
+              </p>
+              <Link href="/signup" className="block">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full rounded-md border-2 border-amber-800 bg-white px-4 py-2.5 font-medium text-amber-800 transition-colors hover:bg-amber-50"
+                >
+                  Create Account
+                </Button>
               </Link>
             </div>
           </div>
