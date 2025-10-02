@@ -11,12 +11,6 @@ const getUserRole = (role: string): string => {
   return ROLE_LABELS[role] ?? "";
 };
 
-const handleUserStatus = async (user: User) => {
-  if (user.isActive) {
-  } else {
-  }
-};
-
 const getStatusBadge = (isActive: boolean) => {
   if (isActive) {
     return (
@@ -78,7 +72,7 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "name",
     header: createSortableHeader("Name"),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
+      <div className="pl-3 font-medium">{row.getValue("name")}</div>
     ),
   },
   {
@@ -88,14 +82,16 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "role",
     header: createSortableHeader("Role"),
-    cell: ({ row }) => getUserRole(row.getValue("role")),
+    cell: ({ row }) => (
+      <div className="pl-3">{getUserRole(row.getValue("role"))}</div>
+    ),
   },
   {
     accessorKey: "departmentOrOrganization",
     header: createSortableHeader("Department/Organization"),
     cell: ({ row }) => {
       const val: string = row.getValue("departmentOrOrganization");
-      return val ? val.toUpperCase() : "N/A";
+      return val ? <div className="pl-3">{val.toUpperCase()}</div> : "N/A";
     },
   },
   {
@@ -124,5 +120,44 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => getStatusBadge(row.original.isActive),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const user = row.original;
+      const utils = api.useUtils();
+
+      // useMutation hook
+      const { mutate: toggleMutation, isPending } =
+        api.auth.toggleUserIsActive.useMutation({
+          onSuccess: () => {
+            // refresh users after update
+            utils.auth.getAllUsers.invalidate();
+          },
+        });
+
+      const handleToggleStatus = () => {
+        toggleMutation({
+          id: user.id,
+          isActive: !user.isActive, // flip current value
+        });
+      };
+
+      return (
+        <Button
+          variant={user.isActive ? "destructive" : "default"}
+          size="sm"
+          onClick={handleToggleStatus}
+          disabled={isPending}
+        >
+          {isPending
+            ? "Updating..."
+            : user.isActive
+              ? "Deactivate"
+              : "Activate"}
+        </Button>
+      );
+    },
   },
 ];

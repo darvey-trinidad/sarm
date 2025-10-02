@@ -2,6 +2,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { createSortableHeader } from "@/components/table/data-table";
 import { Badge } from "@/components/ui/badge";
+import type { ReactNode } from "react";
 
 const getUsabilityBadge = (usability: string | null) => {
   switch (usability) {
@@ -65,13 +66,14 @@ export const columns: ColumnDef<Classroom>[] = [
   {
     accessorKey: "name",
     header: createSortableHeader("Classroom"),
+    cell: (info) => <div className="pl-3">{info.getValue() as ReactNode}</div>,
   },
   {
     accessorKey: "building",
     header: createSortableHeader("Building"),
     cell: ({ row }) => {
       const buildingName = row.original.buildingName;
-      return buildingName ?? "N/A";
+      return <div className="pl-3">{buildingName ?? "N/A"}</div>;
     },
   },
   {
@@ -87,7 +89,7 @@ export const columns: ColumnDef<Classroom>[] = [
     header: createSortableHeader("Type"),
     cell: ({ row }) => {
       const type = row.original.type;
-      return getTypeBadge(type);
+      return <div className="pl-3">{getTypeBadge(type)}</div>;
     },
   },
   {

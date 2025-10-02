@@ -40,6 +40,7 @@ export const columns: ColumnDef<Venue>[] = [
   {
     accessorKey: "name",
     header: createSortableHeader("Venue"),
+    cell: ({ row }) => <div className="pl-3">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "description",

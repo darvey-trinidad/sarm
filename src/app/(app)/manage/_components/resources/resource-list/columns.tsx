@@ -5,6 +5,7 @@ import { createActionColumn } from "@/components/table/action-column";
 import { Plus } from "lucide-react";
 import ResourceQuantityForm from "../action-column/resource-quantity-form";
 import { RESOURCE_CATEGORY } from "@/constants/resource-category";
+import type { ReactNode } from "react";
 
 interface Resource {
   id: string;
@@ -41,6 +42,7 @@ export const columns: ColumnDef<Resource>[] = [
   {
     accessorKey: "name",
     header: createSortableHeader("Resource Name"),
+    cell: (info) => <div className="pl-3">{info.getValue() as ReactNode}</div>,
   },
   {
     accessorKey: "description",

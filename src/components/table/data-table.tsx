@@ -236,7 +236,7 @@ export function createSortableHeader<TData, TValue>(title: string) {
     <Button
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      className="h-auto p-0 font-semibold hover:bg-transparent"
+      className="h-auto items-start p-0 font-semibold hover:bg-transparent"
     >
       {title}
       <ArrowUpDown className="ml-2 h-4 w-4" />
