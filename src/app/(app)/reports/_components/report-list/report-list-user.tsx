@@ -112,24 +112,26 @@ export default function ReportListUser() {
                 <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
-                      <div className="mb-2 flex items-center gap-2">
-                        <h3 className="text-foreground text-lg font-semibold">
+                      <div className="flex flex-col gap-2 md:flex-row">
+                        <h3 className="text-medium font-semibold text-gray-800">
                           {report.description}
                         </h3>
-                        <Badge
-                          className={`${getStatusColor(report.status)} flex items-center gap-1`}
-                        >
-                          {getStatusIcon(report.status)}
-                          {report.status.charAt(0).toUpperCase() +
-                            report.status.slice(1)}
-                        </Badge>
-                        <Badge
-                          className={`${getCategoryColor(report.category)} flex items-center gap-1`}
-                        >
-                          {getCategoryIcon(report.category)}
-                          {report.category.charAt(0).toUpperCase() +
-                            report.category.slice(1)}
-                        </Badge>
+                        <div className="flex items-center">
+                          <Badge
+                            className={`${getStatusColor(report.status)} flex items-center gap-1`}
+                          >
+                            {getStatusIcon(report.status)}
+                            {report.status.charAt(0).toUpperCase() +
+                              report.status.slice(1)}
+                          </Badge>
+                          <Badge
+                            className={`${getCategoryColor(report.category)} ml-2 flex items-center gap-1`}
+                          >
+                            {getCategoryIcon(report.category)}
+                            {report.category.charAt(0).toUpperCase() +
+                              report.category.slice(1)}
+                          </Badge>
+                        </div>
                       </div>
 
                       <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
@@ -173,7 +175,7 @@ export default function ReportListUser() {
                     </div>
                   </div>
 
-                  <div className="ml-4 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2 md:mt-0">
                     {report.imageUrl &&
                       report.imageUrl !== "https://example.com" && (
                         <Button
