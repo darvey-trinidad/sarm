@@ -130,7 +130,7 @@ export default function ResetPasswordPage() {
         {/* Body */}
         <div className="space-y-6 p-8">
           <p className="text-gray-800">
-            Enter your new password below. Make sure it's at least 8 characters long.
+            Enter your new password below. Make sure it&apos;s at least 8 characters long.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

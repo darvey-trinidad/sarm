@@ -165,7 +165,7 @@ export default function LoginPage() {
             {/* Sign Up Section */}
             <div className="space-y-3">
               <p className="text-center text-sm text-gray-600">
-                Don't have an account?
+                Don&apos;t have an account?
               </p>
               <Link href="/signup" className="block">
                 <Button

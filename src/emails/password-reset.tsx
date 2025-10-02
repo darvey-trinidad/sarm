@@ -160,7 +160,7 @@ export function PasswordResetEmail({
                   lineHeight: "1.5",
                 }}
               >
-                If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
+                If you didn&apos;t request this password reset, please ignore this email. Your password will remain unchanged.
               </p>
             </div>
           </div>
@@ -183,7 +183,7 @@ export function PasswordResetEmail({
               marginBottom: "8px",
             }}
           >
-            If the button doesn't work, copy and paste this link into your browser:
+            If the button doesn&apos;t work, copy and paste this link into your browser:
           </p>
           <a
             href={resetUrl}

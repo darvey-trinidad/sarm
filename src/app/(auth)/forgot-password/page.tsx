@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
         {/* Body */}
         <div className="space-y-6 p-8">
           <p className="text-gray-800">
-            No worries! Enter your email address and we'll send you a link to
+            No worries! Enter your email address and we&apos;ll send you a link to
             reset your password.
           </p>
 
