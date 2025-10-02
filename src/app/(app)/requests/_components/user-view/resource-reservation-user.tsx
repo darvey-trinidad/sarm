@@ -155,7 +155,7 @@ export default function ResourceReservationUser() {
                 <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
-                      <div className="flex flex-row gap-2">
+                      <div className="flex flex-col gap-2 md:flex-row">
                         <h3 className="text-medium font-semibold text-gray-800">
                           {resource.purpose}
                         </h3>
@@ -213,7 +213,7 @@ export default function ResourceReservationUser() {
                       </div>
 
                       {resource.borrowedItems.length > 0 && (
-                        <div className="mt-3 p-3">
+                        <div className="mt-3 p-0 md:p-3">
                           <div className="flex items-center gap-2">
                             <Package className="h-4 w-4" />
                             <h4 className="text-medium font-semibold text-gray-800">
@@ -262,7 +262,7 @@ export default function ResourceReservationUser() {
                     </div>
                   </div>
 
-                  <div className="ml-4 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2 md:mt-0">
                     {resource.fileUrl && (
                       <Button
                         variant="outline"

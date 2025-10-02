@@ -352,27 +352,31 @@ export default function VenueReservation() {
                 <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="item-start flex gap-4">
                     <div className="flex-1">
-                      <div className="flex flex-row gap-2">
+                      <div className="flex flex-col gap-2 md:flex-row">
                         <h3 className="text-medium font-semibold text-gray-800">
                           {reservation.purpose}
                         </h3>
-                        <Badge
-                          className={`${getStatusColorVenue(reservation.status)} flex items-center gap-1`}
-                        >
-                          {getStatusIconVenue(reservation.status)}
-                          {reservation.status.charAt(0).toUpperCase() +
-                            reservation.status.slice(1)}
-                        </Badge>
-                        {reservation.borrowingTransaction && (
+                        <div className="flex items-center">
                           <Badge
-                            className="ml-2 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800"
-                            title="This request has a linked resource borrowing"
+                            className={`${getStatusColorVenue(reservation.status)} flex items-center gap-1`}
                           >
-                            <Package className="h-3 w-3" />
-                            With {reservation.borrowingTransaction.status}{" "}
-                            borrowing
+                            {getStatusIconVenue(reservation.status)}
+                            {reservation.status.charAt(0).toUpperCase() +
+                              reservation.status.slice(1)}
                           </Badge>
-                        )}
+                          {reservation.borrowingTransaction && (
+                            <Badge
+                              className="ml-2 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800"
+                              title="This request has a linked resource borrowing"
+                            >
+                              <Package className="h-3 w-3" />
+                              With {
+                                reservation.borrowingTransaction.status
+                              }{" "}
+                              borrowing
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="text-muted-foreground justitfy-between flex flex-col gap-4 pt-2 lg:flex-row">
@@ -411,7 +415,7 @@ export default function VenueReservation() {
                     </div>
                   </div>
 
-                  <div className="ml-4 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2 md:mt-0">
                     {reservation.fileUrl && (
                       <Button
                         variant="outline"
