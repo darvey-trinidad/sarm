@@ -1,4 +1,8 @@
-export const TEACHING_PERSONNEL = ["faculty", "department_head", "pe_instructor"] as const;
+export const TEACHING_PERSONNEL = [
+  "faculty",
+  "department_head",
+  "pe_instructor",
+] as const;
 
 export const ROLES = [
   "facility_manager",
@@ -26,4 +30,13 @@ export const ROLE_LABELS: Record<string, string> = {
   faculty: "Faculty",
   department_head: "Department Head",
   pe_instructor: "P.E. Instructor",
+};
+
+export const Roles = {
+  FacilityManager: ROLES[0],
+  StudentOrganization: ROLES[1],
+  ClassroomManager: ROLES[2],
+  Faculty: ROLES[3],
+  DepartmentHead: ROLES[4],
+  PEInstructor: ROLES[5],
 };
