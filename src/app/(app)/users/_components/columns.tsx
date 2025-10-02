@@ -3,6 +3,19 @@ import { createSortableHeader } from "@/components/table/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 import { UserCheck, UserX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ROLE_LABELS } from "@/constants/roles";
+import { Button } from "@/components/ui/button";
+import { api } from "@/trpc/react";
+
+const getUserRole = (role: string): string => {
+  return ROLE_LABELS[role] ?? "";
+};
+
+const handleUserStatus = async (user: User) => {
+  if (user.isActive) {
+  } else {
+  }
+};
 
 const getStatusBadge = (isActive: boolean) => {
   if (isActive) {
@@ -75,6 +88,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "role",
     header: createSortableHeader("Role"),
+    cell: ({ row }) => getUserRole(row.getValue("role")),
   },
   {
     accessorKey: "departmentOrOrganization",
@@ -111,39 +125,4 @@ export const columns: ColumnDef<User>[] = [
     header: "Status",
     cell: ({ row }) => getStatusBadge(row.original.isActive),
   },
-
-  //   createActionColumn<User>([
-  //     {
-  //       label: "Edit user",
-  //       //onClick: handleEditUser,
-  //       icon: <Edit className="h-4 w-4" />,
-  //     },
-  //     {
-  //       label: "Send email",
-  //       //onClick: handleSendEmail,
-  //       icon: <Mail className="h-4 w-4" />,
-  //     },
-  //     {
-  //       label: "Reset password",
-  //       //onClick: handleResetPassword,
-  //       icon: <Key className="h-4 w-4" />,
-  //     },
-  //     {
-  //       label: (user: User) =>
-  //         user.isActive ? "Deactivate user" : "Activate user",
-  //       //onClick: handleToggleStatus,
-  //       icon: (user: User) =>
-  //         user.isActive ? (
-  //           <UserX className="h-4 w-4" />
-  //         ) : (
-  //           <UserCheck className="h-4 w-4" />
-  //         ),
-  //     },
-  //     {
-  //       label: "Delete user",
-  //       //onClick: handleDeleteUser,
-  //       icon: <Trash2 className="h-4 w-4" />,
-  //       variant: "destructive",
-  //     },
-  //   ]),
 ];

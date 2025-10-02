@@ -1,6 +1,10 @@
 "use client";
 import * as React from "react";
-import type { HeaderContext, Row, Table as TanstackTable } from "@tanstack/react-table";
+import type {
+  HeaderContext,
+  Row,
+  Table as TanstackTable,
+} from "@tanstack/react-table";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -153,9 +157,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}
@@ -241,54 +245,6 @@ export function createSortableHeader<TData, TValue>(title: string) {
 
   SortableHeader.displayName = "SortableHeader";
   return SortableHeader;
-}
-
-// Helper function to create action columns
-export function createActionColumn<T>(
-  actions: Array<{
-    label: string;
-    onClick: (row: T) => void;
-    icon?: React.ReactNode;
-    variant?: "default" | "destructive";
-  }>,
-) {
-  return {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }: { row: Row<T> }) => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            {actions.map((action, index) => (
-              <React.Fragment key={index}>
-                {action.variant === "destructive" && index > 0 && (
-                  <DropdownMenuSeparator />
-                )}
-                <DropdownMenuItem
-                  onClick={() => action.onClick(row.original)}
-                  className={
-                    action.variant === "destructive"
-                      ? "text-red-600 focus:text-red-600"
-                      : ""
-                  }
-                >
-                  {action.icon && <span className="mr-2">{action.icon}</span>}
-                  {action.label}
-                </DropdownMenuItem>
-              </React.Fragment>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  };
 }
 
 // Helper function to create select column
