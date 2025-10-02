@@ -131,9 +131,9 @@ export const columns: ColumnDef<User>[] = [
       // useMutation hook
       const { mutate: toggleMutation, isPending } =
         api.auth.toggleUserIsActive.useMutation({
-          onSuccess: () => {
+          onSuccess: async () => {
             // refresh users after update
-            utils.auth.getAllUsers.invalidate();
+            await utils.auth.getAllUsers.invalidate();
           },
         });
 
