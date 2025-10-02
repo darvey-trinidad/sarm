@@ -78,15 +78,16 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="pt-2">
-          <SidebarHeader>
+        <div className="flex pt-2">
+          <SidebarHeader className="flex flex-row">
             <Image
               src="/SARM LOGO.png"
               alt="SARM Logo"
-              width={20}
-              height={20}
+              width={33}
+              height={33}
               className="Object-contain"
             />
+            <span className="text-2xl font-bold">SARM</span>
           </SidebarHeader>
         </div>
         <SidebarGroup>
