@@ -6,9 +6,9 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -409,6 +409,127 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold">Borrow Items</h3>
 
+                        {fields.map((field, index) => {
+                          // get the selected resource details
+                          const selectedResource = availableResources?.find(
+                            (r) =>
+                              r.id === form.watch(`borrowItems.${index}.id`),
+                          );
+
+                          return (
+                            <div key={field.id}>
+                              <div
+                                key={field.id}
+                                className="flex flex-col gap-4 sm:flex-row"
+                              >
+                                {/* Item Name */}
+                                <div className="w-full">
+                                  <FormField
+                                    control={form.control}
+                                    name={`borrowItems.${index}.id`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Item Name</FormLabel>
+                                        <Select
+                                          value={field.value}
+                                          onValueChange={field.onChange}
+                                        >
+                                          <FormControl>
+                                            <SelectTrigger className="w-full truncate">
+                                              <SelectValue placeholder="Select item" />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            {availableResources
+                                              ?.filter(
+                                                (item) =>
+                                                  !selectedId?.includes(
+                                                    item.id,
+                                                  ) || item.id === field.value,
+                                              )
+                                              .map((item) => (
+                                                <SelectItem
+                                                  key={item.id}
+                                                  value={item.id}
+                                                  title={
+                                                    item.description ??
+                                                    "No Description"
+                                                  }
+                                                >
+                                                  {item.name}
+                                                </SelectItem>
+                                              ))}
+                                          </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+
+                                {/* Available (read-only, aligned like other fields) */}
+                                <div className="flex items-center gap-2">
+                                  <div className="w-full">
+                                    <FormItem>
+                                      <FormLabel>Available</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          value={
+                                            selectedResource
+                                              ? selectedResource.available
+                                              : ""
+                                          }
+                                          readOnly
+                                          className="bg-muted text-muted-foreground"
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  </div>
+
+                                  {/* Quantity */}
+                                  <div className="w-full">
+                                    <FormField
+                                      control={form.control}
+                                      name={`borrowItems.${index}.quantity`}
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Quantity</FormLabel>
+                                          <FormControl>
+                                            <Input
+                                              type="number"
+                                              min={1}
+                                              max={
+                                                selectedResource?.available ?? 1
+                                              }
+                                              {...field}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                  </div>
+
+                                  {/* Remove button */}
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="outline"
+                                    onClick={() => remove(index)}
+                                    className="mt-5 self-center"
+                                  >
+                                    <Minus className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <span className="text-muted-foreground pl-3 text-xs">
+                                {selectedResource?.description}
+                              </span>
+                              <Separator className="my-4" />
+                            </div>
+                          );
+                        })}
+
                         <Button
                           type="button"
                           size="sm"
@@ -418,110 +539,6 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                           <Plus className="h-4 w-4" />
                           Add Item
                         </Button>
-
-                        {fields.map((field, index) => {
-                          // get the selected resource details
-                          const selectedResource = availableResources?.find(
-                            (r) =>
-                              r.id === form.watch(`borrowItems.${index}.id`),
-                          );
-
-                          return (
-                            <div key={field.id} className="flex gap-4">
-                              {/* Item Name */}
-                              <div className="flex-1">
-                                <FormField
-                                  control={form.control}
-                                  name={`borrowItems.${index}.id`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Item Name</FormLabel>
-                                      <Select
-                                        value={field.value}
-                                        onValueChange={field.onChange}
-                                      >
-                                        <FormControl>
-                                          <SelectTrigger className="w-full truncate">
-                                            <SelectValue placeholder="Select item" />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          {availableResources
-                                            ?.filter(
-                                              (item) =>
-                                                !selectedId?.includes(
-                                                  item.id,
-                                                ) || item.id === field.value,
-                                            )
-                                            .map((item) => (
-                                              <SelectItem
-                                                key={item.id}
-                                                value={item.id}
-                                              >
-                                                {item.name}
-                                              </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              {/* Available (read-only, aligned like other fields) */}
-                              <div className="w-20">
-                                <FormItem>
-                                  <FormLabel>Available</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      value={
-                                        selectedResource
-                                          ? selectedResource.available
-                                          : ""
-                                      }
-                                      readOnly
-                                      className="bg-muted text-muted-foreground"
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              </div>
-
-                              {/* Quantity */}
-                              <div className="w-24">
-                                <FormField
-                                  control={form.control}
-                                  name={`borrowItems.${index}.quantity`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Quantity</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          type="number"
-                                          min={1}
-                                          max={selectedResource?.available ?? 1}
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              {/* Remove button */}
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="outline"
-                                onClick={() => remove(index)}
-                                className="mt-5 self-center"
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          );
-                        })}
                       </div>
 
                       {/* Representative Borrower */}
@@ -596,7 +613,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
               )}
 
               {reservationError && (
-                <div className="rounded bg-red-50 p-2 text-sm text-red-600 text-center">
+                <div className="rounded bg-red-50 p-2 text-center text-sm text-red-600">
                   {reservationError}
                 </div>
               )}

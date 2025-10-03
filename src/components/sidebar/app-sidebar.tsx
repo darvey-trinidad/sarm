@@ -21,60 +21,83 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { PageRoutes } from "@/constants/page-routes";
-import { title } from "process";
 import { UserSidebar } from "./user-sidebar";
 import Image from "next/image";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import {
+  Roles,
+  ROLES,
+  REQUESTS_ROLES,
+  RESOURCES_ROLES,
+  PLOTTING_ROLES,
+  USERS_ROLES,
+  MANAGE_ROLES,
+  isRole,
+} from "@/constants/roles";
 
 const items = [
   {
     title: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
+    roles: ROLES,
   },
   {
     title: "Schedule",
     href: "/schedule",
     icon: CalendarRange,
+    roles: ROLES,
   },
   {
     title: "Find Room",
     href: "/find-room",
     icon: Search,
+    roles: ROLES,
   },
   {
     title: "Resources",
     href: "/resources",
     icon: Shapes,
+    roles: RESOURCES_ROLES,
   },
   {
     title: "Requests",
     href: "/requests",
     icon: CalendarCheck,
+    roles: REQUESTS_ROLES,
   },
   {
     title: "Reports",
     href: "/reports",
     icon: MessageSquareWarning,
+    roles: ROLES,
   },
   {
     title: "Plotting",
     href: "/plotting",
     icon: Grid2x2Check,
+    roles: PLOTTING_ROLES,
   },
   {
     title: "Users",
     href: "/users",
     icon: Users,
+    roles: USERS_ROLES,
   },
   {
     title: "Manage",
     href: "/manage",
     icon: Blocks,
+    roles: MANAGE_ROLES,
   },
 ];
 
-export function AppSidebar() {
+export async function AppSidebar() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const roleFromSession = session?.user.role ?? Roles.Faculty;
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
@@ -93,16 +116,19 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {isRole(roleFromSession) &&
+                items
+                  .filter((item) => item.roles?.includes(roleFromSession))
+                  .map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <a href={item.href}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
