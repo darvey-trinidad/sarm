@@ -40,3 +40,26 @@ export const Roles = {
   DepartmentHead: ROLES[4],
   PEInstructor: ROLES[5],
 };
+
+export const RESOURCES_ROLES: Roles[] = [
+  Roles.FacilityManager,
+  Roles.DepartmentHead,
+  Roles.Faculty,
+  Roles.PEInstructor,
+  Roles.StudentOrganization,
+];
+
+export const REQUESTS_ROLES: Roles[] = RESOURCES_ROLES;
+
+export const PLOTTING_ROLES: Roles[] = [
+  Roles.FacilityManager,
+  Roles.DepartmentHead,
+];
+
+export const USERS_ROLES: Roles[] = [Roles.FacilityManager];
+
+export const MANAGE_ROLES: Roles[] = [Roles.FacilityManager];
+
+export function isRole(value: string): value is Roles {
+  return ROLES.some((role): role is Roles => role === value);
+}
