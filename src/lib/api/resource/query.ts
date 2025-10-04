@@ -183,10 +183,8 @@ export const getAllBorrowingTransactions = async ({
 export const getUpcomingBorrowingTransactions = async () => {
   try {
     const now = new Date();
-    const midnightPH = new Date(
-      new Date(now.getTime() + (8 * 60 - now.getTimezoneOffset()) * 60000)
-        .setHours(0, 0, 0, 0)
-    );
+    now.setHours(now.getHours() + 8);
+    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 
     console.log("raw now: ", now);
     console.log("midnightPH: ", midnightPH);
