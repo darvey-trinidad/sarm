@@ -4,7 +4,7 @@ import { authClient } from "@/lib/auth-client";
 import { formatISODate, newDate, toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CurrentScheduleSkeleton from "../skeletons/current-schedule-skeleton";
+import { CurrentScheduleSkeleton } from "../skeletons/received-room-skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Building2,

@@ -2,7 +2,6 @@
 import { api } from "@/trpc/react";
 import { authClient } from "@/lib/auth-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CurrentScheduleSkeleton from "../skeletons/current-schedule-skeleton";
 import { DoorOpen, Clock, MapPin, Calendar, Users } from "lucide-react";
 import { ReceivedRoomSkeleton } from "../skeletons/received-room-skeleton";
 import { formatISODate, toTimeInt } from "@/lib/utils";
@@ -10,6 +9,7 @@ import { TIME_MAP } from "@/constants/timeslot";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
+import NoRoomRequest from "@/components/loading-state/no-room-request";
 export default function ReceivedRoomRequest() {
   const { data: session } = authClient.useSession();
   const { data: ReceivedRoomRequest, isLoading } =
@@ -36,6 +36,8 @@ export default function ReceivedRoomRequest() {
         <div className="space-y-4">
           {isLoading ? (
             <ReceivedRoomSkeleton />
+          ) : ReceivedRoomRequest?.length === 0 ? (
+            <NoRoomRequest />
           ) : (
             ReceivedRoomRequest?.map((request) => (
               <div key={request.id} className="w-full">
@@ -64,7 +66,7 @@ export default function ReceivedRoomRequest() {
 
                     {/* Content Section */}
                     <CardContent className="p-0">
-                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5 text-gray-400" />
                           <span>{formatISODate(request.date)}</span>

@@ -5,7 +5,7 @@ import { newDate, getCurrentNearestBlock, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import AvailableRoomSkeleton from "../skeletons/available-room-skeleton";
+import { AvailableRoomSkeleton } from "../skeletons/received-room-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
