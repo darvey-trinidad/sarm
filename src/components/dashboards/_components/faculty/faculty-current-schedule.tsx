@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { formatISODate, newDate, toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
@@ -17,10 +17,12 @@ import {
 } from "lucide-react";
 import { TIME_MAP } from "@/constants/timeslot";
 import { Button } from "@/components/ui/button";
-
+import ScheduleMarkVacantDialog from "../schedule-mark-vacant-dialog";
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
+import { toast } from "sonner";
+import NoScheduleFound from "@/components/loading-state/no-schedule-found";
 export default function FacultyCurrentSchedule() {
   const { data: session } = authClient.useSession();
-
   // Memoize the query input
   const queryInput = useMemo(() => {
     return {
@@ -32,16 +34,48 @@ export default function FacultyCurrentSchedule() {
   const { data: facultySchedule, isLoading } =
     api.classroomSchedule.getProfessorSchedulesForDate.useQuery(queryInput);
 
-  console.log(facultySchedule);
+  const [selectedSchedule, setSelectedSchedule] =
+    useState<FinalClassroomSchedule | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { mutate: createClassroomVacancy } =
+    api.classroomSchedule.createClassroomVacancy.useMutation();
+
+  // Handler passed to the dialog
+  const handleConfirm = async (
+    classroomId: string,
+    startTime: string,
+    endTime: string,
+    date: Date,
+  ) => {
+    await createClassroomVacancy(
+      {
+        classroomId,
+        startTime,
+        endTime,
+        date,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Vacancy marked as available");
+        },
+        onError: () => {
+          toast.error("Failed to mark as available");
+        },
+      },
+    );
+  };
 
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-bold">Current Schedules</h2>
 
-      <ScrollArea className="h-[350px]">
+      <ScrollArea className="h-[250px]">
         <div className="space-y-4">
           {isLoading ? (
             <CurrentScheduleSkeleton />
+          ) : facultySchedule?.length === 0 ? (
+            <NoScheduleFound />
           ) : (
             facultySchedule?.map((schedule) => (
               <div key={schedule.id} className="grid-row-2 grid">
@@ -64,7 +98,14 @@ export default function FacultyCurrentSchedule() {
                           </div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedSchedule(schedule);
+                          setIsDialogOpen(true);
+                        }}
+                      >
                         <DoorOpen className="h-4 w-4" />
                         <span>Mark as Vacant</span>
                       </Button>
@@ -89,10 +130,10 @@ export default function FacultyCurrentSchedule() {
                         <MapPin className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
-                            Section
+                            Classroom
                           </span>
                           <span className="font-medium">
-                            {schedule.classroomName}
+                            Room {schedule.classroomName}
                           </span>
                         </div>
                       </div>
@@ -130,6 +171,15 @@ export default function FacultyCurrentSchedule() {
           )}
         </div>
       </ScrollArea>
+      {/* Dialog */}
+      {selectedSchedule && (
+        <ScheduleMarkVacantDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          selectedSchedule={selectedSchedule}
+          onConfirm={handleConfirm}
+        />
+      )}
     </Card>
   );
 }

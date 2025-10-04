@@ -33,6 +33,7 @@ import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
 import { type BetterAuthSession } from "@/lib/auth-client";
 import { type BorrowingData } from "@/hooks/use-schedule-action";
 import { toTimeInt } from "@/lib/utils";
+import { Roles } from "@/constants/roles";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
@@ -83,7 +84,7 @@ export default function ScheduleActionDialog({
 
   // Determine what actions are available
   const isOwnSchedule =
-    (currentUser?.role === "faculty" || "department_head") &&
+    (currentUser?.role === Roles.Faculty || Roles.DepartmentHead) &&
     selectedItem.facultyId === currentUser?.id &&
     selectedItem.source === SCHEDULE_SOURCE.InitialSchedule;
 

@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { type TimeInt } from "@/constants/timeslot";
+import { TIME_MAP, type TimeInt } from "@/constants/timeslot";
 import { TIME_ENTRIES } from "@/constants/timeslot";
 import { TIME_KEY_SET } from "@/constants/timeslot";
 import { format } from "date-fns";
