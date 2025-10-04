@@ -95,7 +95,7 @@ export default function CurrentAvailableRooms() {
               <Card className="border-none shadow-none">
                 <CardHeader className="px-0 pb-4">
                   <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                    <div className="item-center flex flex-row justify-between gap-4">
+                    <div className="item-center flex w-full flex-row justify-between gap-4 sm:w-auto">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
                         {currentBuilding.buildingName}
