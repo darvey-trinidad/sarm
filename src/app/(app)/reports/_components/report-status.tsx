@@ -1,7 +1,6 @@
 "use client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { CircleAlert, TriangleAlert, CircleCheckBig } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
 import { Roles } from "@/constants/roles";
 
 type ReportCardsProps = {

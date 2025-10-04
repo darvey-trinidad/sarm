@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
+import { PageRoutes } from "@/constants/page-routes";
 import {
   type ClassroomType,
   CLASSROOM_TYPE_OPTIONS,
@@ -39,7 +40,6 @@ import {
 import ReadySearch from "@/components/loading-state/ready-search";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import { env } from "@/env";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 export default function FindRoomContent() {
@@ -83,7 +83,7 @@ export default function FindRoomContent() {
 
   const handleOpenClassroom = (buildingId: string) => {
     window.open(
-      `${env.NEXT_PUBLIC_APP_URL}/schedule/classroom/${buildingId}`,
+      `${env.NEXT_PUBLIC_APP_URL}${PageRoutes.SCHEDULE_CLASSROOM}/${buildingId}`,
       "_blank",
     );
   };
@@ -228,7 +228,7 @@ export default function FindRoomContent() {
                   key={building.buildingId}
                   className="border-none shadow-none"
                 >
-                  <CardHeader className="pb-4">
+                  <CardHeader className="px-0 pb-4">
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
@@ -241,7 +241,7 @@ export default function FindRoomContent() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="px-0">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {building.classrooms.map((classroom) => (
                         <Card
