@@ -20,6 +20,8 @@ export default async function Page() {
     switch (role) {
       case Roles.Faculty:
         return <FacultyDashBoard />;
+      case Roles.DepartmentHead:
+        return <FacultyDashBoard />;
       case Roles.FacilityManager:
         return <FacilityManagerDashBoard />;
       default:

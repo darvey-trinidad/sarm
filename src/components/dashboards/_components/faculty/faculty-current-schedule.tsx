@@ -4,7 +4,7 @@ import { authClient } from "@/lib/auth-client";
 import { formatISODate, newDate, toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CurrentScheduleSkeleton from "./current-schedule-skeleton";
+import CurrentScheduleSkeleton from "../skeletons/current-schedule-skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Building2,
@@ -67,8 +67,8 @@ export default function FacultyCurrentSchedule() {
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-bold">Current Schedules</h2>
+    <Card className="w-full p-6">
+      <h3 className="text-xl font-medium">Current Schedules</h3>
 
       <ScrollArea className="h-[300px]">
         <div className="space-y-4">
