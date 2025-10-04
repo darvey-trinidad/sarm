@@ -7,7 +7,7 @@ export default function NoAvailableClasses() {
         <div className="text-center">
           <School className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
           <h3 className="text-foreground text-lg font-semibold">
-            No Available Classes Found
+            No Available Classrooms Found
           </h3>
           <p className="text-muted-foreground">
             There are no available classrooms at the moment.
