@@ -78,24 +78,19 @@ export default function CurrentAvailableRooms() {
   const currentBuilding = availableRooms?.[currentBuildingIndex];
 
   return (
-    <div className="lg:grid-row-5 grid rounded-xl border border-gray-200 p-4">
-      <div>
-        <h2 className="text-2xl font-bold">Available Classroom</h2>
-        <p className="text-muted-foreground">
-          Currently Available Classroom Today
-        </p>
-      </div>
+    <Card className="p-6">
+      <h2 className="text-2xl font-bold">Available Classroom</h2>
 
-      <div className="mt-2">
+      <div>
         {isLoading ? (
           <AvailableRoomSkeleton />
         ) : availableRooms && availableRooms.length > 0 ? (
           <div className="space-y-4">
             {currentBuilding && (
-              <Card className="border-none shadow-none">
-                <CardHeader className="px-0 pb-4">
-                  <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                    <div className="item-center flex w-full flex-row justify-between gap-4 sm:w-auto">
+              <Card className="gap-2 border-none shadow-none">
+                <CardHeader className="px-0">
+                  <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="item-center flex flex-col justify-between gap-4 sm:flex-row">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
                         {currentBuilding.buildingName}
@@ -104,41 +99,39 @@ export default function CurrentAvailableRooms() {
                         {currentBuilding.classrooms.length} available
                       </Badge>
                     </div>
-                    <div className="flex gap-2">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handlePrevious}
-                          disabled={currentBuildingIndex === 0}
-                        >
-                          <ChevronLeft className="mr-1 h-4 w-4" />
-                          Previous
-                        </Button>
 
-                        <div className="bg-muted rounded-md px-3 py-1 text-center text-xs font-medium sm:text-sm">
-                          <span className="sm:hidden">
-                            {currentBuildingIndex + 1}
-                          </span>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevious}
+                        disabled={currentBuildingIndex === 0}
+                      >
+                        <ChevronLeft className="mr-1 h-4 w-4" />
+                        Prev
+                      </Button>
 
-                          <span className="hidden sm:inline">
-                            {currentBuildingIndex + 1} of{" "}
-                            {availableRooms.length}
-                          </span>
-                        </div>
+                      <div className="bg-muted rounded-md px-3 py-1 text-center text-xs font-medium sm:text-sm">
+                        <span className="sm:hidden">
+                          {currentBuildingIndex + 1}
+                        </span>
 
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleNext}
-                          disabled={
-                            currentBuildingIndex === availableRooms.length - 1
-                          }
-                        >
-                          Next
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
+                        <span className="hidden sm:inline">
+                          {currentBuildingIndex + 1} of {availableRooms.length}
+                        </span>
                       </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNext}
+                        disabled={
+                          currentBuildingIndex === availableRooms.length - 1
+                        }
+                      >
+                        Next
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -216,6 +209,6 @@ export default function CurrentAvailableRooms() {
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

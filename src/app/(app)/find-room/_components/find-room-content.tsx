@@ -226,9 +226,9 @@ export default function FindRoomContent() {
               <div key={building.buildingId}>
                 <Card
                   key={building.buildingId}
-                  className="border-none shadow-none"
+                  className="gap-2 border-none shadow-none"
                 >
-                  <CardHeader className="px-0 pb-4">
+                  <CardHeader className="px-0">
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
