@@ -78,22 +78,17 @@ export default function CurrentAvailableRooms() {
   const currentBuilding = availableRooms?.[currentBuildingIndex];
 
   return (
-    <div className="lg:grid-row-5 grid rounded-xl border border-gray-200 p-4">
-      <div>
-        <h2 className="text-2xl font-bold">Available Classroom</h2>
-        <p className="text-muted-foreground">
-          Currently Available Classroom Today
-        </p>
-      </div>
+    <div className="rounded-xl border border-gray-300 p-6">
+      <h2 className="text-2xl font-bold">Available Classroom</h2>
 
-      <div className="mt-2">
+      <div>
         {isLoading ? (
           <AvailableRoomSkeleton />
         ) : availableRooms && availableRooms.length > 0 ? (
           <div className="space-y-4">
             {currentBuilding && (
-              <Card className="border-none shadow-none">
-                <CardHeader className="px-0 pb-4">
+              <Card className="gap-2 border-none shadow-none">
+                <CardHeader className="px-0">
                   <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="item-center flex w-full flex-row justify-between gap-4 sm:w-auto">
                       <CardTitle className="flex items-center gap-2 text-xl">
