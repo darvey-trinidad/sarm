@@ -18,7 +18,7 @@ import {
   getAvailableClassroomsSchema,
   getCurrentlyAvailableClassroomsSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
-import { getAvailableClassrooms, getCurrentlyAvailableClassrooms, getRoomRequestById, getWeeklyClassroomSchedule, getWeeklyInitialClassroomSchedule } from "@/lib/api/classroom-schedule/query";
+import { getAvailableClassrooms, getCurrentlyAvailableClassrooms, getProfessorSchedulesForDate, getRoomRequestById, getWeeklyClassroomSchedule, getWeeklyInitialClassroomSchedule } from "@/lib/api/classroom-schedule/query";
 import { mergeAdjacentInitialSchedules, mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
 import { env } from "@/env";
 import { RequestRoomEmail } from "@/emails/room-request";
@@ -68,6 +68,13 @@ export const classroomScheduleRouter = createTRPCRouter({
     .input(getCurrentlyAvailableClassroomsSchema)
     .query(async ({ input }) => {
       return await getCurrentlyAvailableClassrooms(input.date, input.startBlock);
+    }),
+  getProfessorSchedulesForDate: protectedProcedure
+    // .input(z.object({ date: z.date() }))
+    .query(() => {
+      const res = getProfessorSchedulesForDate("cs94BVTzGo776LUK7BBJ2u88WLxgj8kx", new Date("2025-10-03"))
+        .then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      return res;
     }),
   cancelClassroomBorrowing: protectedProcedure
     .input(cancelClassroomBorrowingSchema)

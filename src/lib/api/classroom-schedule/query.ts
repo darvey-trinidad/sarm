@@ -119,6 +119,9 @@ export const getWeeklyClassroomSchedule = async (
         .select({
           id: classroomSchedule.id,
           classroomId: classroomSchedule.classroomId,
+          classroomName: classroom.name,
+          buildingId: classroom.buildingId,
+          buildingName: building.name,
           facultyId: classroomSchedule.facultyId,
           facultyName: user.name,
           day: classroomSchedule.day,
@@ -129,6 +132,8 @@ export const getWeeklyClassroomSchedule = async (
         })
         .from(classroomSchedule)
         .leftJoin(user, eq(classroomSchedule.facultyId, user.id))
+        .innerJoin(classroom, eq(classroomSchedule.classroomId, classroom.id))
+        .innerJoin(building, eq(classroom.buildingId, building.id))
         .where(
           and(
             eq(classroomSchedule.classroomId, classroomId),
@@ -142,12 +147,17 @@ export const getWeeklyClassroomSchedule = async (
         .select({
           id: classroomVacancy.id,
           classroomId: classroomVacancy.classroomId,
+          classroomName: classroom.name,
+          buildingId: classroom.buildingId,
+          buildingName: building.name,
           date: classroomVacancy.date,
           startTime: classroomVacancy.startTime,
           endTime: classroomVacancy.endTime,
           reason: classroomVacancy.reason,
         })
         .from(classroomVacancy)
+        .innerJoin(classroom, eq(classroomVacancy.classroomId, classroom.id))
+        .innerJoin(building, eq(classroom.buildingId, building.id))
         .where(
           and(
             eq(classroomVacancy.classroomId, classroomId),
@@ -161,6 +171,9 @@ export const getWeeklyClassroomSchedule = async (
         .select({
           id: classroomBorrowing.id,
           classroomId: classroomBorrowing.classroomId,
+          classroomName: classroom.name,
+          buildingId: classroom.buildingId,
+          buildingName: building.name,
           facultyId: classroomBorrowing.facultyId,
           facultyName: user.name,
           date: classroomBorrowing.date,
@@ -171,6 +184,8 @@ export const getWeeklyClassroomSchedule = async (
         })
         .from(classroomBorrowing)
         .leftJoin(user, eq(classroomBorrowing.facultyId, user.id))
+        .innerJoin(classroom, eq(classroomBorrowing.classroomId, classroom.id))
+        .innerJoin(building, eq(classroom.buildingId, building.id))
         .where(
           and(
             eq(classroomBorrowing.classroomId, classroomId),
@@ -235,6 +250,9 @@ export const getWeeklyClassroomSchedule = async (
           results.push({
             id: null,
             classroomId: classroomId,
+            classroomName: "classroomNameFiller",
+            buildingId: "buildingIdFiller",
+            buildingName: "buildingNameFiller",
             facultyId: null,
             facultyName: null,
             subject: null,
@@ -314,6 +332,156 @@ export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => 
   } catch (error) {
     console.log("Failed to get weekly initial classroom schedule:", error);
     throw new Error("Could not get weekly initial classroom schedule");
+  }
+};
+
+export const getProfessorSchedulesForDate = async (
+  professorId: string,
+  date: Date
+): Promise<FinalClassroomSchedule[]> => {
+  try {
+    const systemDay = date.getDay();
+
+    const initialSchedules = await db
+      .select({
+        id: classroomSchedule.id,
+        classroomId: classroomSchedule.classroomId,
+        classroomName: classroom.name,
+        buildingId: classroom.buildingId,
+        buildingName: building.name,
+        facultyId: classroomSchedule.facultyId,
+        facultyName: user.name,
+        startTime: classroomSchedule.startTime,
+        endTime: classroomSchedule.endTime,
+        subject: classroomSchedule.subject,
+        section: classroomSchedule.section,
+      })
+      .from(classroomSchedule)
+      .leftJoin(user, eq(classroomSchedule.facultyId, user.id))
+      .innerJoin(classroom, eq(classroomSchedule.classroomId, classroom.id))
+      .innerJoin(building, eq(classroom.buildingId, building.id))
+      .where(
+        and(
+          eq(classroomSchedule.facultyId, professorId),
+          eq(classroomSchedule.day, systemDay)
+        )
+      )
+      .orderBy(classroomSchedule.startTime);
+
+    const borrowings = await db
+      .select({
+        id: classroomBorrowing.id,
+        classroomId: classroomBorrowing.classroomId,
+        classroomName: classroom.name,
+        buildingId: classroom.buildingId,
+        buildingName: building.name,
+        facultyId: classroomBorrowing.facultyId,
+        facultyName: user.name,
+        startTime: classroomBorrowing.startTime,
+        endTime: classroomBorrowing.endTime,
+        subject: classroomBorrowing.subject,
+        section: classroomBorrowing.section,
+      })
+      .from(classroomBorrowing)
+      .leftJoin(user, eq(classroomBorrowing.facultyId, user.id))
+      .innerJoin(classroom, eq(classroomBorrowing.classroomId, classroom.id))
+      .innerJoin(building, eq(classroom.buildingId, building.id))
+      .where(
+        and(
+          eq(classroomBorrowing.facultyId, professorId),
+          eq(classroomBorrowing.date, date)
+        )
+      )
+      .orderBy(classroomBorrowing.startTime);
+
+    //  If there are initial schedules, fetch vacancies that could override them.
+    //  We only need vacancies for the classrooms present in initialSchedules.
+    const initialClassroomIds = Array.from(
+      new Set(initialSchedules.map((s) => s.classroomId))
+    );
+
+    let vacancies: {
+      classroomId: string;
+      startTime: number;
+      endTime: number;
+      date: Date;
+    }[] = [];
+
+    if (initialClassroomIds.length > 0) {
+      vacancies = await db
+        .select({
+          classroomId: classroomVacancy.classroomId,
+          startTime: classroomVacancy.startTime,
+          endTime: classroomVacancy.endTime,
+          date: classroomVacancy.date,
+        })
+        .from(classroomVacancy)
+        .where(
+          and(
+            inArray(classroomVacancy.classroomId, initialClassroomIds),
+            eq(classroomVacancy.date, date)
+          )
+        );
+    }
+
+    // 4) Build results:
+    const results: FinalClassroomSchedule[] = [];
+
+    // Add borrowings first (always included)
+    for (const b of borrowings) {
+      results.push({
+        id: b.id,
+        classroomId: b.classroomId,
+        classroomName: b.classroomName,
+        buildingId: b.buildingId,
+        buildingName: b.buildingName,
+        facultyId: b.facultyId ?? null,
+        facultyName: b.facultyName ?? null,
+        subject: b.subject ?? null,
+        section: b.section ?? null,
+        date: new Date(date), // clone
+        startTime: toTimeInt(b.startTime),
+        endTime: toTimeInt(b.endTime),
+        source: "Borrowing",
+      });
+    }
+
+    // Add initial schedules only if NOT overridden by a vacancy for that classroom/date/time
+    for (const s of initialSchedules) {
+      const isOverriddenByVacancy = vacancies.some(
+        (v) =>
+          v.classroomId === s.classroomId &&
+          v.startTime <= s.startTime &&
+          v.endTime >= s.endTime
+      );
+
+      // If vacancy fully covers (or overlaps) this initial schedule block, skip it.
+      if (isOverriddenByVacancy) continue;
+
+      results.push({
+        id: s.id,
+        classroomId: s.classroomId,
+        classroomName: s.classroomName,
+        buildingId: s.buildingId,
+        buildingName: s.buildingName,
+        facultyId: s.facultyId ?? null,
+        facultyName: s.facultyName ?? null,
+        subject: s.subject ?? null,
+        section: s.section ?? null,
+        date: new Date(date),
+        startTime: toTimeInt(s.startTime),
+        endTime: toTimeInt(s.endTime),
+        source: "Initial Schedule",
+      });
+    }
+
+    // 5) Sort results by startTime ascending
+    results.sort((a, b) => a.startTime - b.startTime);
+
+    return results;
+  } catch (error) {
+    console.error("Failed to fetch professor schedules for date:", error);
+    throw new Error("Could not get professor schedules for date");
   }
 };
 
