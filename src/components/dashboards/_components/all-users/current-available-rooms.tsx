@@ -22,6 +22,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import NoAvailableClasses from "@/components/loading-state/no-available-classes";
 
 export default function CurrentAvailableRooms() {
   const [currentBuildingIndex, setCurrentBuildingIndex] = useState(0);
@@ -204,9 +205,7 @@ export default function CurrentAvailableRooms() {
             )}
           </div>
         ) : (
-          <div className="text-muted-foreground py-8 text-center">
-            No available classrooms at this time
-          </div>
+          <NoAvailableClasses />
         )}
       </div>
     </Card>

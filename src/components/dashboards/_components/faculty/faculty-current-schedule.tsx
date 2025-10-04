@@ -70,7 +70,7 @@ export default function FacultyCurrentSchedule() {
     <Card className="p-6">
       <h2 className="text-2xl font-bold">Current Schedules</h2>
 
-      <ScrollArea className="h-[250px]">
+      <ScrollArea className="h-[300px]">
         <div className="space-y-4">
           {isLoading ? (
             <CurrentScheduleSkeleton />
