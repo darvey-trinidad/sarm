@@ -1,14 +1,15 @@
 "use client";
+
 import { api } from "@/trpc/react";
-import { newDate, getCurrentNearestBlock } from "@/lib/utils";
-import { useMemo } from "react";
+import { newDate, getCurrentNearestBlock, toTimeInt } from "@/lib/utils";
+import { TIME_MAP } from "@/constants/timeslot";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AvailableRoomSkeleton from "./available-room-skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
-import { type ClassroomType } from "@/constants/classroom-type";
+import type { ClassroomType } from "@/constants/classroom-type";
 import {
   MapPin,
   Building,
@@ -16,9 +17,15 @@ import {
   Book,
   Microscope,
   Users,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 export default function CurrentAvailableRooms() {
+  const [currentBuildingIndex, setCurrentBuildingIndex] = useState(0);
+
   // compute query params only once when component mounts
   const queryParams = useMemo(() => {
     const now = new Date();
@@ -56,41 +63,89 @@ export default function CurrentAvailableRooms() {
     );
   };
 
+  const handlePrevious = () => {
+    setCurrentBuildingIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNext = () => {
+    if (availableRooms) {
+      setCurrentBuildingIndex((prev) =>
+        Math.min(availableRooms.length - 1, prev + 1),
+      );
+    }
+  };
+
+  const currentBuilding = availableRooms?.[currentBuildingIndex];
+
   return (
-    <div className="lg:grid-row-5 grid rounded-md border border-gray-200 p-4">
-      <div className="px-4">
+    <div className="lg:grid-row-5 grid rounded-xl border border-gray-200 p-4">
+      <div>
         <h2 className="text-2xl font-bold">Available Classroom</h2>
         <p className="text-muted-foreground">
           Currently Available Classroom Today
         </p>
       </div>
+
       <div className="mt-2">
         {isLoading ? (
           <AvailableRoomSkeleton />
-        ) : (
-          <ScrollArea className="h-[400px] w-full">
-            {availableRooms?.map((building) => (
-              <div key={building.buildingId}>
-                <Card
-                  key={building.buildingId}
-                  className="border-none shadow-none"
-                >
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
+        ) : availableRooms && availableRooms.length > 0 ? (
+          <div className="space-y-4">
+            {currentBuilding && (
+              <Card className="border-none shadow-none">
+                <CardHeader className="px-0 pb-4">
+                  <div className="flex w-full flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="item-center flex flex-row justify-between gap-4">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
-                        {building.buildingName}
+                        {currentBuilding.buildingName}
                       </CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-sm">
-                          {building.classrooms.length} available
-                        </Badge>
+                      <Badge variant="outline" className="text-sm">
+                        {currentBuilding.classrooms.length} available
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePrevious}
+                          disabled={currentBuildingIndex === 0}
+                        >
+                          <ChevronLeft className="mr-1 h-4 w-4" />
+                          Previous
+                        </Button>
+
+                        <div className="bg-muted rounded-md px-3 py-1 text-center text-xs font-medium sm:text-sm">
+                          <span className="sm:hidden">
+                            {currentBuildingIndex + 1}
+                          </span>
+
+                          <span className="hidden sm:inline">
+                            {currentBuildingIndex + 1} of{" "}
+                            {availableRooms.length}
+                          </span>
+                        </div>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleNext}
+                          disabled={
+                            currentBuildingIndex === availableRooms.length - 1
+                          }
+                        >
+                          Next
+                          <ChevronRight className="ml-1 h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-0">
+                  <ScrollArea className="h-[400px] w-full">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {building.classrooms.map((classroom) => (
+                      {currentBuilding.classrooms.map((classroom) => (
                         <Card
                           key={classroom.classroomId}
                           className="border-border transition-shadow hover:shadow-md"
@@ -103,9 +158,7 @@ export default function CurrentAvailableRooms() {
                                   Room {classroom.classroomName}
                                 </h3>
                                 <Badge
-                                  className={`${getTypeColor(
-                                    classroom.type as ClassroomType,
-                                  )} flex items-center gap-1`}
+                                  className={`${getTypeColor(classroom.type as ClassroomType)} flex items-center gap-1`}
                                 >
                                   {getTypeIcon(classroom.type as ClassroomType)}
                                   {classroom.type.charAt(0).toUpperCase() +
@@ -124,6 +177,13 @@ export default function CurrentAvailableRooms() {
                                 <div className="flex items-center gap-2">
                                   <MapPin className="h-4 w-4" />
                                   <span>Floor: {classroom.floor}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4" />
+                                  <span>
+                                    Available Until:{" "}
+                                    {`${TIME_MAP[toTimeInt(classroom.availableUntil)]}`}
+                                  </span>
                                 </div>
                               </div>
 
@@ -145,12 +205,15 @@ export default function CurrentAvailableRooms() {
                         </Card>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-                <Separator className="my-4" />
-              </div>
-            ))}
-          </ScrollArea>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        ) : (
+          <div className="text-muted-foreground py-8 text-center">
+            No available classrooms at this time
+          </div>
         )}
       </div>
     </div>
