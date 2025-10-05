@@ -5,7 +5,7 @@ import { newDate, getCurrentNearestBlock, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import AvailableRoomSkeleton from "./available-room-skeleton";
+import { AvailableRoomSkeleton } from "../skeletons/received-room-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
@@ -80,7 +80,7 @@ export default function CurrentAvailableRooms() {
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold">Available Classroom</h2>
+      <h3 className="text-xl font-medium">Available Classroom</h3>
 
       <div>
         {isLoading ? (
