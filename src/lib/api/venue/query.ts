@@ -207,15 +207,38 @@ export const getAllVenueReservationsByUserId = async (userId: string) => {
   }
 }
 
-export const getAllPendingVenueReservations = async () => {
+export const getAllUpcomingVenueReservations = async () => {
   try {
-    const reservations = await getAllVenueReservations({
-      status: ReservationStatus.Pending,
-      // startDate: new Date("2025-09-22"),
-      // endDate: new Date("2025-09-23"),
-    });
-    return reservations;
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 
+    return await db
+      .select({
+        venueReservationId: venueReservation.id,
+        venueId: venue.id,
+        venueName: venue.name,
+        reserverId: user.id,
+        reserverName: user.name,
+
+        date: venueReservation.date,
+        startTime: venueReservation.startTime,
+        endTime: venueReservation.endTime,
+        purpose: venueReservation.purpose,
+        status: venueReservation.status,
+        createdAt: venueReservation.createdAt,
+        fileUrl: venueReservation.fileUrl,
+      })
+      .from(venueReservation)
+      .innerJoin(venue, eq(venueReservation.venueId, venue.id))
+      .innerJoin(user, eq(venueReservation.reserverId, user.id))
+      .where(and(
+        eq(venueReservation.status, ReservationStatus.Approved),
+        gte(venueReservation.date, midnightPH),
+      ))
+      .orderBy(asc(venueReservation.date), asc(venueReservation.startTime))
+      .limit(5)
+      .all();
   } catch (error) {
     console.error(error);
     throw error;
