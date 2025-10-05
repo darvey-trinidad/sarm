@@ -80,7 +80,9 @@ export default function CurrentAvailableRooms() {
 
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-medium">Available Classroom</h3>
+      <CardTitle className="text-md font-semibold">
+        Available Classroom
+      </CardTitle>
 
       <div>
         {isLoading ? (
@@ -88,7 +90,7 @@ export default function CurrentAvailableRooms() {
         ) : availableRooms && availableRooms.length > 0 ? (
           <div className="space-y-4">
             {currentBuilding && (
-              <Card className="gap-2 border-none shadow-none">
+              <Card className="gap-2 border-none p-0 shadow-none">
                 <CardHeader className="px-0">
                   <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="item-center flex flex-col justify-between gap-4 sm:flex-row">

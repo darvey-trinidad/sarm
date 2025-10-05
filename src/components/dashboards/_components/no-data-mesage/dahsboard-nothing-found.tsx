@@ -43,11 +43,10 @@ export const NoScheduleFound = () => {
         <div className="text-center">
           <CalendarX className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
           <h3 className="text-foreground text-lg font-semibold">
-            No Schedules Found
+            No Schedules Right Now
           </h3>
           <p className="text-muted-foreground">
-            You don't have any scheduled classes at the moment. Check back later
-            or contact administration.
+            You don&apos;t have any scheduled classes at the moment.
           </p>
         </div>
       </CardContent>
