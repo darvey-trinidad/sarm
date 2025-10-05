@@ -8,6 +8,7 @@ import { Package, Calendar, Clock, User, ExternalLink } from "lucide-react";
 import { PageRoutes } from "@/constants/page-routes";
 import { formatISODate, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
+import { NoUpcomingResourceBorrowing } from "../no-data-mesage/dahsboard-nothing-found";
 export default function UpcomingResourceBorrowing() {
   const { data: upcomingResourceBorrowing, isLoading } =
     api.resource.getUpcomingBorrowingTransactions.useQuery();
@@ -39,16 +40,14 @@ export default function UpcomingResourceBorrowing() {
           {isLoading ? (
             <ReceivedRoomSkeleton />
           ) : upcomingResourceBorrowing?.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              No upcoming resource borrowing.
-            </p>
+            <NoUpcomingResourceBorrowing />
           ) : (
             upcomingResourceBorrowing?.map((request) => (
               <div key={request.id} className="w-full">
                 <Card className="border-border gap-2 px-4 transition-shadow hover:shadow-md">
                   <div className="space-y-2">
                     <CardHeader className="p-0">
-                      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+                      <div className="flex flex-col justify-between gap-4 md:flex-row">
                         <div className="flex items-center gap-2">
                           <div className="border-primary/30 bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg border">
                             <Package className="text-primary h-5 w-5" />
