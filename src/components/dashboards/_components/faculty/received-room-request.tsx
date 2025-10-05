@@ -9,7 +9,7 @@ import { TIME_MAP } from "@/constants/timeslot";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
-import NoRoomRequest from "@/components/loading-state/no-room-request";
+import { NoRoomRequest } from "../no-data-mesage/dahsboard-nothing-found";
 export default function ReceivedRoomRequest() {
   const { data: session } = authClient.useSession();
   const { data: ReceivedRoomRequest, isLoading } =

@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import ScheduleMarkVacantDialog from "../schedule-mark-vacant-dialog";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { toast } from "sonner";
-import NoScheduleFound from "@/components/loading-state/no-schedule-found";
+import { NoScheduleFound } from "../no-data-mesage/dahsboard-nothing-found";
 export default function FacultyCurrentSchedule() {
   const { data: session } = authClient.useSession();
   // Memoize the query input

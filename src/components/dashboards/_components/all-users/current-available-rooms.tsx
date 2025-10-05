@@ -22,7 +22,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import NoAvailableClasses from "@/components/loading-state/no-available-classes";
+import { NoAvailableClasses } from "@/components/dashboards/_components/no-data-mesage/dahsboard-nothing-found";
 
 export default function CurrentAvailableRooms() {
   const [currentBuildingIndex, setCurrentBuildingIndex] = useState(0);
