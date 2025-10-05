@@ -34,3 +34,7 @@ export const AvailableRoomSkeleton = () => {
     </div>
   );
 };
+
+export const ChartSkeleton = () => {
+  return <Skeleton className="h-80 w-full" />;
+};

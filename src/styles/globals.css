@@ -73,11 +73,11 @@ body {
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(67.179% 0.22014 37.53);
-  --chart-2: oklch(0.64 0.18 60); /* medium bright orange */
-  --chart-3: oklch(0.7 0.16 65); /* vibrant orange highlight */
-  --chart-4: oklch(0.76 0.15 70); /* light orange accent */
-  --chart-5: oklch(0.82 0.13 75); /* soft pale orange */
+  --chart-1: oklch(0.46 0.17 38);
+  --chart-2: oklch(0.56 0.18 45); /* medium orange-brown */
+  --chart-3: oklch(0.64 0.19 55); /* bright orange */
+  --chart-4: oklch(0.72 0.17 60); /* lighter vivid orange */
+  --chart-5: oklch(0.8 0.14 65);
   --sidebar: oklch(1 0 0); /* white */
   --sidebar-foreground: oklch(0.25 0.04 30);
   --sidebar-primary: oklch(0.45 0.2 30); /* primary orange */
