@@ -9,6 +9,9 @@ export enum PageRoutes {
   SCHEDULE_ACTIVITY_CENTER = "/schedule/activity-center",
   SCHEDULE_SOCIAL_HALL = "/schedule/social-hall",
 
+  //Respond
+  RESPOND = "/respond",
+
   //Resources
   RESOURCES = "/resources",
 

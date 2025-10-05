@@ -1,12 +1,12 @@
 import type { TimeInt } from "@/constants/timeslot";
-import { db, eq, sql, and, inArray, lte, gte, desc } from "@/server/db";
+import { db, eq, sql, and, inArray, lte, gte, asc, desc } from "@/server/db";
 import {
   resource,
   resourceBorrowing,
   borrowingTransaction,
 } from "@/server/db/schema/resource";
 import { user } from "@/server/db/schema/auth";
-import type { BorrowingStatus } from "@/constants/borrowing-status";
+import { BORROWING_STATUS, BorrowingStatus } from "@/constants/borrowing-status";
 import { venueReservation } from "@/server/db/schema/venue";
 
 export const getAllResources = async () => {
@@ -179,6 +179,96 @@ export const getAllBorrowingTransactions = async ({
     throw error;
   }
 };
+
+export const getUpcomingBorrowingTransactions = async () => {
+  try {
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+
+    console.log("raw now: ", now);
+    console.log("midnightPH: ", midnightPH);
+
+    const rows = await db
+      .select({
+        transactionId: borrowingTransaction.id,
+        borrowerId: borrowingTransaction.borrowerId,
+        borrowerName: user.name,
+        startTime: borrowingTransaction.startTime,
+        endTime: borrowingTransaction.endTime,
+        purpose: borrowingTransaction.purpose,
+        status: borrowingTransaction.status,
+        representativeBorrower: borrowingTransaction.representativeBorrower,
+        dateRequested: borrowingTransaction.dateRequested,
+        dateBorrowed: borrowingTransaction.dateBorrowed,
+        dateReturned: borrowingTransaction.dateReturned,
+        fileUrl: borrowingTransaction.fileUrl,
+        venueReservationId: borrowingTransaction.venueReservationId,
+        venueReservationStatus: venueReservation.status,
+
+        resourceBorrowingId: resourceBorrowing.id,
+        resourceId: resourceBorrowing.resourceId,
+        resourceName: resource.name,
+        resourceDescription: resource.description,
+        quantity: resourceBorrowing.quantity,
+      })
+      .from(borrowingTransaction)
+      .innerJoin(user, eq(borrowingTransaction.borrowerId, user.id))
+      .leftJoin(
+        resourceBorrowing,
+        eq(resourceBorrowing.transactionId, borrowingTransaction.id),
+      )
+      .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
+      .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
+      .where(and(
+        eq(borrowingTransaction.status, BorrowingStatus.Approved),
+        gte(borrowingTransaction.dateBorrowed, midnightPH),
+      ))
+      .orderBy(asc(borrowingTransaction.dateBorrowed), asc(borrowingTransaction.startTime))
+      .all();
+
+    // ---- Group by transactionId ----
+    const borrowings = Object.values(
+      rows.reduce<Record<string, BorrowingTransaction>>((acc, row) => {
+        // Initialize group if missing
+        const group = (acc[row.transactionId] ??= {
+          id: row.transactionId,
+          borrowerId: row.borrowerId,
+          borrowerName: row.borrowerName ?? "",
+          startTime: row.startTime,
+          endTime: row.endTime,
+          purpose: row.purpose,
+          status: row.status,
+          representativeBorrower: row.representativeBorrower,
+          dateRequested: row.dateRequested,
+          dateBorrowed: row.dateBorrowed,
+          dateReturned: row.dateReturned,
+          fileUrl: row.fileUrl,
+          venueReservationId: row.venueReservationId,
+          venueReservationStatus: row.venueReservationStatus,
+          borrowedItems: [],
+        });
+
+        // Push borrowed items if present
+        if (row.resourceBorrowingId) {
+          group.borrowedItems.push({
+            id: row.resourceBorrowingId,
+            resourceId: row.resourceId ?? "",
+            resourceName: row.resourceName ?? "",
+            resourceDescription: row.resourceDescription ?? "",
+            quantity: row.quantity ?? 0,
+          });
+        }
+        return acc;
+      }, {}),
+    );
+
+    return borrowings.slice(0, 5);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
   try {

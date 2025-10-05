@@ -4,41 +4,45 @@ import { requiredDateSchema } from "@/server/api-utils/validators/date";
 import { ROOM_REQUEST_STATUS } from "@/constants/room-request-status";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
 
-export const createClassroomScheduleSchema = z.object({
-  classroomId: z.string(),
-  facultyId: z.string(),
+export const createClassroomScheduleSchema = z
+  .object({
+    classroomId: z.string(),
+    facultyId: z.string(),
 
-  day: z.number(),
-  startTime: timeIntSchema,
-  endTime: timeIntSchema,
+    day: z.number(),
+    startTime: timeIntSchema,
+    endTime: timeIntSchema,
 
-  subject: z.string(),
-  section: z.string(),
-}).refine(
-  (data) => {
-    return data.endTime > data.startTime;
-  },
-  {
-    message: "End time must be later than start time",
-    path: ["endTime"],
-  }
-);
+    subject: z.string(),
+    section: z.string(),
+  })
+  .refine(
+    (data) => {
+      return data.endTime > data.startTime;
+    },
+    {
+      message: "End time must be later than start time",
+      path: ["endTime"],
+    },
+  );
 
-export const createClassroomVacancySchema = z.object({
-  classroomId: z.string(),
-  date: requiredDateSchema(),
-  startTime: timeIntSchema,
-  endTime: timeIntSchema,
-  reason: z.string().optional().nullable(),
-}).refine(
-  (data) => {
-    return data.endTime > data.startTime;
-  },
-  {
-    message: "End time must be later than start time",
-    path: ["endTime"],
-  }
-);
+export const createClassroomVacancySchema = z
+  .object({
+    classroomId: z.string(),
+    date: requiredDateSchema(),
+    startTime: timeIntSchema,
+    endTime: timeIntSchema,
+    reason: z.string().optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      return data.endTime > data.startTime;
+    },
+    {
+      message: "End time must be later than start time",
+      path: ["endTime"],
+    },
+  );
 
 export const createClassroomBorrowingSchema = z.object({
   classroomId: z.string(),
@@ -52,39 +56,46 @@ export const createClassroomBorrowingSchema = z.object({
 });
 
 /*
-* Queries
-*/
+ * Queries
+ */
 export const getClassroomScheduleSchema = z.object({
   classroomId: z.string(),
-  date: requiredDateSchema()
+  date: requiredDateSchema(),
 });
 
 export const getWeeklyClassroomScheduleSchema = z.object({
   classroomId: z.string(),
   startDate: requiredDateSchema(),
-  endDate: requiredDateSchema()
-})
+  endDate: requiredDateSchema(),
+});
 
 export const getAvailableClassroomsSchema = z.object({
   date: requiredDateSchema(),
   startTime: timeIntSchema,
   endTime: timeIntSchema,
-  filters: z.object({
-    buildingId: z.string().optional(),
-    type: z.enum(CLASSROOM_TYPE).optional(),
-  }).optional()
-})
+  filters: z
+    .object({
+      buildingId: z.string().optional(),
+      type: z.enum(CLASSROOM_TYPE).optional(),
+    })
+    .optional(),
+});
 
 export const getCurrentlyAvailableClassroomsSchema = z.object({
   date: requiredDateSchema(),
-  startBlock: timeIntSchema
-})
+  startBlock: timeIntSchema,
+});
+
+export const getProfessorSchedulesForDateSchema = z.object({
+  date: requiredDateSchema(),
+  facultyId: z.string(),
+});
 
 export const cancelClassroomBorrowingSchema = z.object({
   classroomId: z.string(),
   date: requiredDateSchema(),
   startTime: timeIntSchema,
-  endTime: timeIntSchema
+  endTime: timeIntSchema,
 });
 
 export const createRoomRequestSchema = z.object({
@@ -102,7 +113,7 @@ export const createRoomRequestSchema = z.object({
 export const respondToRoomRequestSchema = z.object({
   roomRequestId: z.string(),
   status: z.enum(ROOM_REQUEST_STATUS),
-})
+});
 
 // classroomId: text("classroom_id").references(() => classroom.id).notNull(),
 
@@ -119,10 +130,20 @@ export const respondToRoomRequestSchema = z.object({
 // createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
 // respondedAt: integer("responded_at", { mode: "timestamp" }),
 
-export type CreateClassroomScheduleInput = z.infer<typeof createClassroomScheduleSchema>;
-export type CreateClassroomVacancyInput = z.infer<typeof createClassroomVacancySchema>;
-export type CreateClassroomBorrowingInput = z.infer<typeof createClassroomBorrowingSchema>;
+export type CreateClassroomScheduleInput = z.infer<
+  typeof createClassroomScheduleSchema
+>;
+export type CreateClassroomVacancyInput = z.infer<
+  typeof createClassroomVacancySchema
+>;
+export type CreateClassroomBorrowingInput = z.infer<
+  typeof createClassroomBorrowingSchema
+>;
 
-export type GetClassroomScheduleInput = z.infer<typeof getClassroomScheduleSchema>;
+export type GetClassroomScheduleInput = z.infer<
+  typeof getClassroomScheduleSchema
+>;
 
-export type CancelClassroomBorrowingInput = z.infer<typeof cancelClassroomBorrowingSchema>;
+export type CancelClassroomBorrowingInput = z.infer<
+  typeof cancelClassroomBorrowingSchema
+>;

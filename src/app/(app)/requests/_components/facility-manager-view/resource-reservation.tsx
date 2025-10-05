@@ -43,10 +43,12 @@ import {
   Search,
   CheckCircle,
   XCircle,
-  AlertCircle,
   Undo2,
 } from "lucide-react";
-import type { BorrowingStatus } from "@/constants/borrowing-status";
+import {
+  BORROWING_STATUS_OPTIONS,
+  type BorrowingStatus,
+} from "@/constants/borrowing-status";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorResource, getStatusIconResource } from "../icon-status";
@@ -306,30 +308,12 @@ export default function ResourceReservation() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-yellow-600" />
-                    Pending
-                  </div>
-                </SelectItem>
-                <SelectItem value="approved">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    Approved
-                  </div>
-                </SelectItem>
-                <SelectItem value="returned">
-                  <div className="flex items-center gap-2">
-                    <Undo2 className="h-4 w-4 text-blue-600" />
-                    Returned
-                  </div>
-                </SelectItem>
-                <SelectItem value="rejected">
-                  <div className="flex items-center gap-2">
-                    <XCircle className="h-4 w-4 text-red-600" />
-                    Rejected
-                  </div>
-                </SelectItem>
+
+                {BORROWING_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -527,10 +511,9 @@ export default function ResourceReservation() {
                     {request.status === "pending" && (
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
                           size="sm"
                           onClick={() => handleReject(request.id)}
-                          className="border-red-200 text-red-600 hover:bg-red-50"
+                          className="bg-red-600 text-white hover:bg-red-700"
                         >
                           <XCircle className="mr-1 h-4 w-4" />
                           Reject
@@ -548,10 +531,9 @@ export default function ResourceReservation() {
 
                     {request.status === "approved" && (
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => handleCancel(request.id)}
-                        className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                        className="bg-orange-600 text-white hover:bg-orange-700"
                       >
                         <XCircle className="mr-1 h-4 w-4" />
                         Cancel
@@ -562,7 +544,7 @@ export default function ResourceReservation() {
                       <Button
                         size="sm"
                         onClick={() => handleReturn(request.id)}
-                        className="bg-blue-600 text-white hover:bg-blue-700"
+                        className="bg-primary hover:bg-primary/90 text-white"
                       >
                         <Undo2 className="mr-1 h-4 w-4" />
                         Return

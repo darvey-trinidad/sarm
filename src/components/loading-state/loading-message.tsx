@@ -7,7 +7,7 @@ export default function LoadingMessage() {
       <div className="text-center">
         <Loader2 className="text-muted-foreground mx-auto mb-4 h-12 w-12 animate-spin" />
         <h3 className="text-foreground text-lg font-semibold">
-          Loading facility reports...
+          Loading hang on...
         </h3>
         <p className="text-muted-foreground">
           Please wait while we fetch the data.

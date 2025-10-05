@@ -18,11 +18,8 @@ import {
   UserCheck,
   Package,
   FileText,
-  Filter,
   Search,
-  CheckCircle,
   XCircle,
-  AlertCircle,
   Undo2,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -281,10 +278,9 @@ export default function ResourceReservationUser() {
                     {resource.status === "pending" && (
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
                           size="sm"
                           onClick={() => handleCancel(resource.id)}
-                          className="border-red-200 text-orange-600 hover:bg-red-50"
+                          className="bg-orange-600 text-white hover:bg-orange-700"
                         >
                           <XCircle className="mr-1 h-4 w-4" />
                           Cancel
@@ -294,10 +290,9 @@ export default function ResourceReservationUser() {
 
                     {resource.status === "approved" && (
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => handleCancel(resource.id)}
-                        className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                        className="bg-orange-600 text-white hover:bg-orange-700"
                       >
                         <XCircle className="mr-1 h-4 w-4" />
                         Cancel
@@ -308,7 +303,7 @@ export default function ResourceReservationUser() {
                       <Button
                         size="sm"
                         onClick={() => handleReturn(resource.id)}
-                        className="bg-blue-600 text-white hover:bg-blue-700"
+                        className="bg-primary hover:bg-primary/90 text-white"
                       >
                         <Undo2 className="mr-1 h-4 w-4" />
                         Return

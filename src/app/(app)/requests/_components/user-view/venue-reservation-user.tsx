@@ -203,12 +203,11 @@ export default function VenueReservationUser() {
                     {reservation.status === "pending" && (
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
                           size="sm"
                           onClick={() =>
                             handleCancel(reservation.venueReservationId)
                           }
-                          className="border-red-200 text-orange-600 hover:bg-red-50"
+                          className="bg-orange-600 text-white hover:bg-orange-700"
                         >
                           <XCircle className="h-4 w-4" />
                           Cancel
@@ -223,7 +222,7 @@ export default function VenueReservationUser() {
                         onClick={() =>
                           handleCancel(reservation.venueReservationId)
                         }
-                        className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                        className="bg-orange-600 text-white hover:bg-orange-700"
                       >
                         <XCircle className="h-4 w-4" />
                         Cancel

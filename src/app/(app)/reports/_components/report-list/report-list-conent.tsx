@@ -40,14 +40,20 @@ import {
   HelpCircle,
   Building,
   Camera,
+  Copy,
 } from "lucide-react";
-import type { ReportCategory } from "@/constants/report-category";
 import {
+  REPORT_CATEGORY_OPTIONS,
+  type ReportCategory,
+} from "@/constants/report-category";
+import {
+  REPORT_STATUS_OPTIONS,
   ReportStatusValues,
   type ReportStatus,
 } from "@/constants/report-status";
 import NoReports from "@/components/loading-state/no-reports";
 import LoadingMessage from "@/components/loading-state/loading-message";
+import { D } from "node_modules/better-auth/dist/shared/better-auth.CUMpWXN6";
 
 export default function ReportListContent() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -137,27 +143,14 @@ export default function ReportListContent() {
     });
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "electrical":
-        return <Zap className="h-4 w-4 text-yellow-600" />;
-      case "plumbing":
-        return <Droplets className="h-4 w-4 text-blue-600" />;
-      case "equipment":
-        return <Settings className="h-4 w-4 text-gray-600" />;
-      case "sanitation":
-        return <Wrench className="h-4 w-4 text-green-600" />;
-      default:
-        return <HelpCircle className="h-4 w-4 text-purple-600" />;
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "resolved":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "ongoing":
         return <AlertTriangle className="h-4 w-4 text-orange-600" />;
+      case "duplicate":
+        return <Copy className="h-4 w-4 text-yellow-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-red-600" />;
     }
@@ -169,6 +162,8 @@ export default function ReportListContent() {
         return "bg-green-100 text-green-800 border-green-200";
       case "ongoing":
         return "bg-orange-100 text-orange-800 border-orange-200";
+      case "duplicate":
+        return "bg-orange-100 text-yellow-800 border-yellow-200";
       default:
         return "bg-red-100 text-red-800 border-red-200";
     }
@@ -233,36 +228,11 @@ export default function ReportListContent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="electrical">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-yellow-600" />
-                    Electrical
-                  </div>
-                </SelectItem>
-                <SelectItem value="plumbing">
-                  <div className="flex items-center gap-2">
-                    <Droplets className="h-4 w-4 text-blue-600" />
-                    Plumbing
-                  </div>
-                </SelectItem>
-                <SelectItem value="equipment">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-gray-600" />
-                    Equipment
-                  </div>
-                </SelectItem>
-                <SelectItem value="sanitation">
-                  <div className="flex items-center gap-2">
-                    <Wrench className="h-4 w-4 text-green-600" />
-                    Sanitation
-                  </div>
-                </SelectItem>
-                <SelectItem value="other">
-                  <div className="flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4 text-purple-600" />
-                    Other
-                  </div>
-                </SelectItem>
+                {REPORT_CATEGORY_OPTIONS.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -280,24 +250,11 @@ export default function ReportListContent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="reported">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                    Reported
-                  </div>
-                </SelectItem>
-                <SelectItem value="ongoing">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-orange-600" />
-                    Ongoing
-                  </div>
-                </SelectItem>
-                <SelectItem value="resolved">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    Resolved
-                  </div>
-                </SelectItem>
+                {REPORT_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -388,7 +345,6 @@ export default function ReportListContent() {
                           <Badge
                             className={`${getCategoryColor(report.category)} ml-2 flex items-center gap-1`}
                           >
-                            {getCategoryIcon(report.category)}
                             {report.category.charAt(0).toUpperCase() +
                               report.category.slice(1)}
                           </Badge>
@@ -463,10 +419,28 @@ export default function ReportListContent() {
                               ReportStatusValues.Ongoing,
                             )
                           }
-                          className="bg-orange-600 text-white hover:bg-orange-700"
+                          className="bg-primary hover:bg-primary/90 text-white"
                         >
                           <AlertTriangle className="mr-1 h-4 w-4" />
                           Start Work
+                        </Button>
+                      </div>
+                    )}
+
+                    {report.status === ReportStatusValues.Reported && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            handleUpdateStatus(
+                              report.id,
+                              ReportStatusValues.Duplicate,
+                            )
+                          }
+                          className="bg-orange-600 text-white hover:bg-orange-700"
+                        >
+                          <Copy className="mr-1 h-4 w-4" />
+                          Mark Duplicate
                         </Button>
                       </div>
                     )}

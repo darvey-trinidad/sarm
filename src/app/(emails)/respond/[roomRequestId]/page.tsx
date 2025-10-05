@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import { Button } from "@/components/ui/button";
 import { TIME_MAP } from "@/constants/timeslot";
@@ -9,10 +9,14 @@ import { toTimeInt } from "@/lib/utils";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import { toast } from "sonner";
 import { env } from "@/env";
+import { authClient } from "@/lib/auth-client";
+import { PageRoutes } from "@/constants/page-routes";
 
 export default function RespondPage() {
   const [responded, setResponded] = useState(false);
   const [requestStatus, setRequestStatus] = useState("");
+
+  const { data: session } = authClient.useSession();
 
   const params = useParams<{ roomRequestId?: string }>();
   const roomRequestId = params?.roomRequestId ?? "";
@@ -33,6 +37,14 @@ export default function RespondPage() {
     }
   }, [roomRequestData]);
 
+  useEffect(() => {
+    if (!isLoading && session && roomRequestData) {
+      if (roomRequestData.responderId !== session.user.id) {
+        redirect(PageRoutes.DASHBOARD);
+      }
+    }
+  }, [isLoading, session, roomRequestData]);
+
   if (!roomRequestId) {
     return (
       <p className="p-6 text-center text-red-600 font-medium">
@@ -42,7 +54,7 @@ export default function RespondPage() {
   }
 
   if (isLoading) {
-    return <p className="p-6 text-center">Loading request...</p>;
+    return <p className="my-auto p-6 text-center">Loading request...</p>;
   }
 
   if (!roomRequestData) {

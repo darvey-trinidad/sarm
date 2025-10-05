@@ -1,170 +1,203 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 // import { useToast } from "@/hooks/use-toast"
-import { TIME_MAP } from "@/constants/timeslot"
-import { type TimeInt } from "@/constants/timeslot"
-import { api } from "@/trpc/react"
-import type { FinalClassroomSchedule } from "@/types/clasroom-schedule"
+import { TIME_MAP } from "@/constants/timeslot";
+import { type TimeInt } from "@/constants/timeslot";
+import { api } from "@/trpc/react";
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { toast } from "sonner";
 
 interface BorrowingData {
-  classroomId: string
-  facultyId: string
-  date: Date
-  startTime: TimeInt // Using your TimeInt type instead of minutes
-  endTime: TimeInt // Using your TimeInt type instead of minutes
-  subject: string | null
-  section: string | null
+  classroomId: string;
+  facultyId: string;
+  date: Date;
+  startTime: TimeInt; // Using your TimeInt type instead of minutes
+  endTime: TimeInt; // Using your TimeInt type instead of minutes
+  subject: string | null;
+  section: string | null;
 }
 
 interface UseScheduleActionsProps {
-  onRefresh?: () => void
+  onRefresh?: () => void;
 }
 
-export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) {
-  const [loading, setLoading] = useState(false)
+export function useScheduleActions({
+  onRefresh,
+}: UseScheduleActionsProps = {}) {
+  const [loading, setLoading] = useState(false);
   // const { toast } = useToast()
 
   const {
     mutate: createClassroomVacancy,
     isPending: isPendingCreateVacancy,
     isError: isErrorCreateVacancy,
-    isSuccess: isSuccessCreateVacancy
+    isSuccess: isSuccessCreateVacancy,
   } = api.classroomSchedule.createClassroomVacancy.useMutation();
 
   const {
     mutate: createClassroomBorrowing,
     isPending: isPendingCreateBorrowing,
     isError: isErrorCreateBorrowing,
-    isSuccess: isSuccessCreateBorrowing
+    isSuccess: isSuccessCreateBorrowing,
   } = api.classroomSchedule.createClassroomBorrowing.useMutation();
 
   const {
     mutate: cancelClassroomBorrowing,
     isPending: isPendingCancelBorrowing,
     isError: isErrorCancelBorrowing,
-    isSuccess: isSuccessCancelBorrowing
+    isSuccess: isSuccessCancelBorrowing,
   } = api.classroomSchedule.cancelClassroomBorrowing.useMutation();
 
-  const { mutate: createRoomRequest } = api.classroomSchedule.createRoomRequest.useMutation();
+  const { mutate: createRoomRequest } =
+    api.classroomSchedule.createRoomRequest.useMutation();
 
-  const requestToBorrow = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
-    setLoading(true)
+  const requestToBorrow = async (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => {
+    setLoading(true);
     try {
-      createRoomRequest({
-        classroomId: schedule.classroomId,
-        date: schedule.date,
-        startTime: (data.startTime).toString(),
-        endTime: (data.endTime).toString(),
+      createRoomRequest(
+        {
+          classroomId: schedule.classroomId,
+          date: schedule.date,
+          startTime: data.startTime.toString(),
+          endTime: data.endTime.toString(),
 
-        requesterId: data.facultyId,
-        responderId: schedule.facultyId ?? "",
+          requesterId: data.facultyId,
+          responderId: schedule.facultyId ?? "",
 
-        subject: data.subject ?? "",
-        section: data.section ?? ""
-      }, {
-        onSuccess: () => {
-          toast("Room request sent");
-          onRefresh?.()
+          subject: data.subject ?? "",
+          section: data.section ?? "",
         },
-        onError: () => { toast("Failed to send room request") }
-      })
+        {
+          onSuccess: () => {
+            toast("Room request sent");
+            onRefresh?.();
+          },
+          onError: () => {
+            toast("Failed to send room request");
+          },
+        },
+      );
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const markAsVacant = async (schedule: FinalClassroomSchedule, data: BorrowingData, reason: string) => {
-    setLoading(true)
+  const markAsVacant = async (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => {
+    setLoading(true);
     try {
-      createClassroomVacancy({
-        classroomId: schedule.classroomId,
-        date: schedule.date,
-        startTime: (data.startTime).toString(),
-        endTime: (data.endTime).toString(),
-        reason
-      }, {
-        onSuccess: () => {
-          toast("Classroom marked as vacant");
-          onRefresh?.()
+      createClassroomVacancy(
+        {
+          classroomId: schedule.classroomId,
+          date: schedule.date,
+          startTime: data.startTime.toString(),
+          endTime: data.endTime.toString(),
         },
-        onError: () => { toast("Failed to mark classroom as vacant") }
-      })
+        {
+          onSuccess: () => {
+            toast("Classroom marked as vacant");
+            onRefresh?.();
+          },
+          onError: () => {
+            toast("Failed to mark classroom as vacant");
+          },
+        },
+      );
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const claimSlot = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
-    setLoading(true)
+  const claimSlot = async (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => {
+    setLoading(true);
     try {
-      createClassroomBorrowing({
-        classroomId: schedule.classroomId,
-        date: schedule.date,
-        startTime: (data.startTime).toString(),
-        endTime: (data.endTime).toString(),
-        facultyId: data.facultyId,
-        subject: data.subject,
-        section: data.section
-      }, {
-        onSuccess: () => {
-          toast("Slot claimed");
-          onRefresh?.()
+      createClassroomBorrowing(
+        {
+          classroomId: schedule.classroomId,
+          date: schedule.date,
+          startTime: data.startTime.toString(),
+          endTime: data.endTime.toString(),
+          facultyId: data.facultyId,
+          subject: data.subject,
+          section: data.section,
         },
-        onError: () => { toast("Failed to claim slot") }
-      })
+        {
+          onSuccess: () => {
+            toast("Slot claimed");
+            onRefresh?.();
+          },
+          onError: () => {
+            toast("Failed to claim slot");
+          },
+        },
+      );
 
       // Mock API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Use your TIME_MAP to format the time display
-      const startTimeLabel = TIME_MAP[schedule.startTime] || `${schedule.startTime}`
-      const endTimeLabel = TIME_MAP[schedule.endTime] || `${schedule.endTime}`
-
+      const startTimeLabel =
+        TIME_MAP[schedule.startTime] || `${schedule.startTime}`;
+      const endTimeLabel = TIME_MAP[schedule.endTime] || `${schedule.endTime}`;
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const cancelBorrowing = async (schedule: FinalClassroomSchedule, data: BorrowingData) => {
-    setLoading(true)
+  const cancelBorrowing = async (
+    schedule: FinalClassroomSchedule,
+    data: BorrowingData,
+  ) => {
+    setLoading(true);
     try {
-      cancelClassroomBorrowing({
-        classroomId: schedule.classroomId,
-        date: schedule.date,
-        startTime: schedule.startTime.toString(),
-        endTime: schedule.endTime.toString(),
-      }, {
-        onSuccess: () => {
-          toast("Borrowing canceled");
-          onRefresh?.()
+      cancelClassroomBorrowing(
+        {
+          classroomId: schedule.classroomId,
+          date: schedule.date,
+          startTime: schedule.startTime.toString(),
+          endTime: schedule.endTime.toString(),
         },
-        onError: () => { toast("Failed to cancel borrowing") }
-      })
+        {
+          onSuccess: () => {
+            toast("Borrowing canceled");
+            onRefresh?.();
+          },
+          onError: () => {
+            toast("Failed to cancel borrowing");
+          },
+        },
+      );
 
       // Mock API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-
-      onRefresh?.()
+      onRefresh?.();
     } catch (error) {
       // toast({
       //   title: "Error",
       //   description: "Failed to cancel borrowing. Please try again.",
       //   variant: "destructive",
       // })
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return {
     markAsVacant,
@@ -172,7 +205,7 @@ export function useScheduleActions({ onRefresh }: UseScheduleActionsProps = {}) 
     cancelBorrowing,
     requestToBorrow,
     loading,
-  }
+  };
 }
 
-export type { BorrowingData }
+export type { BorrowingData };

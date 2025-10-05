@@ -2,7 +2,7 @@ import { db, desc, eq, gte, lte, and } from "@/server/db";
 import { facilityIssueReport } from "@/server/db/schema/facility-issue-report";
 import { user } from "@/server/db/schema/auth";
 import { building, classroom } from "@/server/db/schema/classroom";
-import type { ReportStatus } from "@/constants/report-status";
+import { ReportStatusValues, type ReportStatus } from "@/constants/report-status";
 import type { ReportCategory } from "@/constants/report-category";
 
 export const getAllFacilityIssueReports = async ({
@@ -90,3 +90,36 @@ export const getAllFacilityIssueReportsByUser = async (userId: string) => {
     throw error;
   }
 };
+
+export const getRecentFacilityIssueReports = async () => {
+  try {
+    return await db
+      .select({
+        id: facilityIssueReport.id,
+        reportedByName: user.name,
+        category: facilityIssueReport.category,
+        description: facilityIssueReport.description,
+        buildingId: building.id,
+        buildingName: building.name,
+        classroomId: classroom.id,
+        classroomName: classroom.name,
+        location: facilityIssueReport.location,
+        details: facilityIssueReport.details,
+        status: facilityIssueReport.status,
+        imageUrl: facilityIssueReport.imageUrl,
+        dateReported: facilityIssueReport.dateReported,
+        dateUpdated: facilityIssueReport.dateUpdated,
+      })
+      .from(facilityIssueReport)
+      .innerJoin(user, eq(user.id, facilityIssueReport.reportedBy))
+      .leftJoin(building, eq(building.id, facilityIssueReport.buildingId))
+      .leftJoin(classroom, eq(classroom.id, facilityIssueReport.classroomId))
+      .where(eq(facilityIssueReport.status, ReportStatusValues.Reported))
+      .orderBy(desc(facilityIssueReport.dateReported))
+      .limit(5)
+      .all();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

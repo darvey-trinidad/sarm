@@ -33,6 +33,7 @@ import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
 import { type BetterAuthSession } from "@/lib/auth-client";
 import { type BorrowingData } from "@/hooks/use-schedule-action";
 import { toTimeInt } from "@/lib/utils";
+import { Roles } from "@/constants/roles";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
@@ -44,7 +45,6 @@ interface ScheduleActionDialogProps {
   onMarkVacant: (
     schedule: FinalClassroomSchedule,
     data: BorrowingData,
-    reason: string,
   ) => Promise<void>;
   onClaimSlot: (
     schedule: FinalClassroomSchedule,
@@ -70,7 +70,6 @@ export default function ScheduleActionDialog({
   onRequestToBorrow,
 }: ScheduleActionDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [vacancyReason, setVacancyReason] = useState("");
   const [borrowingData, setBorrowingData] = useState<BorrowingData>({
     classroomId: selectedItem?.classroomId ?? "",
     facultyId: currentUser?.id ?? "",
@@ -85,7 +84,7 @@ export default function ScheduleActionDialog({
 
   // Determine what actions are available
   const isOwnSchedule =
-    (currentUser?.role === "faculty" || "department_head") &&
+    (currentUser?.role === Roles.Faculty || Roles.DepartmentHead) &&
     selectedItem.facultyId === currentUser?.id &&
     selectedItem.source === SCHEDULE_SOURCE.InitialSchedule;
 
@@ -95,7 +94,11 @@ export default function ScheduleActionDialog({
     selectedItem.source === SCHEDULE_SOURCE.Borrowing &&
     selectedItem.facultyId === currentUser?.id;
   const isOthersSchedule =
-    !isOwnSchedule && !isVacantSlot && !isUnoccupiedSlot && !isBorrowedByUser && selectedItem.source !== SCHEDULE_SOURCE.Borrowing;
+    !isOwnSchedule &&
+    !isVacantSlot &&
+    !isUnoccupiedSlot &&
+    !isBorrowedByUser &&
+    selectedItem.source !== SCHEDULE_SOURCE.Borrowing;
 
   const canMarkVacant = isOwnSchedule;
   const canClaim = isVacantSlot || isUnoccupiedSlot;
@@ -164,13 +167,12 @@ export default function ScheduleActionDialog({
   };
 
   const handleMarkVacant = async () => {
-    if (!selectedItem.id || !vacancyReason.trim()) return;
+    if (!selectedItem.id) return;
 
     setLoading(true);
     try {
-      await onMarkVacant(selectedItem, borrowingData, vacancyReason);
+      await onMarkVacant(selectedItem, borrowingData);
       onOpenChange(false);
-      setVacancyReason("");
     } catch (error) {
       console.error("Error marking as vacant:", error);
     } finally {
@@ -271,7 +273,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                  selectedItem.subject
+                selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
@@ -379,19 +381,9 @@ export default function ScheduleActionDialog({
                 </div>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="reason">Reason for vacancy</Label>
-                <Textarea
-                  id="reason"
-                  placeholder="e.g., Faculty meeting, sick leave, conference..."
-                  value={vacancyReason}
-                  onChange={(e) => setVacancyReason(e.target.value)}
-                  rows={3}
-                />
-              </div>
               <Button
                 onClick={handleMarkVacant}
-                disabled={loading || !vacancyReason.trim()}
+                disabled={loading}
                 className="w-full"
               >
                 {loading ? "Marking as Vacant..." : "Mark as Vacant"}

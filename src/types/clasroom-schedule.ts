@@ -5,6 +5,9 @@ export type ScheduleSource = "Initial Schedule" | "Vacancy" | "Borrowing" | "Uno
 export interface FinalClassroomSchedule {
   id: string | null;
   classroomId: string;
+  classroomName: string;
+  buildingId: string;
+  buildingName: string;
   facultyId: string | null;
   facultyName: string | null;
   subject: string | null;

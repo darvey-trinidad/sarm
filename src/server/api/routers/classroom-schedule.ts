@@ -5,7 +5,7 @@ import {
   createClassroomBorrowing,
   deleteClassroomBorrowing,
   createRoomRequest,
-  updateRoomRequestStatus
+  updateRoomRequestStatus,
 } from "@/lib/api/classroom-schedule/mutation";
 import {
   createClassroomScheduleSchema,
@@ -17,9 +17,21 @@ import {
   respondToRoomRequestSchema,
   getAvailableClassroomsSchema,
   getCurrentlyAvailableClassroomsSchema,
+  getProfessorSchedulesForDateSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
-import { getAvailableClassrooms, getCurrentlyAvailableClassrooms, getRoomRequestById, getWeeklyClassroomSchedule, getWeeklyInitialClassroomSchedule } from "@/lib/api/classroom-schedule/query";
-import { mergeAdjacentInitialSchedules, mergeAdjacentTimeslots } from "@/lib/helper/classroom-schedule";
+import {
+  getAvailableClassrooms,
+  getCurrentlyAvailableClassrooms,
+  getProfessorSchedulesForDate,
+  getRoomRequestById,
+  getRoomRequestsByResponderId,
+  getWeeklyClassroomSchedule,
+  getWeeklyInitialClassroomSchedule,
+} from "@/lib/api/classroom-schedule/query";
+import {
+  mergeAdjacentInitialSchedules,
+  mergeAdjacentTimeslots,
+} from "@/lib/helper/classroom-schedule";
 import { env } from "@/env";
 import { RequestRoomEmail } from "@/emails/room-request";
 import { generateUUID } from "@/lib/utils";
@@ -29,6 +41,7 @@ import { RoomRequestStatus } from "@/constants/room-request-status";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
+import { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -49,25 +62,47 @@ export const classroomScheduleRouter = createTRPCRouter({
   getWeeklyClassroomSchedule: protectedProcedure
     .input(getWeeklyClassroomScheduleSchema)
     .query(async ({ input }) => {
-      const res = await getWeeklyClassroomSchedule(input.classroomId, input.startDate, input.endDate)
-        .then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      const res = await getWeeklyClassroomSchedule(
+        input.classroomId,
+        input.startDate,
+        input.endDate,
+      ).then((timeslots) => mergeAdjacentTimeslots(timeslots));
       return res;
     }),
   getWeeklyInitialClassroomSchedule: protectedProcedure
     .input(z.object({ classroomId: z.string() }))
     .query(async ({ input }) => {
-      return getWeeklyInitialClassroomSchedule(input.classroomId)
-        .then((timeslots) => mergeAdjacentInitialSchedules(timeslots));
+      return getWeeklyInitialClassroomSchedule(input.classroomId).then(
+        (timeslots) => mergeAdjacentInitialSchedules(timeslots),
+      );
     }),
   getAvailableClassrooms: protectedProcedure
     .input(getAvailableClassroomsSchema)
     .query(({ input }) => {
-      return getAvailableClassrooms(input.date, input.startTime, input.endTime, input.filters);
+      return getAvailableClassrooms(
+        input.date,
+        input.startTime,
+        input.endTime,
+        input.filters,
+      );
     }),
   getCurrentlyAvailableClassrooms: protectedProcedure
     .input(getCurrentlyAvailableClassroomsSchema)
     .query(async ({ input }) => {
-      return await getCurrentlyAvailableClassrooms(input.date, input.startBlock);
+      return await getCurrentlyAvailableClassrooms(
+        input.date,
+        input.startBlock,
+      );
+    }),
+  getProfessorSchedulesForDate: protectedProcedure
+    .input(getProfessorSchedulesForDateSchema)
+    .query(({ input }) => {
+      console.log(input);
+      const res = getProfessorSchedulesForDate(
+        input.facultyId,
+        input.date,
+      ).then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      return res;
     }),
   cancelClassroomBorrowing: protectedProcedure
     .input(cancelClassroomBorrowingSchema)
@@ -80,7 +115,10 @@ export const classroomScheduleRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         console.log("Received Request to Borrow Classroom: ", input);
-        const { id: roomRequestId } = await createRoomRequest({ id: generateUUID(), ...input });
+        const { id: roomRequestId } = await createRoomRequest({
+          id: generateUUID(),
+          ...input,
+        });
         console.log("Room Request ID: ", roomRequestId);
 
         const roomRequestRecord = await getRoomRequestById(roomRequestId);
@@ -104,7 +142,7 @@ export const classroomScheduleRouter = createTRPCRouter({
             section: roomRequestRecord?.section ?? "",
             requestorName: roomRequestRecord?.requestorName ?? "",
             respondUrl: `${env.NEXT_PUBLIC_APP_URL}/respond/${roomRequestId}`,
-          })
+          }),
         );
 
         const info = await transporter.sendMail({
@@ -136,7 +174,7 @@ export const classroomScheduleRouter = createTRPCRouter({
             classroomId: roomRequestRecord.classroomId,
             date: roomRequestRecord.date,
             startTime: roomRequestRecord.startTime,
-            endTime: roomRequestRecord.endTime
+            endTime: roomRequestRecord.endTime,
           });
           await createClassroomBorrowing({
             classroomId: roomRequestRecord.classroomId,
@@ -145,8 +183,8 @@ export const classroomScheduleRouter = createTRPCRouter({
             endTime: roomRequestRecord.endTime,
             facultyId: roomRequestRecord.requestorId,
             subject: roomRequestRecord.subject,
-            section: roomRequestRecord.section
-          })
+            section: roomRequestRecord.section,
+          });
         }
         await updateRoomRequestStatus(input.roomRequestId, input.status);
         await notifyRoomRequestor(input.roomRequestId);
@@ -154,12 +192,22 @@ export const classroomScheduleRouter = createTRPCRouter({
         return { info: "Room Request Responded", status: 200 };
       } catch (error) {
         console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not respond to room request" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not respond to room request",
+        });
       }
     }),
   getRoomRequestById: protectedProcedure
     .input(z.object({ roomRequestId: z.string() }))
     .query(async ({ input }) => {
       return getRoomRequestById(input.roomRequestId);
+    }),
+  getRoomRequestsByResponderId: protectedProcedure
+    .input(z.object({ responderId: z.string() }))
+    .query(async ({ input }) => {
+      const res = await getRoomRequestsByResponderId(input.responderId);
+      console.log(res);
+      return res;
     }),
 });
