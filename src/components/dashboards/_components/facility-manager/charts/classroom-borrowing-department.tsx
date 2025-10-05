@@ -98,7 +98,7 @@ export default function ClassroomBorrowingDeptChart() {
                   <Rectangle
                     {...props}
                     fillOpacity={0.9}
-                    stroke={props.payload.fill as string}
+                    stroke={(props.payload as { fill: string }).fill}
                     strokeDasharray={4}
                     strokeDashoffset={4}
                   />
