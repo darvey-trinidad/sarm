@@ -138,7 +138,7 @@ export default function CurrentAvailableRooms() {
                 </CardHeader>
                 <CardContent className="px-0">
                   <ScrollArea className="h-[400px] w-full">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                       {currentBuilding.classrooms.map((classroom) => (
                         <Card
                           key={classroom.classroomId}

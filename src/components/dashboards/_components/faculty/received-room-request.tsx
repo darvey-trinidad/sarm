@@ -30,7 +30,7 @@ export default function ReceivedRoomRequest() {
   };
   return (
     <Card className="w-full p-6 sm:w-[800px]">
-      <h3 className="text-xl font-medium">Room Request</h3>
+      <CardTitle className="text-md font-semibold">Room Request</CardTitle>
 
       <ScrollArea className="h-[330px]">
         <div className="space-y-4">
@@ -42,63 +42,43 @@ export default function ReceivedRoomRequest() {
             ReceivedRoomRequest?.map((request) => (
               <div key={request.id} className="w-full">
                 <Card className="border-border gap-2 px-4 transition-shadow hover:shadow-md">
-                  <div className="space-y-2">
-                    <CardHeader className="p-0">
-                      <div className="flex w-full items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-sky-300 bg-sky-200">
-                            <DoorOpen className="h-5 w-5 text-sky-800" />
-                          </div>
-                          <CardTitle className="text-md">
-                            {request.requestorName}
-                          </CardTitle>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="hidden md:block"
-                          onClick={() => handlOpenSchedule(request.id)}
-                        >
-                          View Request
-                        </Button>
+                  <CardHeader className="p-0">
+                    <div className="flex items-center gap-2">
+                      <div className="border-primary/30 bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg border">
+                        <DoorOpen className="text-primary h-5 w-5" />
                       </div>
-                    </CardHeader>
+                      <CardTitle className="text-md">
+                        {request.requestorName}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
 
-                    {/* Content Section */}
-                    <CardContent className="p-0">
-                      <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                          <span>{formatISODate(request.date)}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-gray-400" />
-                          <span>
-                            {`${TIME_MAP[toTimeInt(request.startTime)]}`} -{" "}
-                            {`${TIME_MAP[toTimeInt(request.endTime)]}`}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                          Room<span>{request.classroomName}</span>
-                        </div>
-                        {request.section && (
-                          <div className="flex items-center gap-1.5">
-                            <Users className="h-3.5 w-3.5 text-gray-400" />
-                            <span>{request.section}</span>
-                          </div>
-                        )}
+                  {/* Content Section */}
+                  <CardContent className="p-0">
+                    <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                        <span>{formatISODate(request.date)}</span>
                       </div>
-                    </CardContent>
-                  </div>
-                  <Button
-                    className="md:hidden"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlOpenSchedule(request.id)}
-                  >
-                    View Request
-                  </Button>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-gray-400" />
+                        <span>
+                          {`${TIME_MAP[toTimeInt(request.startTime)]}`} -{" "}
+                          {`${TIME_MAP[toTimeInt(request.endTime)]}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                        Room<span>{request.classroomName}</span>
+                      </div>
+                      {request.section && (
+                        <div className="flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-gray-400" />
+                          <span>{request.section}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
                 </Card>
               </div>
             ))

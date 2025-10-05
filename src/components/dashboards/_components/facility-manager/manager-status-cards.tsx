@@ -11,7 +11,7 @@ export default function FacilityManagerStatusCards() {
       {/* Pending Reservations */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-bold">
+          <CardTitle className="text-md font-semibold">
             Pending Reservations
           </CardTitle>
           <CalendarCheck className="text-primary h-5 w-5" />
@@ -24,7 +24,7 @@ export default function FacilityManagerStatusCards() {
       {/* Pending Borrowings */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-bold">
+          <CardTitle className="text-md font-semibold">
             Pending Borrowings
           </CardTitle>
           <Package className="text-primary h-5 w-5" />
@@ -37,11 +37,44 @@ export default function FacilityManagerStatusCards() {
       {/* Unresolved Issues */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-bold">Unresolved Issues</CardTitle>
+          <CardTitle className="text-md font-semibold">
+            Unresolved Issues
+          </CardTitle>
           <CircleAlert className="text-primary h-5 w-5" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{issues}</div>
+        </CardContent>
+      </Card>
+
+      {/* TO FOLLOW */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-md font-semibold">EMPTY</CardTitle>
+          <CalendarCheck className="text-primary h-5 w-5" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{"EMPTY"}</div>
+        </CardContent>
+      </Card>
+      {/* TO FOLLOW */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-md font-semibold">EMPTY</CardTitle>
+          <CalendarCheck className="text-primary h-5 w-5" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{"EMPTY"}</div>
+        </CardContent>
+      </Card>
+      {/* TO FOLLOW */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-md font-semibold">EMPTY</CardTitle>
+          <CalendarCheck className="text-primary h-5 w-5" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold"> {"EMPTY"}</div>
         </CardContent>
       </Card>
     </div>
