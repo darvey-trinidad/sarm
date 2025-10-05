@@ -287,8 +287,8 @@ export type ChartRow = { month: string } & Record<string, number>;
 export async function getVenueReservationPastMonthsStats() {
   const now = new Date();
 
-  // Compute start of 12-month window (inclusive)
-  const start = new Date(now.getFullYear(), now.getMonth() - 11, 1, 0, 0, 0, 0);
+  // Compute start of 6-month window (inclusive)
+  const start = new Date(now.getFullYear(), now.getMonth() - 5, 1, 0, 0, 0, 0);
 
   // Load reservations within window (with venue names)
   const reservations = await db
@@ -311,10 +311,10 @@ export async function getVenueReservationPastMonthsStats() {
     return [];
   }
 
-  // Build 12-month buckets
+  // Build 6-month buckets
   const months: { key: string; label: string; counts: Record<string, number> }[] = [];
 
-  for (let i = 11; i >= 0; i--) {
+  for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = `${d.getFullYear()}-${d.getMonth()}`;
     const label = d.toLocaleString("en-US", { month: "long" });
