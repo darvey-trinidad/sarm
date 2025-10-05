@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { useMemo } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { api } from "@/trpc/react";
@@ -8,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,6 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { ChartSkeleton } from "../../skeletons/received-room-skeleton";
 
 export default function VenueBorrowingChart() {
   const { data: venueData, isLoading } =
@@ -43,54 +42,52 @@ export default function VenueBorrowingChart() {
     );
   }, [venueData]);
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent>Loading chart...</CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Venue Reservation Statistics</CardTitle>
         <CardDescription>Monthly request count per venue.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
-          <AreaChart
-            accessibilityLayer
-            data={venueData ?? []}
-            margin={{ left: 12, right: 12 }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            {Object.entries(chartConfig).map(([venue, cfg]) => (
-              <Area
-                key={venue}
-                dataKey={venue}
-                type="natural"
-                fill={cfg.color}
-                fillOpacity={0.4}
-                stroke={cfg.color}
-                stackId="a"
+      {isLoading ? (
+        <CardContent>
+          <ChartSkeleton />
+        </CardContent>
+      ) : (
+        <CardContent>
+          <ChartContainer config={chartConfig}>
+            <AreaChart
+              accessibilityLayer
+              data={venueData ?? []}
+              margin={{ left: 12, right: 12 }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
               />
-            ))}
-            <ChartLegend content={<ChartLegendContent />} />
-          </AreaChart>
-        </ChartContainer>
-      </CardContent>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              {Object.entries(chartConfig).map(([venue, cfg]) => (
+                <Area
+                  key={venue}
+                  dataKey={venue}
+                  type="natural"
+                  fill={cfg.color}
+                  fillOpacity={0.4}
+                  stroke={cfg.color}
+                  stackId="a"
+                />
+              ))}
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
+          </ChartContainer>
+        </CardContent>
+      )}
     </Card>
   );
 }
