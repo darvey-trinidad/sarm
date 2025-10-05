@@ -282,6 +282,72 @@ export const checkVenueReservationConflicts = async (newReservation: VenueReserv
   }
 }
 
+export type ChartRow = { month: string } & Record<string, number>;
+
+export async function getVenueReservationPastMonthsStats() {
+  const now = new Date();
+
+  // Compute start of 12-month window (inclusive)
+  const start = new Date(now.getFullYear(), now.getMonth() - 11, 1, 0, 0, 0, 0);
+
+  // Load reservations within window (with venue names)
+  const reservations = await db
+    .select({
+      venueName: venue.name,
+      date: venueReservation.date,
+    })
+    .from(venueReservation)
+    .where(gte(venueReservation.date, start))
+    .innerJoin(venue, eq(venue.id, venueReservation.venueId))
+    .all();
+
+  // ✅ Determine which venues to include (only those with ≥1 reservation in past 12 months)
+  const activeVenueNames = Array.from(
+    new Set(reservations.map((r) => r.venueName as string))
+  );
+
+  // If no reservations at all, return empty stats
+  if (activeVenueNames.length === 0) {
+    return [];
+  }
+
+  // Build 12-month buckets
+  const months: { key: string; label: string; counts: Record<string, number> }[] = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const label = d.toLocaleString("en-US", { month: "long" });
+
+    months.push({
+      key,
+      label,
+      counts: activeVenueNames.reduce<Record<string, number>>((acc, name) => {
+        acc[name] = 0;
+        return acc;
+      }, {}),
+    });
+  }
+
+  // Fill counts
+  for (const r of reservations) {
+    const d = r.date;
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const bucket = months.find((m) => m.key === key);
+    if (bucket) {
+      const name = r.venueName as string;
+      bucket.counts[name] = (bucket.counts[name] || 0) + 1;
+    }
+  }
+
+  // Convert to ChartRow[]
+  return months.map((m) => ({
+    month: m.label,
+    ...m.counts,
+  }));
+}
+
+
 // types
 type BorrowedItem = {
   id: string;
