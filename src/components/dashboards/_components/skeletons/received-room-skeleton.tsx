@@ -36,5 +36,5 @@ export const AvailableRoomSkeleton = () => {
 };
 
 export const ChartSkeleton = () => {
-  return <Skeleton className="h-42 w-full" />;
+  return <Skeleton className="h-80 w-full" />;
 };

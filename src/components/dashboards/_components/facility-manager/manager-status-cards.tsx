@@ -2,6 +2,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { CalendarCheck, Package, CircleAlert } from "lucide-react";
 import VenueBorrowingChart from "./charts/venue-borrowing-chart";
+import RoomRequestPerDeptChart from "./charts/room-request-per-dept";
 
 export default function FacilityManagerStatusCards() {
   const reservations = 12;
@@ -49,7 +50,10 @@ export default function FacilityManagerStatusCards() {
       </Card>
 
       {/* Area Chart */}
-      <VenueBorrowingChart />
+      <div className="grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-2">
+        <VenueBorrowingChart />
+        <RoomRequestPerDeptChart />
+      </div>
     </div>
   );
 }
