@@ -12,7 +12,10 @@ import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { TIME_MAP } from "@/constants/timeslot";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
-import { ReservationStatus } from "@/constants/reservation-status";
+import {
+  RESERVATION_STATUS_OPTIONS,
+  ReservationStatus,
+} from "@/constants/reservation-status";
 import {
   Select,
   SelectContent,
@@ -35,13 +38,12 @@ import {
   Search,
   CheckCircle,
   XCircle,
-  AlertCircle,
-  CircleOff,
   Package,
 } from "lucide-react";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorVenue, getStatusIconVenue } from "../icon-status";
+
 export default function VenueReservation() {
   const [selectedVenue, setSelectedVenue] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -253,30 +255,11 @@ export default function VenueReservation() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-yellow-600" />
-                    Pending
-                  </div>
-                </SelectItem>
-                <SelectItem value="approved">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    Approved
-                  </div>
-                </SelectItem>
-                <SelectItem value="rejected">
-                  <div className="flex items-center gap-2">
-                    <XCircle className="h-4 w-4 text-red-600" />
-                    Rejected
-                  </div>
-                </SelectItem>
-                <SelectItem value="canceled">
-                  <div className="flex items-center gap-2">
-                    <CircleOff className="h-4 w-4 text-orange-600" />
-                    Canceled
-                  </div>
-                </SelectItem>
+                {RESERVATION_STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -434,12 +417,11 @@ export default function VenueReservation() {
                     {reservation.status === "pending" && (
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
                           size="sm"
                           onClick={() =>
                             handleReject(reservation.venueReservationId)
                           }
-                          className="border-red-200 text-red-600 hover:bg-red-50"
+                          className="bg-red-600 text-white hover:bg-red-700"
                         >
                           <XCircle className="h-4 w-4" />
                           Reject
@@ -459,12 +441,11 @@ export default function VenueReservation() {
 
                     {reservation.status === "approved" && (
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() =>
                           handleCancel(reservation.venueReservationId)
                         }
-                        className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                        className="bg-orange-600 text-white hover:bg-orange-700"
                       >
                         <XCircle className="h-4 w-4" />
                         Cancel
