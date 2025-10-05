@@ -1,6 +1,7 @@
 "use client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { CalendarCheck, Package, CircleAlert } from "lucide-react";
+import VenueBorrowingChart from "./charts/venue-borrowing-chart";
 
 export default function FacilityManagerStatusCards() {
   const reservations = 12;
@@ -47,36 +48,8 @@ export default function FacilityManagerStatusCards() {
         </CardContent>
       </Card>
 
-      {/* TO FOLLOW */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-md font-semibold">EMPTY</CardTitle>
-          <CalendarCheck className="text-primary h-5 w-5" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{"EMPTY"}</div>
-        </CardContent>
-      </Card>
-      {/* TO FOLLOW */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-md font-semibold">EMPTY</CardTitle>
-          <CalendarCheck className="text-primary h-5 w-5" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{"EMPTY"}</div>
-        </CardContent>
-      </Card>
-      {/* TO FOLLOW */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-md font-semibold">EMPTY</CardTitle>
-          <CalendarCheck className="text-primary h-5 w-5" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold"> {"EMPTY"}</div>
-        </CardContent>
-      </Card>
+      {/* Area Chart */}
+      <VenueBorrowingChart />
     </div>
   );
 }
