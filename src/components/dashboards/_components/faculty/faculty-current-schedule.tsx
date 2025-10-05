@@ -48,7 +48,7 @@ export default function FacultyCurrentSchedule() {
     endTime: string,
     date: Date,
   ) => {
-    await createClassroomVacancy(
+    createClassroomVacancy(
       {
         classroomId,
         startTime,
