@@ -46,8 +46,8 @@ export default function ReceivedRoomRequest() {
                     <CardHeader className="p-0">
                       <div className="flex w-full items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-sky-300 bg-sky-200">
-                            <DoorOpen className="h-5 w-5 text-sky-800" />
+                          <div className="border-primary/30 bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg border">
+                            <DoorOpen className="text-primary h-5 w-5" />
                           </div>
                           <CardTitle className="text-md">
                             {request.requestorName}
