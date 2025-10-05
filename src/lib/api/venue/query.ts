@@ -303,7 +303,7 @@ export async function getVenueReservationPastMonthsStats() {
 
   // ✅ Determine which venues to include (only those with ≥1 reservation in past 12 months)
   const activeVenueNames = Array.from(
-    new Set(reservations.map((r) => r.venueName as string))
+    new Set(reservations.map((r) => r.venueName))
   );
 
   // If no reservations at all, return empty stats
@@ -335,8 +335,8 @@ export async function getVenueReservationPastMonthsStats() {
     const key = `${d.getFullYear()}-${d.getMonth()}`;
     const bucket = months.find((m) => m.key === key);
     if (bucket) {
-      const name = r.venueName as string;
-      bucket.counts[name] = (bucket.counts[name] || 0) + 1;
+      const name = r.venueName;
+      bucket.counts[name] = (bucket.counts[name] ?? 0) + 1;
     }
   }
 
