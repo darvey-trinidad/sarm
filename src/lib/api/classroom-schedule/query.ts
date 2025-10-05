@@ -1,4 +1,4 @@
-import { db, and, eq, inArray, gte, lte, asc } from "@/server/db";
+import { db, and, eq, inArray, gte, lte, asc, sql } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
@@ -1013,3 +1013,37 @@ export const getCurrentlyAvailableClassrooms = async (
     throw new Error("Could not fetch current availability");
   }
 };
+
+export async function getRoomRequestStatsPerDepartment() {
+  const now = new Date();
+
+  // Start of current month
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+
+  // Start of next month (exclusive upper bound)
+  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+
+  const results = await db
+    .select({
+      department: user.departmentOrOrganization,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(roomRequests)
+    .innerJoin(user, eq(roomRequests.requesterId, user.id))
+    .where(
+      and(
+        gte(roomRequests.date, monthStart),
+        lte(roomRequests.date, nextMonthStart)
+      )
+    )
+    .groupBy(user.departmentOrOrganization);
+
+  // Filter out null departments (if any users didn't have one)
+  return results
+    .filter((r) => r.department !== null)
+    .map((r) => ({
+      department: r.department as string,
+      requests: Number(r.count),
+    }))
+    .sort((a, b) => b.requests - a.requests); // Optional: sort descending
+}

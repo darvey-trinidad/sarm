@@ -25,6 +25,7 @@ import {
   getProfessorSchedulesForDate,
   getRoomRequestById,
   getRoomRequestsByResponderId,
+  getRoomRequestStatsPerDepartment,
   getWeeklyClassroomSchedule,
   getWeeklyInitialClassroomSchedule,
 } from "@/lib/api/classroom-schedule/query";
@@ -41,7 +42,6 @@ import { RoomRequestStatus } from "@/constants/room-request-status";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
-import { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -210,4 +210,7 @@ export const classroomScheduleRouter = createTRPCRouter({
       console.log(res);
       return res;
     }),
+  getRoomRequestStatsByDepartment: protectedProcedure.query(async () => {
+    return getRoomRequestStatsPerDepartment();
+  })
 });
