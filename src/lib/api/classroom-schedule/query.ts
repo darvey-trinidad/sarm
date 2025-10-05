@@ -11,6 +11,7 @@ import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
 import type { ClassroomType } from "@/constants/classroom-type";
 import { RoomRequestStatus } from "@/constants/room-request-status";
+import type { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
@@ -1042,8 +1043,42 @@ export async function getRoomRequestStatsPerDepartment() {
   return results
     .filter((r) => r.department !== null)
     .map((r) => ({
-      department: r.department as string,
-      requests: Number(r.count),
+      department: r.department,
+      requests: r.count,
+    }))
+    .sort((a, b) => b.requests - a.requests); // Optional: sort descending
+}
+
+export async function getRoomRequestStatsPerClassroomType() {
+  const now = new Date();
+
+  // Start of current month
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+
+  // Start of next month (exclusive upper bound)
+  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+
+  const results = await db
+    .select({
+      classroomType: classroom.type,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(roomRequests)
+    .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
+    .where(
+      and(
+        gte(roomRequests.date, monthStart),
+        lte(roomRequests.date, nextMonthStart)
+      )
+    )
+    .groupBy(classroom.type);
+
+  // Filter out null departments (if any users didn't have one)
+  return results
+    .filter((r) => r.classroomType !== null)
+    .map((r) => ({
+      classroomType: r.classroomType,
+      requests: r.count,
     }))
     .sort((a, b) => b.requests - a.requests); // Optional: sort descending
 }

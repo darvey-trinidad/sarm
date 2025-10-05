@@ -25,6 +25,7 @@ import {
   getProfessorSchedulesForDate,
   getRoomRequestById,
   getRoomRequestsByResponderId,
+  getRoomRequestStatsPerClassroomType,
   getRoomRequestStatsPerDepartment,
   getWeeklyClassroomSchedule,
   getWeeklyInitialClassroomSchedule,
@@ -212,5 +213,8 @@ export const classroomScheduleRouter = createTRPCRouter({
     }),
   getRoomRequestStatsByDepartment: protectedProcedure.query(async () => {
     return getRoomRequestStatsPerDepartment();
+  }),
+  getRoomRequestStatsPerClassroomType: protectedProcedure.query(async () => {
+    return getRoomRequestStatsPerClassroomType();
   })
 });
