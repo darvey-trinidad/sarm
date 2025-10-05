@@ -102,7 +102,7 @@ export default function RoomRequestPerClassroomTypeChart() {
                             </tspan>
                             <tspan
                               x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 20}
+                              y={(viewBox.cy ?? 0) + 20}
                               className="fill-muted-foreground text-sm sm:text-base"
                             >
                               Requests
