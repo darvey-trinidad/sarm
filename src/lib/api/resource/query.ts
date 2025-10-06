@@ -1,5 +1,5 @@
 import type { TimeInt } from "@/constants/timeslot";
-import { db, eq, sql, and, inArray, lte, gte, asc, desc } from "@/server/db";
+import { db, eq, sql, and, inArray, lte, gte, asc, desc, or } from "@/server/db";
 import {
   resource,
   resourceBorrowing,
@@ -180,14 +180,19 @@ export const getAllBorrowingTransactions = async ({
   }
 };
 
-export const getUpcomingBorrowingTransactions = async () => {
+export const getUpcomingBorrowingTransactions = async (borrowerId?: string, approvedOnly = true) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
-    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
-    console.log("raw now: ", now);
-    console.log("midnightPH: ", midnightPH);
+    const conditions = [];
+    conditions.push(gte(borrowingTransaction.dateBorrowed, midnightPH));
+
+    if (approvedOnly) conditions.push(eq(borrowingTransaction.status, BorrowingStatus.Approved))
+    else conditions.push(or(eq(venueReservation.status, BorrowingStatus.Approved), eq(venueReservation.status, BorrowingStatus.Pending)));
+
+    if (borrowerId) conditions.push(eq(borrowingTransaction.borrowerId, borrowerId));
 
     const rows = await db
       .select({
@@ -220,10 +225,7 @@ export const getUpcomingBorrowingTransactions = async () => {
       )
       .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
       .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
-      .where(and(
-        eq(borrowingTransaction.status, BorrowingStatus.Approved),
-        gte(borrowingTransaction.dateBorrowed, midnightPH),
-      ))
+      .where(and(...conditions))
       .orderBy(asc(borrowingTransaction.dateBorrowed), asc(borrowingTransaction.startTime))
       .all();
 

@@ -72,6 +72,11 @@ export const resourceRouter = createTRPCRouter({
   getUpcomingBorrowingTransactions: protectedProcedure.query(async () => {
     return await getUpcomingBorrowingTransactions();
   }),
+  getUpcomingBorrowingTransactionsByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      return await getUpcomingBorrowingTransactions(input.userId, false);
+    }),
   editBorrowingTransaction: protectedProcedure
     .input(editBorrowingTransactionSchema)
     .mutation(async ({ input }) => {
