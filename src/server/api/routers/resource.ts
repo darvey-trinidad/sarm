@@ -1,8 +1,27 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { generateUUID, toTimeInt } from "@/lib/utils";
-import { createResource, addResourceQuantity, createResourceBorrowing, createBorrowingTransaction, editBorrowingTransaction } from "@/lib/api/resource/mutation";
-import { createResourceSchema, addResourceQuantitySchema, getAllAvailableResourcesSchema, createBorrowingTransactionSchema, editBorrowingTransactionSchema, getAllBorrowingTransactionsSchema } from "@/server/api-utils/validators/resource";
-import { getAllAvailableResources, getAllBorrowingTransactions, getAllBorrowingTransactionsByUserId, getAllResources, getUpcomingBorrowingTransactions } from "@/lib/api/resource/query";
+import {
+  createResource,
+  addResourceQuantity,
+  createResourceBorrowing,
+  createBorrowingTransaction,
+  editBorrowingTransaction,
+} from "@/lib/api/resource/mutation";
+import {
+  createResourceSchema,
+  addResourceQuantitySchema,
+  getAllAvailableResourcesSchema,
+  createBorrowingTransactionSchema,
+  editBorrowingTransactionSchema,
+  getAllBorrowingTransactionsSchema,
+} from "@/server/api-utils/validators/resource";
+import {
+  getAllAvailableResources,
+  getAllBorrowingTransactions,
+  getAllBorrowingTransactionsByUserId,
+  getAllResources,
+  getUpcomingBorrowingTransactions,
+} from "@/lib/api/resource/query";
 import { TRPCError } from "@trpc/server";
 import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 import { notifyFmBorrowing } from "@/emails/notify-fm-borrowing";
@@ -25,28 +44,43 @@ export const resourceRouter = createTRPCRouter({
   getAllAvailableResources: protectedProcedure
     .input(getAllAvailableResourcesSchema)
     .query(async ({ input }) => {
-      const res = await getAllAvailableResources(input.requestedDate, toTimeInt(input.requestedStartTime), toTimeInt(input.requestedEndTime));
+      const res = await getAllAvailableResources(
+        input.requestedDate,
+        toTimeInt(input.requestedStartTime),
+        toTimeInt(input.requestedEndTime),
+      );
       return res;
     }),
   createResourceBorrowing: protectedProcedure
     .input(createBorrowingTransactionSchema)
     .mutation(async ({ input }) => {
       const { itemsBorrowed, ...borrowingTransactionDetails } = input;
-      const borrowingTransaction = await createBorrowingTransaction({ id: generateUUID(), ...borrowingTransactionDetails });
+      const borrowingTransaction = await createBorrowingTransaction({
+        id: generateUUID(),
+        ...borrowingTransactionDetails,
+      });
 
-      if (!borrowingTransaction) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create borrowing transaction" });
+      if (!borrowingTransaction)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not create borrowing transaction",
+        });
 
       const borrowings = itemsBorrowed.map((item) => {
         return {
           id: generateUUID(),
           ...item,
-          transactionId: borrowingTransaction.id
+          transactionId: borrowingTransaction.id,
         };
       });
 
       const createdBorrowings = await createResourceBorrowing(borrowings);
 
-      if (!createdBorrowings) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create resource borrowings" });
+      if (!createdBorrowings)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not create resource borrowings",
+        });
 
       await notifyFmBorrowing(borrowingTransaction.id);
 
@@ -55,9 +89,9 @@ export const resourceRouter = createTRPCRouter({
         message: "Borrowing transaction created successfully",
         data: {
           borrowingTransaction,
-          borrowings: createdBorrowings
-        }
-      }
+          borrowings: createdBorrowings,
+        },
+      };
     }),
   getAllBorrowingTransactions: protectedProcedure
     .input(getAllBorrowingTransactionsSchema)
@@ -72,6 +106,13 @@ export const resourceRouter = createTRPCRouter({
   getUpcomingBorrowingTransactions: protectedProcedure.query(async () => {
     return await getUpcomingBorrowingTransactions();
   }),
+  getUpcomingBorrowingTransactionsByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      const res = await getUpcomingBorrowingTransactions(input.userId, false);
+      console.log("RES: ", res);
+      return res;
+    }),
   editBorrowingTransaction: protectedProcedure
     .input(editBorrowingTransactionSchema)
     .mutation(async ({ input }) => {
@@ -79,14 +120,20 @@ export const resourceRouter = createTRPCRouter({
         const { id, ...data } = input;
         const editedBorrowing = await editBorrowingTransaction(id, data);
 
-        if (editedBorrowing?.status === "approved" || editedBorrowing?.status === "rejected") {
+        if (
+          editedBorrowing?.status === "approved" ||
+          editedBorrowing?.status === "rejected"
+        ) {
           await notifyResourceBorrower(editedBorrowing.id);
         }
 
         return editedBorrowing;
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update borrowing transaction status" });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not update borrowing transaction status",
+        });
       }
     }),
 });

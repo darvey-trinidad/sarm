@@ -224,11 +224,8 @@ export default function FindRoomContent() {
           <div className="space-y-6">
             {availableClassrooms.map((building) => (
               <div key={building.buildingId}>
-                <Card
-                  key={building.buildingId}
-                  className="gap-2 border-none shadow-none"
-                >
-                  <CardHeader className="px-0">
+                <Card key={building.buildingId} className="gap-2">
+                  <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
@@ -241,12 +238,12 @@ export default function FindRoomContent() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="px-0">
+                  <CardContent>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {building.classrooms.map((classroom) => (
                         <Card
                           key={classroom.classroomId}
-                          className="border-border transition-shadow hover:shadow-md"
+                          className="border-none bg-stone-50 shadow-none"
                         >
                           <CardContent className="p-4">
                             <div className="space-y-3">

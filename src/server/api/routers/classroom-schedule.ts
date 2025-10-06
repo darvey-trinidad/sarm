@@ -102,7 +102,15 @@ export const classroomScheduleRouter = createTRPCRouter({
       const res = getProfessorSchedulesForDate(
         input.facultyId,
         input.date,
-      ).then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      ).then((slots) => {
+        // ✅ Sort so same-room schedules stick together
+        slots.sort((a, b) => {
+          if (a.classroomId !== b.classroomId) return a.classroomId.localeCompare(b.classroomId);
+          return a.startTime - b.startTime;
+        });
+
+        return mergeAdjacentTimeslots(slots);
+      });
       return res;
     }),
   cancelClassroomBorrowing: protectedProcedure

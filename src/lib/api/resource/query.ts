@@ -1,12 +1,26 @@
 import type { TimeInt } from "@/constants/timeslot";
-import { db, eq, sql, and, inArray, lte, gte, asc, desc } from "@/server/db";
+import {
+  db,
+  eq,
+  sql,
+  and,
+  inArray,
+  lte,
+  gte,
+  asc,
+  desc,
+  or,
+} from "@/server/db";
 import {
   resource,
   resourceBorrowing,
   borrowingTransaction,
 } from "@/server/db/schema/resource";
 import { user } from "@/server/db/schema/auth";
-import { BORROWING_STATUS, BorrowingStatus } from "@/constants/borrowing-status";
+import {
+  BORROWING_STATUS,
+  BorrowingStatus,
+} from "@/constants/borrowing-status";
 import { venueReservation } from "@/server/db/schema/venue";
 
 export const getAllResources = async () => {
@@ -131,7 +145,10 @@ export const getAllBorrowingTransactions = async ({
         eq(resourceBorrowing.transactionId, borrowingTransaction.id),
       )
       .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
-      .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
+      .leftJoin(
+        venueReservation,
+        eq(borrowingTransaction.venueReservationId, venueReservation.id),
+      )
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(borrowingTransaction.dateRequested))
       .all();
@@ -180,14 +197,34 @@ export const getAllBorrowingTransactions = async ({
   }
 };
 
-export const getUpcomingBorrowingTransactions = async () => {
+export const getUpcomingBorrowingTransactions = async (
+  borrowerId?: string,
+  approvedOnly = true,
+) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
-    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    const midnightPH = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
 
-    console.log("raw now: ", now);
-    console.log("midnightPH: ", midnightPH);
+    const conditions = [];
+    conditions.push(gte(borrowingTransaction.dateBorrowed, midnightPH));
+
+    if (approvedOnly)
+      conditions.push(
+        eq(borrowingTransaction.status, BorrowingStatus.Approved),
+      );
+    else
+      conditions.push(
+        or(
+          eq(borrowingTransaction.status, BorrowingStatus.Approved),
+          eq(borrowingTransaction.status, BorrowingStatus.Pending),
+        ),
+      );
+
+    if (borrowerId)
+      conditions.push(eq(borrowingTransaction.borrowerId, borrowerId));
 
     const rows = await db
       .select({
@@ -219,12 +256,15 @@ export const getUpcomingBorrowingTransactions = async () => {
         eq(resourceBorrowing.transactionId, borrowingTransaction.id),
       )
       .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
-      .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
-      .where(and(
-        eq(borrowingTransaction.status, BorrowingStatus.Approved),
-        gte(borrowingTransaction.dateBorrowed, midnightPH),
-      ))
-      .orderBy(asc(borrowingTransaction.dateBorrowed), asc(borrowingTransaction.startTime))
+      .leftJoin(
+        venueReservation,
+        eq(borrowingTransaction.venueReservationId, venueReservation.id),
+      )
+      .where(and(...conditions))
+      .orderBy(
+        asc(borrowingTransaction.dateBorrowed),
+        asc(borrowingTransaction.startTime),
+      )
       .all();
 
     // ---- Group by transactionId ----
@@ -268,7 +308,7 @@ export const getUpcomingBorrowingTransactions = async () => {
     console.error(error);
     throw error;
   }
-}
+};
 
 export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
   try {
@@ -302,7 +342,10 @@ export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
         eq(resourceBorrowing.transactionId, borrowingTransaction.id),
       )
       .leftJoin(resource, eq(resourceBorrowing.resourceId, resource.id))
-      .leftJoin(venueReservation, eq(borrowingTransaction.venueReservationId, venueReservation.id))
+      .leftJoin(
+        venueReservation,
+        eq(borrowingTransaction.venueReservationId, venueReservation.id),
+      )
       .where(eq(borrowingTransaction.borrowerId, userId))
       .orderBy(desc(borrowingTransaction.dateRequested))
       .all();
@@ -349,7 +392,7 @@ export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
     console.error(error);
     throw error;
   }
-}
+};
 
 type BorrowedItems = {
   id: string;

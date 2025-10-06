@@ -1,4 +1,4 @@
-import { db, eq, and, desc, asc, gte, lte } from "@/server/db";
+import { db, eq, and, desc, asc, gte, lte, or } from "@/server/db";
 import { venue, venueReservation } from "@/server/db/schema/venue";
 import { user } from "@/server/db/schema/auth";
 import { ReservationStatus } from "@/constants/reservation-status";
@@ -207,11 +207,18 @@ export const getAllVenueReservationsByUserId = async (userId: string) => {
   }
 }
 
-export const getAllUpcomingVenueReservations = async () => {
+export const getAllUpcomingVenueReservations = async (reserverId?: string, approvedOnly = true) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
-    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+    const conditions = [];
+    conditions.push(gte(venueReservation.date, midnightPH));
+
+    if (approvedOnly) conditions.push(eq(venueReservation.status, ReservationStatus.Approved))
+    else conditions.push(or(eq(venueReservation.status, ReservationStatus.Approved), eq(venueReservation.status, ReservationStatus.Pending)));
+    if (reserverId) conditions.push(eq(venueReservation.reserverId, reserverId));
 
     return await db
       .select({
@@ -232,10 +239,7 @@ export const getAllUpcomingVenueReservations = async () => {
       .from(venueReservation)
       .innerJoin(venue, eq(venueReservation.venueId, venue.id))
       .innerJoin(user, eq(venueReservation.reserverId, user.id))
-      .where(and(
-        eq(venueReservation.status, ReservationStatus.Approved),
-        gte(venueReservation.date, midnightPH),
-      ))
+      .where(and(...conditions))
       .orderBy(asc(venueReservation.date), asc(venueReservation.startTime))
       .limit(5)
       .all();

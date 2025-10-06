@@ -72,6 +72,24 @@ export const NoUpcomingVenueReservations = () => {
   );
 };
 
+export const UserNoVenueReservations = () => {
+  return (
+    <Card className="border-none shadow-none">
+      <CardContent className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <MapPinX className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+          <h3 className="text-foreground text-lg font-semibold">
+            No Venue Reservations
+          </h3>
+          <p className="text-muted-foreground">
+            You have not made any venue reservations yet.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export const NoUpcomingResourceBorrowing = () => {
   return (
     <Card className="border-none shadow-none">
@@ -83,6 +101,24 @@ export const NoUpcomingResourceBorrowing = () => {
           </h3>
           <p className="text-muted-foreground">
             There are no upcoming resource borrowings at the moment.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export const UserNoResourceBorrowings = () => {
+  return (
+    <Card className="border-none shadow-none">
+      <CardContent className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <PackageX className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+          <h3 className="text-foreground text-lg font-semibold">
+            No Resource Borrowings
+          </h3>
+          <p className="text-muted-foreground">
+            You have not made any resource borrowings yet.
           </p>
         </div>
       </CardContent>
