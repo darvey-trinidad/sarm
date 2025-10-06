@@ -1,4 +1,4 @@
-import { db, desc, eq, gte, lte, and } from "@/server/db";
+import { db, desc, eq, gte, lte, and, count } from "@/server/db";
 import { facilityIssueReport } from "@/server/db/schema/facility-issue-report";
 import { user } from "@/server/db/schema/auth";
 import { building, classroom } from "@/server/db/schema/classroom";
@@ -118,6 +118,21 @@ export const getRecentFacilityIssueReports = async () => {
       .orderBy(desc(facilityIssueReport.dateReported))
       .limit(5)
       .all();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const getUnresolvedReportsCount = async () => {
+  try {
+    const res = await db
+      .select({ count: count(facilityIssueReport.id) })
+      .from(facilityIssueReport)
+      .where(eq(facilityIssueReport.status, ReportStatusValues.Reported))
+      .get();
+
+    return res?.count ?? 0;
   } catch (error) {
     console.error(error);
     throw error;

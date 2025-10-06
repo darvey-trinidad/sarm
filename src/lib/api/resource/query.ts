@@ -10,6 +10,7 @@ import {
   asc,
   desc,
   or,
+  count,
 } from "@/server/db";
 import {
   resource,
@@ -419,3 +420,23 @@ type BorrowingTransaction = {
   venueReservationStatus: string | null;
   borrowedItems: BorrowedItems[];
 };
+
+
+/*
+** COUNT
+*/
+
+export const getPendingBorrowingTransactionsCount = async () => {
+  try {
+    const res = await db
+      .select({ count: count(borrowingTransaction.id) })
+      .from(borrowingTransaction)
+      .where(eq(borrowingTransaction.status, BorrowingStatus.Pending))
+      .get();
+
+    return res?.count ?? 0;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

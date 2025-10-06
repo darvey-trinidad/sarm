@@ -4,11 +4,21 @@ import { CalendarCheck, Package, CircleAlert } from "lucide-react";
 import VenueBorrowingChart from "./charts/venue-borrowing-chart";
 import RoomRequestPerDeptChart from "./charts/classroom-type-pie-chart";
 import ClassroomBorrowingDeptChart from "./charts/classroom-borrowing-department";
+import { api } from "@/trpc/react";
 
 export default function FacilityManagerStatusCards() {
-  const reservations = 12;
-  const borrowings = 2;
-  const issues = 8;
+  const { data: reservationBorrowingIssueCounts, isLoading } = api.stats.getReservationBorrowingIssueCounts.useQuery();
+
+  const {
+    unresolvedReportsCount,
+    pendingBorrowingTransactionsCount,
+    pendingVenueReservationsCount
+  } = reservationBorrowingIssueCounts ?? {
+    unresolvedReportsCount: 0,
+    pendingBorrowingTransactionsCount: 0,
+    pendingVenueReservationsCount: 0,
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {/* Pending Reservations */}
@@ -20,7 +30,7 @@ export default function FacilityManagerStatusCards() {
           <CalendarCheck className="text-primary h-5 w-5" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{reservations}</div>
+          <div className="text-2xl font-bold">{isLoading ? "..." : pendingVenueReservationsCount}</div>
         </CardContent>
       </Card>
 
@@ -33,7 +43,7 @@ export default function FacilityManagerStatusCards() {
           <Package className="text-primary h-5 w-5" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{borrowings}</div>
+          <div className="text-2xl font-bold">{isLoading ? "..." : pendingBorrowingTransactionsCount}</div>
         </CardContent>
       </Card>
 
@@ -46,7 +56,7 @@ export default function FacilityManagerStatusCards() {
           <CircleAlert className="text-primary h-5 w-5" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{issues}</div>
+          <div className="text-2xl font-bold">{isLoading ? "..." : unresolvedReportsCount}</div>
         </CardContent>
       </Card>
 
