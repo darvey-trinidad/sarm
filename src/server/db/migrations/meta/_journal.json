@@ -57,6 +57,13 @@
       "when": 1758779056998,
       "tag": "0007_perfect_smiling_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1759723987689,
+      "tag": "0008_loud_shiver_man",
+      "breakpoints": true
     }
   ]
 }

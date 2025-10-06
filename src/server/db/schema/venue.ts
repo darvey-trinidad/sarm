@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { user } from "@/server/db/schema/auth";
 
 import { USABILITY, DEFAULT_USABILITY } from "@/constants/usability";
@@ -30,4 +30,9 @@ export const venueReservation = sqliteTable("venue_reservation", {
 
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
-});
+}, (table) => ({
+  venueIdx: index("venue_res_venue_idx").on(table.venueId),
+  reserverIdx: index("venue_res_reserver_idx").on(table.reserverId),
+  statusDateIdx: index("venue_res_status_date_idx").on(table.status, table.date),
+  dateIdx: index("venue_res_date_idx").on(table.date),
+}));
