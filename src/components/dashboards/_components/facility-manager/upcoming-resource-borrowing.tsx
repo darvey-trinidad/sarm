@@ -40,7 +40,7 @@ export default function UpcomingResourceBorrowing() {
           ) : (
             upcomingResourceBorrowing?.map((request) => (
               <div key={request.id} className="w-full">
-                <Card className="border-border gap-2 px-4 transition-shadow hover:shadow-md">
+                <Card className="gap-2 border-none bg-zinc-100 px-4 shadow-none">
                   <div className="space-y-2">
                     <CardHeader className="p-0">
                       <div className="flex flex-col justify-between gap-4 md:flex-row">
@@ -60,7 +60,7 @@ export default function UpcomingResourceBorrowing() {
 
                         <div className="space-y-2 text-sm text-gray-600 md:text-xs">
                           <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3 w-3 text-gray-400 md:h-4 md:w-4" />
+                            <Calendar className="h-3 w-3 text-gray-600 md:h-4 md:w-4" />
                             <span>
                               {request.dateBorrowed
                                 ? formatISODate(request.dateBorrowed)
@@ -69,7 +69,7 @@ export default function UpcomingResourceBorrowing() {
                           </div>
 
                           <div className="flex items-center gap-1.5">
-                            <Clock className="h-3 w-3 text-gray-400 md:h-4 md:w-4" />
+                            <Clock className="h-3 w-3 text-gray-600 md:h-4 md:w-4" />
                             <span>
                               {`${TIME_MAP[toTimeInt(request.startTime)]}`} -{" "}
                               {`${TIME_MAP[toTimeInt(request.endTime)]}`}
@@ -84,7 +84,7 @@ export default function UpcomingResourceBorrowing() {
                     <CardContent className="p-0">
                       <div className="flex flex-col gap-2 text-sm text-gray-600">
                         <div className="flex items-center gap-1.5">
-                          <Package className="h-4 w-4 text-gray-400" />
+                          <Package className="h-4 w-4 text-gray-600" />
                           {request.borrowedItems.map((item) => (
                             <span key={item.id}>
                               {item.resourceName}
@@ -94,7 +94,7 @@ export default function UpcomingResourceBorrowing() {
                         </div>
 
                         <div className="flex items-center gap-1.5">
-                          <User className="h-4 w-4 text-gray-400" />
+                          <User className="h-4 w-4 text-gray-600" />
                           Representative:{" "}
                           <span>{request.representativeBorrower}</span>
                         </div>

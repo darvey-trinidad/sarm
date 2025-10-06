@@ -52,7 +52,7 @@ export default function UpcomingVenueReservation() {
           ) : (
             UpcomingVenueReservation?.map((reservation) => (
               <div key={reservation.venueReservationId} className="w-full">
-                <Card className="border-border gap-2 px-4 transition-shadow hover:shadow-md">
+                <Card className="gap-2 border-none bg-zinc-100 px-4 shadow-none">
                   <div className="space-y-2">
                     <CardHeader className="p-0">
                       <div className="flex flex-col justify-between gap-4 md:flex-row">
@@ -72,7 +72,7 @@ export default function UpcomingVenueReservation() {
 
                         <div className="space-y-2 text-sm text-gray-600 md:text-xs">
                           <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3 w-3 text-gray-400 md:h-4 md:w-4" />
+                            <Calendar className="h-3 w-3 text-gray-600 md:h-4 md:w-4" />
                             <span>
                               {reservation.date
                                 ? formatISODate(reservation.date)
@@ -81,7 +81,7 @@ export default function UpcomingVenueReservation() {
                           </div>
 
                           <div className="flex items-center gap-1.5">
-                            <Clock className="h-3 w-3 text-gray-400 md:h-4 md:w-4" />
+                            <Clock className="h-3 w-3 text-gray-600 md:h-4 md:w-4" />
                             <span>
                               {`${TIME_MAP[toTimeInt(reservation.startTime)]}`}{" "}
                               - {`${TIME_MAP[toTimeInt(reservation.endTime)]}`}
@@ -95,7 +95,7 @@ export default function UpcomingVenueReservation() {
                     <CardContent className="p-0">
                       <div className="flex flex-col gap-2 text-sm text-gray-600">
                         <div className="flex items-center gap-1.5">
-                          <User className="h-4 w-4 text-gray-400" />
+                          <User className="h-4 w-4 text-gray-600" />
                           Borrower: <span>{reservation.reserverName}</span>
                         </div>
                       </div>
