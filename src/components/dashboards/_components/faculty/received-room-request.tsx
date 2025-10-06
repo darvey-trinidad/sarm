@@ -2,7 +2,14 @@
 import { api } from "@/trpc/react";
 import { authClient } from "@/lib/auth-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DoorOpen, Clock, MapPin, Calendar, Users } from "lucide-react";
+import {
+  DoorOpen,
+  Clock,
+  MapPin,
+  Calendar,
+  Users,
+  CalendarCheck,
+} from "lucide-react";
 import { ReceivedRoomSkeleton } from "../skeletons/received-room-skeleton";
 import { formatISODate, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
@@ -53,12 +60,16 @@ export default function ReceivedRoomRequest() {
                             {request.requestorName}
                           </CardTitle>
                         </div>
+
                         <Button
                           size="sm"
                           onClick={() => handlOpenSchedule(request.id)}
                           className="hidden sm:block"
                         >
-                          View Schedule
+                          <div className="flex items-center gap-2">
+                            <CalendarCheck className="h-4 w-4" />
+                            Respond
+                          </div>
                         </Button>
                       </div>
                     </CardHeader>
