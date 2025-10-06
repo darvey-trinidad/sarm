@@ -23,13 +23,23 @@ export const getAllPeInstructors = async () => {
 export const getAllSchedulableFaculty = async (role: string, departmentOrOrganization: string) => {
   if (role === ADMIN_ROLE) return await getAllFaculty();
 
-  return await db.select().from(user).where(
+  const faculty = await db.select().from(user).where(
     and(
       inArray(user.role, [...TEACHING_PERSONNEL]),
       eq(user.isActive, true),
       eq(user.departmentOrOrganization, departmentOrOrganization)
     )
   ).all();
+
+  const facilityManager = await db.select().from(user).where(
+    and(
+      eq(user.role, "facility_manager"),
+      eq(user.isActive, true),
+      eq(user.departmentOrOrganization, departmentOrOrganization)
+    )
+  ).all();
+
+  return [...faculty, ...facilityManager];
 }
 
 export const getAllUsers = async () => {
