@@ -5,6 +5,7 @@ import FacilityManagerDashBoard from "@/components/dashboards/facility-manager";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Roles } from "@/constants/roles";
+import PEInstructorDashBoard from "@/components/dashboards/pe-instructor";
 export const metadata: Metadata = {
   title: "Dashboard",
 };
@@ -24,6 +25,8 @@ export default async function Page() {
         return <FacultyDashBoard />;
       case Roles.FacilityManager:
         return <FacilityManagerDashBoard />;
+      case Roles.PEInstructor:
+        return <PEInstructorDashBoard />;
       default:
         return <div></div>;
     }

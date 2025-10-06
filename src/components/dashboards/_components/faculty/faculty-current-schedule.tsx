@@ -68,7 +68,7 @@ export default function FacultyCurrentSchedule() {
 
   return (
     <Card className="w-full p-6">
-      <h3 className="text-xl font-medium">Current Schedules</h3>
+      <h3 className="text-md font-semibold">Current Schedules</h3>
 
       <ScrollArea className="h-[300px]">
         <div className="space-y-4">
@@ -99,7 +99,6 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => {
                           setSelectedSchedule(schedule);

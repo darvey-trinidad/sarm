@@ -25,11 +25,7 @@ export default function UpcomingResourceBorrowing() {
         <CardTitle className="text-md font-semibold">
           Upcoming Resource Borrowing
         </CardTitle>
-        <Button
-          className="bg-primary text-white"
-          size="sm"
-          onClick={handleOpenRequest}
-        >
+        <Button size="sm" onClick={handleOpenRequest}>
           <ExternalLink className="h-4 w-4 text-white" />
           View Request
         </Button>
