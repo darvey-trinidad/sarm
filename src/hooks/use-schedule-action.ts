@@ -7,6 +7,7 @@ import { type TimeInt } from "@/constants/timeslot";
 import { api } from "@/trpc/react";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 interface BorrowingData {
   classroomId: string;
@@ -27,6 +28,8 @@ export function useScheduleActions({
 }: UseScheduleActionsProps = {}) {
   const [loading, setLoading] = useState(false);
   // const { toast } = useToast()
+
+  const { data: session } = authClient.useSession();
 
   const {
     mutate: createClassroomVacancy,
@@ -65,7 +68,7 @@ export function useScheduleActions({
           startTime: data.startTime.toString(),
           endTime: data.endTime.toString(),
 
-          requesterId: data.facultyId,
+          requesterId: session?.user.id ?? "",
           responderId: schedule.facultyId ?? "",
 
           subject: data.subject ?? "",
@@ -76,8 +79,8 @@ export function useScheduleActions({
             toast("Room request sent");
             onRefresh?.();
           },
-          onError: () => {
-            toast("Failed to send room request");
+          onError: (error) => {
+            toast(error.message ?? "Failed to send room request");
           },
         },
       );
@@ -130,7 +133,7 @@ export function useScheduleActions({
           date: schedule.date,
           startTime: data.startTime.toString(),
           endTime: data.endTime.toString(),
-          facultyId: data.facultyId,
+          facultyId: session?.user.id ?? "",
           subject: data.subject,
           section: data.section,
         },

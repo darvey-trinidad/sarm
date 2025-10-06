@@ -48,17 +48,41 @@ export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
     .input(createClassroomScheduleSchema)
     .mutation(({ input }) => {
-      return createClassroomSchedule(input);
+      try {
+        return createClassroomSchedule(input);
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create classroom schedule",
+        });
+      }
     }),
   createClassroomVacancy: protectedProcedure
     .input(createClassroomVacancySchema)
     .mutation(({ input }) => {
-      return createClassroomVacancy(input);
+      try {
+        return createClassroomVacancy(input);
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create classroom vacancy",
+        });
+      }
     }),
   createClassroomBorrowing: protectedProcedure
     .input(createClassroomBorrowingSchema)
     .mutation(({ input }) => {
-      return createClassroomBorrowing(input);
+      try {
+        return createClassroomBorrowing(input);
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create classroom borrowing",
+        });
+      }
     }),
   getWeeklyClassroomSchedule: protectedProcedure
     .input(getWeeklyClassroomScheduleSchema)
@@ -124,6 +148,7 @@ export const classroomScheduleRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         console.log("Received Request to Borrow Classroom: ", input);
+
         const { id: roomRequestId } = await createRoomRequest({
           id: generateUUID(),
           ...input,
@@ -165,7 +190,7 @@ export const classroomScheduleRouter = createTRPCRouter({
         return { info, status: 200 };
       } catch (error) {
         console.error(error);
-        return { error, status: 500 };
+        throw error;
       }
     }),
   respondToRoomRequest: protectedProcedure
