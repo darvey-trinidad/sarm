@@ -100,12 +100,12 @@ export async function AppSidebar() {
   const roleFromSession = session?.user.role ?? Roles.Faculty;
 
   return (
-    <Sidebar collapsible="offcanvas" className="border-r w-24">
-      <SidebarContent className="gap-0 p-0 flex flex-col">
+    <Sidebar collapsible="offcanvas" className="w-24 border-r">
+      <SidebarContent className="flex flex-col gap-0 p-0">
         {/* Logo */}
-        <div className="flex items-center justify-center py-4 border-b">
+        <div className="flex items-center justify-center border-b py-4">
           <Image
-            src="/SARM LOGO.png"
+            src="/LOGO-DARK.png"
             alt="SARM Logo"
             width={40}
             height={40}
@@ -114,7 +114,7 @@ export async function AppSidebar() {
         </div>
 
         {/* Navigation Items */}
-        <SidebarGroup className="p-0 flex-1">
+        <SidebarGroup className="flex-1 p-0">
           <SidebarGroupContent>
             <SidebarMenu className="gap-0 p-2">
               {isRole(roleFromSession) &&
@@ -124,10 +124,10 @@ export async function AppSidebar() {
                     <SidebarMenuItem key={item.title} className="list-none">
                       <a
                         href={item.href}
-                        className="flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-colors duration-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900 data-[active=true]:bg-amber-800 data-[active=true]:text-white"
+                        className="flex flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-gray-600 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900 data-[active=true]:bg-amber-800 data-[active=true]:text-white"
                       >
-                        <item.icon className="w-6 h-6" />
-                        <span className="text-xs font-medium text-center leading-tight">
+                        <item.icon className="h-6 w-6" />
+                        <span className="text-center text-xs leading-tight font-medium">
                           {item.title}
                         </span>
                       </a>
@@ -138,7 +138,7 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-1 border-t">
+      <SidebarFooter className="border-t p-1">
         <UserSidebar />
       </SidebarFooter>
     </Sidebar>
