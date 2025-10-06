@@ -112,7 +112,10 @@ export const createRoomRequest = async (data: RoomRequest) => {
     return await db.insert(roomRequests).values(data).returning({ id: roomRequests.id }).get();
   } catch (err) {
     console.error("Failed to create room request:", err);
-    throw new Error("Could not create room request");
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Could not create room request",
+    })
   }
 }
 
