@@ -1,4 +1,4 @@
-import { db, eq, and, desc, asc, gte, lte, or } from "@/server/db";
+import { db, eq, and, desc, asc, gte, lte, or, count } from "@/server/db";
 import { venue, venueReservation } from "@/server/db/schema/venue";
 import { user } from "@/server/db/schema/auth";
 import { ReservationStatus } from "@/constants/reservation-status";
@@ -383,3 +383,22 @@ type ReservationWithBorrowing = {
   fileUrl: string | null;
   borrowingTransaction: BorrowingTransaction;
 };
+
+/*
+** COUNT
+*/
+
+export const getPendingVenueReservationsCount = async () => {
+  try {
+    const res = await db
+      .select({ count: count(venueReservation.id) })
+      .from(venueReservation)
+      .where(eq(venueReservation.status, ReservationStatus.Pending))
+      .get();
+
+    return res?.count ?? 0;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

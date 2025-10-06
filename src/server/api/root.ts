@@ -6,6 +6,7 @@ import { authRouter } from "@/server/api/routers/auth";
 import { resourceRouter } from "@/server/api/routers/resource";
 import { facilityIssueRouter } from "@/server/api/routers/facility-issue";
 import { auth } from "@/lib/auth";
+import { statsRouter } from "./routers/stats";
 /**
  * This is the primary router for your server.
  *
@@ -17,7 +18,8 @@ export const appRouter = createTRPCRouter({
   classroomSchedule: classroomScheduleRouter,
   venue: venueRouter,
   resource: resourceRouter,
-  facilityIssue: facilityIssueRouter
+  facilityIssue: facilityIssueRouter,
+  stats: statsRouter,
 });
 
 // export type definition of API
