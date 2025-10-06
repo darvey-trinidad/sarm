@@ -9,6 +9,7 @@ import { PageRoutes } from "@/constants/page-routes";
 import { formatISODate, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { NoUpcomingResourceBorrowing } from "../no-data-mesage/dahsboard-nothing-found";
+import { Badge } from "@/components/ui/badge";
 export default function UpcomingResourceBorrowing() {
   const { data: upcomingResourceBorrowing, isLoading } =
     api.resource.getUpcomingBorrowingTransactions.useQuery();
@@ -40,7 +41,7 @@ export default function UpcomingResourceBorrowing() {
           ) : (
             upcomingResourceBorrowing?.map((request) => (
               <div key={request.id} className="w-full">
-                <Card className="gap-2 border-none bg-zinc-100 px-4 shadow-none">
+                <Card className="gap-2 border-none bg-stone-50 px-4 shadow-none">
                   <div className="space-y-2">
                     <CardHeader className="p-0">
                       <div className="flex flex-col justify-between gap-4 md:flex-row">
@@ -58,23 +59,10 @@ export default function UpcomingResourceBorrowing() {
                           </div>
                         </div>
 
-                        <div className="space-y-2 text-sm text-gray-600 md:text-xs">
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="h-3 w-3 text-gray-600 md:h-4 md:w-4" />
-                            <span>
-                              {request.dateBorrowed
-                                ? formatISODate(request.dateBorrowed)
-                                : "NA"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5">
-                            <Clock className="h-3 w-3 text-gray-600 md:h-4 md:w-4" />
-                            <span>
-                              {`${TIME_MAP[toTimeInt(request.startTime)]}`} -{" "}
-                              {`${TIME_MAP[toTimeInt(request.endTime)]}`}
-                            </span>
-                          </div>
+                        <div>
+                          <Badge className="border-green-200 bg-green-100 text-xs text-green-800">
+                            Approved
+                          </Badge>
                         </div>
                       </div>
                     </CardHeader>
@@ -82,19 +70,36 @@ export default function UpcomingResourceBorrowing() {
                     {/* Content */}
 
                     <CardContent className="p-0">
-                      <div className="flex flex-col gap-2 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
                         <div className="flex items-center gap-1.5">
-                          <Package className="h-4 w-4 text-gray-600" />
-                          {request.borrowedItems.map((item) => (
-                            <span key={item.id}>
-                              {item.resourceName}
-                              {","}
-                            </span>
-                          ))}
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            {request.dateBorrowed
+                              ? formatISODate(request.dateBorrowed)
+                              : "NA"}
+                          </span>
                         </div>
 
                         <div className="flex items-center gap-1.5">
-                          <User className="h-4 w-4 text-gray-600" />
+                          <Package className="h-4 w-4" />
+
+                          <span>
+                            {request.borrowedItems.map((item) => {
+                              return item.resourceName + ", ";
+                            })}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            {`${TIME_MAP[toTimeInt(request.startTime)]}`} -{" "}
+                            {`${TIME_MAP[toTimeInt(request.endTime)]}`}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <User className="h-4 w-4" />
                           Representative:{" "}
                           <span>{request.representativeBorrower}</span>
                         </div>

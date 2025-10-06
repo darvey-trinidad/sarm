@@ -92,8 +92,8 @@ export default function CurrentAvailableRooms() {
             {currentBuilding && (
               <Card className="gap-2 border-none p-0 shadow-none">
                 <CardHeader className="px-0">
-                  <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                    <div className="item-center flex flex-col justify-between gap-4 sm:flex-row">
+                  <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                       <CardTitle className="flex items-center gap-2 text-xl">
                         <Building className="h-5 w-5" />
                         {currentBuilding.buildingName}
@@ -144,7 +144,7 @@ export default function CurrentAvailableRooms() {
                       {currentBuilding.classrooms.map((classroom) => (
                         <Card
                           key={classroom.classroomId}
-                          className="border-border transition-shadow hover:shadow-md"
+                          className="border-none bg-stone-50 shadow-none"
                         >
                           <CardContent className="p-4">
                             <div className="space-y-3">
@@ -163,7 +163,7 @@ export default function CurrentAvailableRooms() {
                               </div>
 
                               {/* Details */}
-                              <div className="text-muted-foreground space-y-2 text-sm">
+                              <div className="space-y-2 text-sm text-gray-600">
                                 <div className="flex items-center gap-2">
                                   <Users className="h-4 w-4" />
                                   <span>

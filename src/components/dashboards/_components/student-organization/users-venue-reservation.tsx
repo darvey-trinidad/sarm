@@ -8,11 +8,16 @@ import { PageRoutes } from "@/constants/page-routes";
 import { formatISODate, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { ExternalLink, Calendar, Clock, User, MapPin } from "lucide-react";
-import { NoUpcomingVenueReservations } from "../no-data-mesage/dahsboard-nothing-found";
+import { authClient } from "@/lib/auth-client";
+import { UserNoVenueReservations } from "../no-data-mesage/dahsboard-nothing-found";
 import { Badge } from "@/components/ui/badge";
-export default function UpcomingVenueReservation() {
-  const { data: UpcomingVenueReservation, isLoading } =
-    api.venue.getAllUpcomingVenueReservations.useQuery();
+
+export default function UsersVenueReservation() {
+  const { data: session } = authClient.useSession();
+  const { data: usersVenueReservations, isLoading } =
+    api.venue.getAllUpcomingVenueReservationsByUserId.useQuery({
+      userId: session?.user.id ?? "",
+    });
 
   const handleOpenRequest = () => {
     window.open(
@@ -25,7 +30,7 @@ export default function UpcomingVenueReservation() {
     <Card className="p-6">
       <div className="flex items-center justify-between">
         <CardTitle className="text-md font-semibold">
-          Upcoming Venue Reservation
+          Your Venue Reservation
         </CardTitle>
         <Button
           className="bg-primary text-white"
@@ -33,7 +38,7 @@ export default function UpcomingVenueReservation() {
           onClick={handleOpenRequest}
         >
           <ExternalLink className="h-4 w-4 text-white" />
-          View Request
+          View All
         </Button>
       </div>
 
@@ -41,10 +46,10 @@ export default function UpcomingVenueReservation() {
         <div className="space-y-4">
           {isLoading ? (
             <ReceivedRoomSkeleton />
-          ) : UpcomingVenueReservation?.length === 0 ? (
-            <NoUpcomingVenueReservations />
+          ) : usersVenueReservations?.length === 0 ? (
+            <UserNoVenueReservations />
           ) : (
-            UpcomingVenueReservation?.map((reservation) => (
+            usersVenueReservations?.map((reservation) => (
               <div key={reservation.venueReservationId} className="w-full">
                 <Card className="gap-2 border-none bg-stone-50 px-4 shadow-none">
                   <div className="space-y-2">
@@ -65,19 +70,31 @@ export default function UpcomingVenueReservation() {
                         </div>
 
                         <div>
-                          <Badge className="border-green-200 bg-green-100 text-xs text-green-800">
-                            Approved
-                          </Badge>
+                          {reservation.status === "pending" ? (
+                            <Badge className="text- black m-0 border-gray-200 bg-gray-100 text-xs">
+                              Pending
+                            </Badge>
+                          ) : (
+                            reservation.status === "approved" && (
+                              <Badge className="border-green-200 bg-green-100 text-xs text-green-800">
+                                Approved
+                              </Badge>
+                            )
+                          )}
                         </div>
                       </div>
                     </CardHeader>
 
                     {/* Card Content */}
                     <CardContent className="p-0">
-                      <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1.5">
-                          <User className="h-4 w-4" />
-                          Borrower: <span>{reservation.reserverName}</span>
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            {reservation.date
+                              ? formatISODate(reservation.date)
+                              : "NA"}
+                          </span>
                         </div>
 
                         <div className="flex items-center gap-1.5">
@@ -85,15 +102,6 @@ export default function UpcomingVenueReservation() {
                           <span>
                             {`${TIME_MAP[toTimeInt(reservation.startTime)]}`} -{" "}
                             {`${TIME_MAP[toTimeInt(reservation.endTime)]}`}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="h-4 w-4" />
-                          <span>
-                            {reservation.date
-                              ? formatISODate(reservation.date)
-                              : "NA"}
                           </span>
                         </div>
                       </div>
