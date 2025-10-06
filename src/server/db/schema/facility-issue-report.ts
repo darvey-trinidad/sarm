@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { user } from "@/server/db/schema/auth";
 import { REPORT_CATEGORY } from "@/constants/report-category";
 import { REPORT_STATUS, DEFAULT_REPORT_STATUS } from "@/constants/report-status";
@@ -21,4 +21,11 @@ export const facilityIssueReport = sqliteTable("facility_issue_report", {
 
   dateReported: integer('date_reported', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   dateUpdated: integer('date_updated', { mode: 'timestamp' }),
-});
+}, (table) => ({
+  reportedByIdx: index("report_reported_by_idx").on(table.reportedBy),
+  categoryIdx: index("report_category_idx").on(table.category),
+  statusIdx: index("report_status_idx").on(table.status),
+  dateReportedIdx: index("report_date_reported_idx").on(table.dateReported),
+  buildingIdx: index("report_building_idx").on(table.buildingId),
+  classroomIdx: index("report_classroom_idx").on(table.classroomId),
+}));

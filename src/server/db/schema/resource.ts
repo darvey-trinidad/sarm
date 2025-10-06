@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { user } from "@/server/db/schema/auth";
 
 import { RESOURCE_CATEGORY } from "@/constants/resource-category";
@@ -37,7 +37,12 @@ export const borrowingTransaction = sqliteTable("borrowing_transaction", {
     .notNull(),
   dateBorrowed: integer("date_borrowed", { mode: "timestamp" }),
   dateReturned: integer("date_returned", { mode: "timestamp" }),
-});
+}, (table) => ({
+  borrowerIdx: index("borrow_trans_borrower_idx").on(table.borrowerId),
+  statusDateIdx: index("borrow_trans_status_date_idx")
+    .on(table.status, table.dateBorrowed),
+  venueReservationIdx: index("borrow_trans_venue_res_idx").on(table.venueReservationId),
+}));
 
 export const resourceBorrowing = sqliteTable("resource_borrowing", {
   id: text("id").primaryKey(),
@@ -50,4 +55,7 @@ export const resourceBorrowing = sqliteTable("resource_borrowing", {
   quantity: integer("quantity", { mode: "number" })
     .$defaultFn(() => 1)
     .notNull(),
-});
+}, (table) => ({
+  transactionIdx: index("res_borrow_transaction_idx").on(table.transactionId),
+  resourceIdx: index("res_borrow_resource_idx").on(table.resourceId),
+}));

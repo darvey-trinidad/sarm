@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 import { ROLES } from "@/constants/roles";
 
@@ -14,7 +14,10 @@ export const user = sqliteTable("user", {
 	emailVerified: integer('email_verified', { mode: 'boolean' }).$defaultFn(() => false).notNull(),
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
-});
+}, (table) => ({
+	roleIsActiveIdx: index("user_role_is_active_idx").on(table.role, table.isActive),
+	deptIdx: index("user_dept_idx").on(table.departmentOrOrganization),
+}));
 
 export const session = sqliteTable("session", {
 	id: text('id').primaryKey(),

@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
 import { USABILITY } from "@/constants/usability";
 import { DEFAULT_USABILITY } from "@/constants/usability";
@@ -19,4 +19,7 @@ export const classroom = sqliteTable("classroom", {
   capacity: integer('capacity', { mode: 'number' }).notNull(),
   floor: text('floor').$defaultFn(() => DEFAULT_FLOOR).notNull(),
   usability: text('usability', { enum: USABILITY }).$defaultFn(() => DEFAULT_USABILITY).notNull(),
-});
+}, (table) => ({
+  buildingIdx: index("classroom_building_idx").on(table.buildingId),
+  typeIdx: index("classroom_type_idx").on(table.type),
+}));
