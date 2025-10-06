@@ -78,8 +78,8 @@ export default function FacultyCurrentSchedule() {
             <NoScheduleFound />
           ) : (
             facultySchedule?.map((schedule) => (
-              <div key={schedule.id} className="grid-row-2 grid">
-                <Card className="border-border gap-2 transition-shadow hover:shadow-md">
+              <div key={schedule.id} className="flex flex-col">
+                <Card className="border-none bg-stone-50 shadow-none">
                   <CardHeader>
                     <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                       <div className="flex items-start justify-between gap-4">
@@ -113,7 +113,7 @@ export default function FacultyCurrentSchedule() {
 
                   <CardContent>
                     <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                      <div className="bg-muted/50 flex items-center gap-2 rounded-lg p-3">
+                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
                         <Building2 className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
@@ -125,7 +125,7 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
 
-                      <div className="bg-muted/50 flex items-center gap-2 rounded-lg p-3">
+                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
                         <MapPin className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
@@ -137,7 +137,7 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
 
-                      <div className="bg-muted/50 flex items-center gap-2 rounded-lg p-3">
+                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
                         <Calendar className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
@@ -149,7 +149,7 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
 
-                      <div className="bg-muted/50 flex items-center gap-2 rounded-lg p-3">
+                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
                         <Clock className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
