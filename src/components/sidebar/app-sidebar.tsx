@@ -98,35 +98,39 @@ export async function AppSidebar() {
     headers: await headers(),
   });
   const roleFromSession = session?.user.role ?? Roles.Faculty;
+
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
-        <div className="flex pt-2">
-          <SidebarHeader className="flex flex-row">
-            <Image
-              src="/SARM LOGO.png"
-              alt="SARM Logo"
-              width={33}
-              height={33}
-              className="Object-contain"
-            />
-            <span className="text-2xl font-bold">SARM</span>
-          </SidebarHeader>
+    <Sidebar collapsible="offcanvas" className="border-r w-24">
+      <SidebarContent className="gap-0 p-0 flex flex-col">
+        {/* Logo */}
+        <div className="flex items-center justify-center py-4 border-b">
+          <Image
+            src="/SARM LOGO.png"
+            alt="SARM Logo"
+            width={40}
+            height={40}
+            className="object-contain"
+          />
         </div>
-        <SidebarGroup>
+
+        {/* Navigation Items */}
+        <SidebarGroup className="p-0 flex-1">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0 p-2">
               {isRole(roleFromSession) &&
                 items
                   .filter((item) => item.roles?.includes(roleFromSession))
                   .map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.href}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
+                    <SidebarMenuItem key={item.title} className="list-none">
+                      <a
+                        href={item.href}
+                        className="flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-colors duration-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900 data-[active=true]:bg-amber-800 data-[active=true]:text-white"
+                      >
+                        <item.icon className="w-6 h-6" />
+                        <span className="text-xs font-medium text-center leading-tight">
+                          {item.title}
+                        </span>
+                      </a>
                     </SidebarMenuItem>
                   ))}
             </SidebarMenu>
@@ -134,7 +138,7 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="p-1 border-t">
         <UserSidebar />
       </SidebarFooter>
     </Sidebar>
