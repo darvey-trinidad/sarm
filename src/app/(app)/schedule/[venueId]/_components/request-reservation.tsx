@@ -549,6 +549,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                           <FormItem>
                             <FormLabel className="mt-4">
                               Representative Borrower
+                              <p className="text-destructive">*</p>
                             </FormLabel>
                             <FormControl>
                               <Input
