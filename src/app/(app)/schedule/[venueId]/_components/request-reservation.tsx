@@ -85,12 +85,19 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
     },
   });
 
+  const dateParam = form.watch("date");
+  const startTime = form.watch("startTime");
+  const endTime = form.watch("endTime");
+
   const { data: availableResources } =
     api.resource.getAllAvailableResources.useQuery({
-      requestedDate: newDate(form.watch("date")),
-      requestedStartTime: form.watch("startTime").toString(),
-      requestedEndTime: form.watch("endTime").toString(),
-    });
+      requestedDate: newDate(dateParam),
+      requestedStartTime: startTime.toString(),
+      requestedEndTime: endTime.toString(),
+    },
+      {
+        enabled: !!dateParam && !!startTime && !!endTime,
+      });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -189,9 +196,6 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
     }
   };
 
-  const startTime = form.watch("startTime");
-  const endTime = form.watch("endTime");
-
   const selectedId =
     form
       .watch("borrowItems")
@@ -271,6 +275,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                               selected={field.value}
                               onSelect={field.onChange}
                               captionLayout="dropdown"
+                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                             />
                           </PopoverContent>
                         </Popover>
