@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { formatISODate, newDate, toTimeInt } from "@/lib/utils";
+import { checkIsPastSchedule, formatISODate, newDate, toTimeInt } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CurrentScheduleSkeleton } from "../skeletons/received-room-skeleton";
@@ -59,8 +59,8 @@ export default function FacultyCurrentSchedule() {
         onSuccess: () => {
           toast.success("Vacancy marked as available");
         },
-        onError: () => {
-          toast.error("Failed to mark as available");
+        onError: (error) => {
+          toast.error(error.message ?? "Failed to mark as available");
         },
       },
     );
@@ -100,6 +100,7 @@ export default function FacultyCurrentSchedule() {
                       </div>
                       <Button
                         size="sm"
+                        disabled={checkIsPastSchedule(schedule)}
                         onClick={() => {
                           setSelectedSchedule(schedule);
                           setIsDialogOpen(true);
