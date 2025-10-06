@@ -97,6 +97,11 @@ export const venueRouter = createTRPCRouter({
   getAllUpcomingVenueReservations: protectedProcedure.query(async () => {
     return await getAllUpcomingVenueReservations();
   }),
+  getAllUpcomingVenueReservationsByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      return await getAllUpcomingVenueReservations(input.userId, false);
+    }),
   getVenueReservationPastMonthsStats: protectedProcedure.query(async () => {
     return await getVenueReservationPastMonthsStats();
   }),

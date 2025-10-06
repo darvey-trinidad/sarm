@@ -16,6 +16,7 @@ import { getScheduleColor } from "@/constants/schedule-colors";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import type { ClassroomType } from "@/constants/classroom-type";
 import Link from "next/link";
+import { Roles } from "@/constants/roles";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -148,9 +149,15 @@ export default function ClassroomCalendarView({
       schedDate < dateToday ||
       (schedDate.getTime() === dateToday.getTime() &&
         schedule.endTime <
-          now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+        now.getHours() * 100 + (now.getMinutes() * 100) / 60);
 
     if (schedIsPast) return;
+
+    if (session?.user.role !== Roles.FacilityManager &&
+      session?.user.role !== Roles.DepartmentHead &&
+      session?.user.role !== Roles.Faculty &&
+      session?.user.role !== Roles.PEInstructor
+    ) return
 
     setSelectedItem(schedule);
     setIsDialogOpen(true);
@@ -251,9 +258,8 @@ export default function ClassroomCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
+                        }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
