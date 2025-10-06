@@ -54,16 +54,6 @@ export default function ClassroomBorrowingDeptChart() {
     }, {});
   }, [classroomData]);
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent>
-          <ChartSkeleton />
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -72,42 +62,48 @@ export default function ClassroomBorrowingDeptChart() {
           Per deparment room request this month.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
-              <XAxis
-                dataKey="department"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                interval={0}
-                angle={-20}
-                textAnchor="end"
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Bar
-                dataKey="requests"
-                radius={6}
-                strokeWidth={2}
-                activeBar={({ ...props }) => (
-                  <Rectangle
-                    {...props}
-                    fillOpacity={0.9}
-                    stroke={(props.payload as { fill: string }).fill}
-                    strokeDasharray={4}
-                    strokeDashoffset={4}
-                  />
-                )}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
+      {isLoading ? (
+        <CardContent>
+          <ChartSkeleton />
+        </CardContent>
+      ) : (
+        <CardContent>
+          <ChartContainer config={chartConfig}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="department"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  interval={0}
+                  angle={-20}
+                  textAnchor="end"
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar
+                  dataKey="requests"
+                  radius={6}
+                  strokeWidth={2}
+                  activeBar={({ ...props }) => (
+                    <Rectangle
+                      {...props}
+                      fillOpacity={0.9}
+                      stroke={(props.payload as { fill: string }).fill}
+                      strokeDasharray={4}
+                      strokeDashoffset={4}
+                    />
+                  )}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      )}
     </Card>
   );
 }

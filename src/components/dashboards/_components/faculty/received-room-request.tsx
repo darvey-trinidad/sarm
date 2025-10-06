@@ -48,7 +48,7 @@ export default function ReceivedRoomRequest() {
           ) : (
             ReceivedRoomRequest?.map((request) => (
               <div key={request.id} className="w-full">
-                <Card className="border-border gap-4 px-4 transition-shadow hover:shadow-md">
+                <Card className="border-none bg-stone-50 p-6 shadow-none">
                   <div className="flex flex-col gap-2">
                     <CardHeader className="p-0">
                       <div className="flex items-center justify-between">
