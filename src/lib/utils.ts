@@ -4,6 +4,7 @@ import { TIME_MAP, type TimeInt } from "@/constants/timeslot";
 import { TIME_ENTRIES } from "@/constants/timeslot";
 import { TIME_KEY_SET } from "@/constants/timeslot";
 import { format } from "date-fns";
+import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -76,4 +77,27 @@ export function getCurrentNearestBlock(date: Date): number {
   }
 
   return nearest;
+}
+
+
+export const checkIsPastSchedule = (schedule: FinalClassroomSchedule) => {
+  const now = new Date();
+  const dateToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+  const schedDate = new Date(
+    schedule.date.getFullYear(),
+    schedule.date.getMonth(),
+    schedule.date.getDate(),
+  );
+
+  const schedIsPast =
+    schedDate < dateToday ||
+    (schedDate.getTime() === dateToday.getTime() &&
+      schedule.endTime <
+      now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+
+  return schedIsPast;
 }
