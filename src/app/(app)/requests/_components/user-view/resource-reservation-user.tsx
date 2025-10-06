@@ -26,6 +26,7 @@ import { authClient } from "@/lib/auth-client";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorResource, getStatusIconResource } from "../icon-status";
+import NoReportsuser from "@/components/loading-state/no-reports-user";
 
 export default function ResourceReservationUser() {
   const { data: session } = authClient.useSession();
@@ -139,7 +140,7 @@ export default function ResourceReservationUser() {
       {/* Resource Reservation Card */}
       <div className="grid gap-4">
         {isLoading && filteredResourceReservation.length === 0 ? (
-          <NoReports />
+          <NoReportsuser />
         ) : isLoading ? (
           <LoadingMessage />
         ) : (

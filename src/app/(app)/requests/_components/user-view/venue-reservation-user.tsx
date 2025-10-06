@@ -24,6 +24,7 @@ import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { authClient } from "@/lib/auth-client";
 import { getStatusIconVenue, getStatusColorVenue } from "../icon-status";
+import NoReportsuser from "@/components/loading-state/no-reports-user";
 export default function VenueReservationUser() {
   const { data: session } = authClient.useSession();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -108,7 +109,7 @@ export default function VenueReservationUser() {
       {/* Venue Reservations Card */}
       <div className="grid gap-4">
         {!isLoading && filteredVenueReservations.length === 0 ? (
-          <NoReports />
+          <NoReportsuser />
         ) : isLoading ? (
           <LoadingMessage />
         ) : (
