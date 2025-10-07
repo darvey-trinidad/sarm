@@ -327,10 +327,7 @@ export default function VenueReservation() {
           <LoadingMessage />
         ) : (
           filteredReservations.map((reservation) => (
-            <Card
-              key={reservation.venueReservationId}
-              className="border-border transition-shadow hover:shadow-md"
-            >
+            <Card key={reservation.venueReservationId}>
               <CardContent className="p-4">
                 <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="item-start flex gap-4">
@@ -453,7 +450,7 @@ export default function VenueReservation() {
                     )}
                   </div>
                 </div>
-                <div className="text-muted-foreground border-border border-t pt-3 text-sm">
+                <div className="text-muted-foreground border-border border-t pt-3 text-xs">
                   Submitted on {formatISODate(reservation.createdAt)} (
                   {formatLocalTime(reservation.createdAt)})
                 </div>
