@@ -1,4 +1,4 @@
-import { db, and, eq, inArray, gte, lte, asc, sql } from "@/server/db";
+import { db, and, eq, inArray, gte, lte, asc, sql, count } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
@@ -131,6 +131,46 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
       .from(roomRequests)
       .where(and(
         eq(roomRequests.responderId, responderId),
+        eq(roomRequests.status, RoomRequestStatus.Pending),
+        gte(roomRequests.date, midnightPH)
+      ))
+      .innerJoin(user, eq(roomRequests.requesterId, user.id))
+      .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
+      .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
+      .all();
+  } catch (error) {
+    console.log("Failed to get room request:", error);
+    throw new Error("Could not get room request");
+  }
+}
+
+export const getRoomRequestsByRequesterId = async (requesterId: string) => {
+  try {
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+    console.log(midnightPH);
+
+    return await db.select(
+      {
+        id: roomRequests.id,
+        classroomId: roomRequests.classroomId,
+        classroomName: classroom.name,
+        date: roomRequests.date,
+        startTime: roomRequests.startTime,
+        endTime: roomRequests.endTime,
+        subject: roomRequests.subject,
+        section: roomRequests.section,
+        requestorId: user.id,
+        requestorName: user.name,
+        status: roomRequests.status,
+        createdAt: roomRequests.createdAt
+      }
+    )
+      .from(roomRequests)
+      .where(and(
+        eq(roomRequests.requesterId, requesterId),
         eq(roomRequests.status, RoomRequestStatus.Pending),
         gte(roomRequests.date, midnightPH)
       ))

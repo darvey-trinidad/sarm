@@ -24,6 +24,7 @@ import {
   getCurrentlyAvailableClassrooms,
   getProfessorSchedulesForDate,
   getRoomRequestById,
+  getRoomRequestsByRequesterId,
   getRoomRequestsByResponderId,
   getRoomRequestStatsPerClassroomType,
   getRoomRequestStatsPerDepartment,
@@ -241,7 +242,12 @@ export const classroomScheduleRouter = createTRPCRouter({
     .input(z.object({ responderId: z.string() }))
     .query(async ({ input }) => {
       const res = await getRoomRequestsByResponderId(input.responderId);
-      console.log(res);
+      return res;
+    }),
+  getRoomRequestsByRequestorId: protectedProcedure
+    .input(z.object({ requestorId: z.string() }))
+    .query(async ({ input }) => {
+      const res = await getRoomRequestsByRequesterId(input.requestorId);
       return res;
     }),
   getRoomRequestStatsByDepartment: protectedProcedure.query(async () => {
