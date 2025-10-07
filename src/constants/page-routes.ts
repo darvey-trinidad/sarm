@@ -1,6 +1,9 @@
 export enum PageRoutes {
   LOGIN = "/login",
 
+  VERIFY_EMAIL = "/verify-email",
+  ACCOUNT_PENDING = "/account-pending",
+
   DASHBOARD = "/",
 
   //Schedule
