@@ -1,11 +1,23 @@
 import { db, and, eq, inArray, gte, lte, asc, sql, count } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
-import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
-import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId } from "@/server/db/types/classroom-schedule";
+import {
+  classroomSchedule,
+  classroomVacancy,
+  classroomBorrowing,
+  roomRequests,
+} from "@/server/db/schema/classroom-schedule";
+import type {
+  ClassroomScheduleWithoutId,
+  ClassroomVacancyWithoutId,
+  ClassroomBorrowingWithoutId,
+} from "@/server/db/types/classroom-schedule";
 import { type TimeInt, TIME_ENTRIES } from "@/constants/timeslot";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
-import type { FinalClassroomSchedule, InitialClassroomSchedule } from "@/types/clasroom-schedule";
+import type {
+  FinalClassroomSchedule,
+  InitialClassroomSchedule,
+} from "@/types/clasroom-schedule";
 import { user } from "@/server/db/schema/auth";
 import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
@@ -14,7 +26,10 @@ import { RoomRequestStatus } from "@/constants/room-request-status";
 import type { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 
 // single day schedule
-export const getInitialClassroomSchedule = async (classroomId: string, date: Date) => {
+export const getInitialClassroomSchedule = async (
+  classroomId: string,
+  date: Date,
+) => {
   try {
     return await db
       .select()
@@ -22,15 +37,15 @@ export const getInitialClassroomSchedule = async (classroomId: string, date: Dat
       .where(
         and(
           eq(classroomSchedule.classroomId, classroomId),
-          eq(classroomSchedule.day, date.getDay())
-        )
+          eq(classroomSchedule.day, date.getDay()),
+        ),
       )
       .orderBy(classroomSchedule.startTime);
   } catch (error) {
     console.log("Failed to get final classroom schedule:", error);
     throw new Error("Could not get final classroom schedule");
   }
-}
+};
 
 export const getClassroomVacancy = async (classroomId: string, date: Date) => {
   try {
@@ -40,17 +55,20 @@ export const getClassroomVacancy = async (classroomId: string, date: Date) => {
       .where(
         and(
           eq(classroomVacancy.classroomId, classroomId),
-          eq(classroomVacancy.date, date)
-        )
+          eq(classroomVacancy.date, date),
+        ),
       )
       .orderBy(classroomVacancy.startTime);
   } catch (error) {
     console.log("Failed to get classroom vacancy:", error);
     throw new Error("Could not get classroom vacancy");
   }
-}
+};
 
-export const getClassroomBorrowing = async (classroomId: string, date: Date) => {
+export const getClassroomBorrowing = async (
+  classroomId: string,
+  date: Date,
+) => {
   try {
     return await db
       .select()
@@ -58,23 +76,23 @@ export const getClassroomBorrowing = async (classroomId: string, date: Date) => 
       .where(
         and(
           eq(classroomBorrowing.classroomId, classroomId),
-          eq(classroomBorrowing.date, date)
-        )
+          eq(classroomBorrowing.date, date),
+        ),
       )
       .orderBy(classroomBorrowing.startTime);
   } catch (error) {
     console.log("Failed to get classroom borrowing:", error);
     throw new Error("Could not get classroom borrowing");
   }
-}
+};
 
 export const getRoomRequestById = async (id: string) => {
   try {
     const requestor = alias(user, "requestor");
     const responder = alias(user, "responder");
 
-    return await db.select(
-      {
+    return await db
+      .select({
         id: roomRequests.id,
         classroomId: roomRequests.classroomId,
         classroomName: classroom.name,
@@ -92,8 +110,7 @@ export const getRoomRequestById = async (id: string) => {
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
         respondedAt: roomRequests.respondedAt,
-      }
-    )
+      })
       .from(roomRequests)
       .where(eq(roomRequests.id, id))
       .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
@@ -104,16 +121,18 @@ export const getRoomRequestById = async (id: string) => {
     console.log("Failed to get room request:", error);
     throw new Error("Could not get room request");
   }
-}
+};
 
 export const getRoomRequestsByResponderId = async (responderId: string) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
-    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    const midnightPH = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
 
-    return await db.select(
-      {
+    return await db
+      .select({
         id: roomRequests.id,
         classroomId: roomRequests.classroomId,
         classroomName: classroom.name,
@@ -125,15 +144,16 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
         requestorId: user.id,
         requestorName: user.name,
         status: roomRequests.status,
-        createdAt: roomRequests.createdAt
-      }
-    )
+        createdAt: roomRequests.createdAt,
+      })
       .from(roomRequests)
-      .where(and(
-        eq(roomRequests.responderId, responderId),
-        eq(roomRequests.status, RoomRequestStatus.Pending),
-        gte(roomRequests.date, midnightPH)
-      ))
+      .where(
+        and(
+          eq(roomRequests.responderId, responderId),
+          eq(roomRequests.status, RoomRequestStatus.Pending),
+          gte(roomRequests.date, midnightPH),
+        ),
+      )
       .innerJoin(user, eq(roomRequests.requesterId, user.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
       .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
@@ -142,18 +162,20 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
     console.log("Failed to get room request:", error);
     throw new Error("Could not get room request");
   }
-}
+};
 
 export const getRoomRequestsByRequesterId = async (requesterId: string) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
-    const midnightPH = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const midnightPH = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
 
     console.log(midnightPH);
 
-    return await db.select(
-      {
+    return await db
+      .select({
         id: roomRequests.id,
         classroomId: roomRequests.classroomId,
         classroomName: classroom.name,
@@ -165,15 +187,15 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
         requestorId: user.id,
         requestorName: user.name,
         status: roomRequests.status,
-        createdAt: roomRequests.createdAt
-      }
-    )
+        createdAt: roomRequests.createdAt,
+      })
       .from(roomRequests)
-      .where(and(
-        eq(roomRequests.requesterId, requesterId),
-        eq(roomRequests.status, RoomRequestStatus.Pending),
-        gte(roomRequests.date, midnightPH)
-      ))
+      .where(
+        and(
+          eq(roomRequests.requesterId, requesterId),
+          gte(roomRequests.date, midnightPH),
+        ),
+      )
       .innerJoin(user, eq(roomRequests.requesterId, user.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
       .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
@@ -182,7 +204,7 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
     console.log("Failed to get room request:", error);
     throw new Error("Could not get room request");
   }
-}
+};
 
 /**
  * Get classroom schedule for a week
@@ -191,7 +213,7 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
 export const getWeeklyClassroomSchedule = async (
   classroomId: string,
   startDate: Date, // Monday
-  endDate: Date    // Saturday
+  endDate: Date, // Saturday
 ): Promise<FinalClassroomSchedule[]> => {
   try {
     const [initialSchedule, vacancies, borrowings] = await Promise.all([
@@ -218,8 +240,8 @@ export const getWeeklyClassroomSchedule = async (
           and(
             eq(classroomSchedule.classroomId, classroomId),
             gte(classroomSchedule.day, startDate.getDay()),
-            lte(classroomSchedule.day, endDate.getDay())
-          )
+            lte(classroomSchedule.day, endDate.getDay()),
+          ),
         )
         .orderBy(classroomSchedule.day, classroomSchedule.startTime),
 
@@ -242,8 +264,8 @@ export const getWeeklyClassroomSchedule = async (
           and(
             eq(classroomVacancy.classroomId, classroomId),
             gte(classroomVacancy.date, startDate),
-            lte(classroomVacancy.date, endDate)
-          )
+            lte(classroomVacancy.date, endDate),
+          ),
         )
         .orderBy(classroomVacancy.date, classroomVacancy.startTime),
 
@@ -270,8 +292,8 @@ export const getWeeklyClassroomSchedule = async (
           and(
             eq(classroomBorrowing.classroomId, classroomId),
             gte(classroomBorrowing.date, startDate),
-            lte(classroomBorrowing.date, endDate)
-          )
+            lte(classroomBorrowing.date, endDate),
+          ),
         )
         .orderBy(classroomBorrowing.date, classroomBorrowing.startTime),
     ]);
@@ -284,17 +306,17 @@ export const getWeeklyClassroomSchedule = async (
 
       TIME_ENTRIES.slice(0, -1).forEach(([time]) => {
         const initial = initialSchedule.find(
-          (s) => s.startTime === time && s.day === day
+          (s) => s.startTime === time && s.day === day,
         );
         const vacancy = vacancies.find(
           (v) =>
             v.startTime === time &&
-            v.date.toDateString() === current.toDateString()
+            v.date.toDateString() === current.toDateString(),
         );
         const borrowing = borrowings.find(
           (b) =>
             b.startTime === time &&
-            b.date.toDateString() === current.toDateString()
+            b.date.toDateString() === current.toDateString(),
         );
 
         if (borrowing) {
@@ -357,7 +379,9 @@ export const getWeeklyClassroomSchedule = async (
   }
 };
 
-export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => {
+export const getWeeklyInitialClassroomSchedule = async (
+  classroomId: string,
+) => {
   try {
     const rows = await db
       .select({
@@ -382,7 +406,7 @@ export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => 
     for (let day = 1; day <= 6; day++) {
       TIME_ENTRIES.slice(0, -1).forEach(([time]) => {
         const schedule = rows.find(
-          (s) => s.startTime === time && s.day === day
+          (s) => s.startTime === time && s.day === day,
         );
 
         if (schedule) {
@@ -390,7 +414,7 @@ export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => 
           results.push({
             startTime: toTimeInt(startTime),
             endTime: toTimeInt(endTime),
-            ...rest
+            ...rest,
           });
         } else {
           results.push({
@@ -417,7 +441,7 @@ export const getWeeklyInitialClassroomSchedule = async (classroomId: string) => 
 
 export const getProfessorSchedulesForDate = async (
   professorId: string,
-  date: Date
+  date: Date,
 ): Promise<FinalClassroomSchedule[]> => {
   try {
     const systemDay = date.getDay();
@@ -443,8 +467,8 @@ export const getProfessorSchedulesForDate = async (
       .where(
         and(
           eq(classroomSchedule.facultyId, professorId),
-          eq(classroomSchedule.day, systemDay)
-        )
+          eq(classroomSchedule.day, systemDay),
+        ),
       )
       .orderBy(classroomSchedule.startTime);
 
@@ -469,15 +493,15 @@ export const getProfessorSchedulesForDate = async (
       .where(
         and(
           eq(classroomBorrowing.facultyId, professorId),
-          eq(classroomBorrowing.date, date)
-        )
+          eq(classroomBorrowing.date, date),
+        ),
       )
       .orderBy(classroomBorrowing.startTime);
 
     //  If there are initial schedules, fetch vacancies that could override them.
     //  We only need vacancies for the classrooms present in initialSchedules.
     const initialClassroomIds = Array.from(
-      new Set(initialSchedules.map((s) => s.classroomId))
+      new Set(initialSchedules.map((s) => s.classroomId)),
     );
 
     let vacancies: {
@@ -499,8 +523,8 @@ export const getProfessorSchedulesForDate = async (
         .where(
           and(
             inArray(classroomVacancy.classroomId, initialClassroomIds),
-            eq(classroomVacancy.date, date)
-          )
+            eq(classroomVacancy.date, date),
+          ),
         );
     }
 
@@ -532,7 +556,7 @@ export const getProfessorSchedulesForDate = async (
         (v) =>
           v.classroomId === s.classroomId &&
           v.startTime <= s.startTime &&
-          v.endTime >= s.endTime
+          v.endTime >= s.endTime,
       );
 
       // If vacancy fully covers (or overlaps) this initial schedule block, skip it.
@@ -565,11 +589,13 @@ export const getProfessorSchedulesForDate = async (
   }
 };
 
-
 /*
-*** Conflicts
-*/
-export const getClassroomScheduleConflicts = async (newSchedule: ClassroomScheduleWithoutId, startTimes: TimeInt[]) => {
+ *** Conflicts
+ */
+export const getClassroomScheduleConflicts = async (
+  newSchedule: ClassroomScheduleWithoutId,
+  startTimes: TimeInt[],
+) => {
   try {
     return await db
       .select()
@@ -578,16 +604,19 @@ export const getClassroomScheduleConflicts = async (newSchedule: ClassroomSchedu
         and(
           eq(classroomSchedule.day, newSchedule.day),
           eq(classroomSchedule.classroomId, newSchedule.classroomId),
-          inArray(classroomSchedule.startTime, startTimes)
-        )
+          inArray(classroomSchedule.startTime, startTimes),
+        ),
       );
   } catch (error) {
     console.log("Failed to get classroom schedule conflicts:", error);
     throw new Error("Could not get classroom schedule conflicts");
   }
-}
+};
 
-export const getClassroomVacancyConflicts = async (newVacancy: ClassroomVacancyWithoutId, startTimes: TimeInt[]) => {
+export const getClassroomVacancyConflicts = async (
+  newVacancy: ClassroomVacancyWithoutId,
+  startTimes: TimeInt[],
+) => {
   try {
     return await db
       .select()
@@ -596,15 +625,18 @@ export const getClassroomVacancyConflicts = async (newVacancy: ClassroomVacancyW
         and(
           eq(classroomVacancy.date, newVacancy.date),
           eq(classroomVacancy.classroomId, newVacancy.classroomId),
-          inArray(classroomVacancy.startTime, startTimes)
-        )
+          inArray(classroomVacancy.startTime, startTimes),
+        ),
       );
   } catch (error) {
     console.log("Failed to get classroom vacancy conflicts:", error);
     throw new Error("Could not get classroom vacancy conflicts");
   }
-}
-export const getClassroomBorrowingConflicts = async (newBorrowing: ClassroomBorrowingWithoutId, startTimes: TimeInt[]) => {
+};
+export const getClassroomBorrowingConflicts = async (
+  newBorrowing: ClassroomBorrowingWithoutId,
+  startTimes: TimeInt[],
+) => {
   try {
     return await db
       .select()
@@ -613,23 +645,23 @@ export const getClassroomBorrowingConflicts = async (newBorrowing: ClassroomBorr
         and(
           eq(classroomBorrowing.date, newBorrowing.date),
           eq(classroomBorrowing.classroomId, newBorrowing.classroomId),
-          inArray(classroomBorrowing.startTime, startTimes)
-        )
+          inArray(classroomBorrowing.startTime, startTimes),
+        ),
       );
   } catch (error) {
     console.log("Failed to get classroom vacancy conflicts:", error);
     throw new Error("Could not get classroom vacancy conflicts");
   }
-}
+};
 
 /*
-*** available classrooms 
-*/
+ *** available classrooms
+ */
 export const getAvailableClassrooms = async (
   date: Date,
   startTime: number,
   endTime: number,
-  filters?: { buildingId?: string; type?: ClassroomType }
+  filters?: { buildingId?: string; type?: ClassroomType },
 ) => {
   try {
     // 1️⃣ Fetch all classrooms (with filters)
@@ -645,9 +677,11 @@ export const getAvailableClassrooms = async (
       .from(classroom)
       .where(
         and(
-          filters?.buildingId ? eq(classroom.buildingId, filters.buildingId) : undefined,
-          filters?.type ? eq(classroom.type, filters.type) : undefined
-        )
+          filters?.buildingId
+            ? eq(classroom.buildingId, filters.buildingId)
+            : undefined,
+          filters?.type ? eq(classroom.type, filters.type) : undefined,
+        ),
       );
 
     if (!classrooms.length) return [];
@@ -669,8 +703,8 @@ export const getAvailableClassrooms = async (
       .where(
         and(
           inArray(classroomSchedule.classroomId, classroomIds),
-          eq(classroomSchedule.day, systemDay)
-        )
+          eq(classroomSchedule.day, systemDay),
+        ),
       );
 
     // Vacancies
@@ -685,8 +719,8 @@ export const getAvailableClassrooms = async (
       .where(
         and(
           inArray(classroomVacancy.classroomId, classroomIds),
-          eq(classroomVacancy.date, date)
-        )
+          eq(classroomVacancy.date, date),
+        ),
       );
 
     // Borrowings
@@ -701,8 +735,8 @@ export const getAvailableClassrooms = async (
       .where(
         and(
           inArray(classroomBorrowing.classroomId, classroomIds),
-          eq(classroomBorrowing.date, date)
-        )
+          eq(classroomBorrowing.date, date),
+        ),
       );
 
     // 3️⃣ Prepare 30-minute blocks
@@ -737,7 +771,7 @@ export const getAvailableClassrooms = async (
           (b) =>
             b.classroomId === room.classroomId &&
             b.startTime < end &&
-            b.endTime > start
+            b.endTime > start,
         );
         if (borrowed) {
           isAvailable = false;
@@ -749,7 +783,7 @@ export const getAvailableClassrooms = async (
           (v) =>
             v.classroomId === room.classroomId &&
             v.startTime < end &&
-            v.endTime > start
+            v.endTime > start,
         );
         if (vacated) {
           continue;
@@ -760,7 +794,7 @@ export const getAvailableClassrooms = async (
           (s) =>
             s.classroomId === room.classroomId &&
             s.startTime < end &&
-            s.endTime > start
+            s.endTime > start,
         );
         if (scheduled) {
           isAvailable = false;
@@ -819,10 +853,13 @@ export const getAvailableClassrooms = async (
 
     // (optional) sort classrooms by name, buildings by name
     for (const g of groups.values()) {
-      g.classrooms.sort((a, b) => a.classroomName.localeCompare(b.classroomName));
+      g.classrooms.sort((a, b) =>
+        a.classroomName.localeCompare(b.classroomName),
+      );
     }
-    const grouped: GroupedAvailable[] = Array.from(groups.values())
-      .sort((a, b) => a.buildingName.localeCompare(b.buildingName));
+    const grouped: GroupedAvailable[] = Array.from(groups.values()).sort(
+      (a, b) => a.buildingName.localeCompare(b.buildingName),
+    );
 
     return grouped;
   } catch (error) {
@@ -847,7 +884,7 @@ type GroupedCurrentAvailable = {
 
 export const getCurrentlyAvailableClassrooms = async (
   date: Date,
-  startBlock: number
+  startBlock: number,
 ) => {
   try {
     // 1️⃣ Fetch all classrooms (no filters)
@@ -879,8 +916,8 @@ export const getCurrentlyAvailableClassrooms = async (
       .where(
         and(
           inArray(classroomSchedule.classroomId, classroomIds),
-          eq(classroomSchedule.day, systemDay)
-        )
+          eq(classroomSchedule.day, systemDay),
+        ),
       );
 
     const vacancies = await db
@@ -894,8 +931,8 @@ export const getCurrentlyAvailableClassrooms = async (
       .where(
         and(
           inArray(classroomVacancy.classroomId, classroomIds),
-          eq(classroomVacancy.date, date)
-        )
+          eq(classroomVacancy.date, date),
+        ),
       );
 
     const borrowings = await db
@@ -909,8 +946,8 @@ export const getCurrentlyAvailableClassrooms = async (
       .where(
         and(
           inArray(classroomBorrowing.classroomId, classroomIds),
-          eq(classroomBorrowing.date, date)
-        )
+          eq(classroomBorrowing.date, date),
+        ),
       );
 
     // ✅ 3️⃣ Create time blocks ONLY from startBlock → 2050
@@ -952,7 +989,7 @@ export const getCurrentlyAvailableClassrooms = async (
         (b) =>
           b.classroomId === room.classroomId &&
           b.startTime < blockStart + TIME_INTERVAL &&
-          b.endTime > blockStart
+          b.endTime > blockStart,
       );
       if (borrowed) continue;
 
@@ -961,14 +998,14 @@ export const getCurrentlyAvailableClassrooms = async (
         (v) =>
           v.classroomId === room.classroomId &&
           v.startTime < blockStart + TIME_INTERVAL &&
-          v.endTime > blockStart
+          v.endTime > blockStart,
       );
       if (!vacated) {
         const scheduled = initialSchedules.some(
           (s) =>
             s.classroomId === room.classroomId &&
             s.startTime < blockStart + TIME_INTERVAL &&
-            s.endTime > blockStart
+            s.endTime > blockStart,
         );
         if (scheduled) continue;
       }
@@ -984,7 +1021,7 @@ export const getCurrentlyAvailableClassrooms = async (
           (b) =>
             b.classroomId === room.classroomId &&
             b.startTime < end &&
-            b.endTime > start
+            b.endTime > start,
         );
         if (blockedBorrow) break;
 
@@ -992,14 +1029,14 @@ export const getCurrentlyAvailableClassrooms = async (
           (v) =>
             v.classroomId === room.classroomId &&
             v.startTime < end &&
-            v.endTime > start
+            v.endTime > start,
         );
         if (!isVacant) {
           const isScheduled = initialSchedules.some(
             (s) =>
               s.classroomId === room.classroomId &&
               s.startTime < end &&
-              s.endTime > start
+              s.endTime > start,
           );
           if (isScheduled) break;
         }
@@ -1045,7 +1082,7 @@ export const getCurrentlyAvailableClassrooms = async (
         });
 
         return acc;
-      }, {})
+      }, {}),
     );
 
     return groupedResult;
@@ -1062,7 +1099,15 @@ export async function getRoomRequestStatsPerDepartment() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
 
   // Start of next month (exclusive upper bound)
-  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+  const nextMonthStart = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    1,
+    0,
+    0,
+    0,
+    0,
+  );
 
   const results = await db
     .select({
@@ -1074,8 +1119,8 @@ export async function getRoomRequestStatsPerDepartment() {
     .where(
       and(
         gte(roomRequests.date, monthStart),
-        lte(roomRequests.date, nextMonthStart)
-      )
+        lte(roomRequests.date, nextMonthStart),
+      ),
     )
     .groupBy(user.departmentOrOrganization);
 
@@ -1096,7 +1141,15 @@ export async function getRoomRequestStatsPerClassroomType() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
 
   // Start of next month (exclusive upper bound)
-  const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+  const nextMonthStart = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    1,
+    0,
+    0,
+    0,
+    0,
+  );
 
   const results = await db
     .select({
@@ -1108,8 +1161,8 @@ export async function getRoomRequestStatsPerClassroomType() {
     .where(
       and(
         gte(roomRequests.date, monthStart),
-        lte(roomRequests.date, nextMonthStart)
-      )
+        lte(roomRequests.date, nextMonthStart),
+      ),
     )
     .groupBy(classroom.type);
 

@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import LoadingMessage from "@/components/loading-state/loading-message";
-import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorResource, getStatusIconResource } from "../icon-status";
 import NoReportsuser from "@/components/loading-state/no-reports-user";
 
