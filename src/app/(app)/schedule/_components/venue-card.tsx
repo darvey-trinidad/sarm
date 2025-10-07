@@ -28,7 +28,7 @@ export default function VenueCard({ role }: VenueCardProps) {
     );
   }
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div className="grid grid-cols-1 items-center justify-center gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Link href={PageRoutes.SCHEDULE_CLASSROOM}>
         <ClassroomCard />
       </Link>
@@ -42,7 +42,7 @@ export default function VenueCard({ role }: VenueCardProps) {
               <CardContent className="flex h-full flex-col p-0">
                 {/* Header */}
                 <div className="flex items-center gap-2 pb-2 pl-4">
-                  <div className="h-4 w-4 rounded-sm bg-orange-500"></div>
+                  <div className="h-3 w-3 rounded-xs bg-orange-500"></div>
                   <h3 className="text-medium font-semibold text-gray-800">
                     {venue.name}
                   </h3>

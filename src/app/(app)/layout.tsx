@@ -18,6 +18,10 @@ export default async function RootLayout({
     redirect(PageRoutes.LOGIN);
   }
 
+  if (!session.user.isActive) {
+    redirect(PageRoutes.ACCOUNT_PENDING);
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />

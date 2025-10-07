@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/select";
 import { ROLES_OPTIONS, type Roles } from "@/constants/roles";
 import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
-
+import { useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
+import { PageRoutes } from "@/constants/page-routes";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,6 +31,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
   const [departmentOrOrganization, setDepartmentOrOrganization] = useState("");
+  const router = useRouter();
 
   const {
     mutate: signUpMutation,
@@ -56,6 +58,7 @@ export default function SignUpPage() {
       {
         onSuccess: () => {
           toast.success("Sign up successful!");
+          router.push(PageRoutes.REGISTRATION_SUCCESS);
         },
         onError: (error) => {
           toast.error(`Sign up failed: ${error.message}!`);

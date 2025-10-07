@@ -1,6 +1,10 @@
 export enum PageRoutes {
   LOGIN = "/login",
 
+  VERIFY_EMAIL = "/verify-email",
+  ACCOUNT_PENDING = "/account-pending",
+  REGISTRATION_SUCCESS = "/registration-success",
+
   DASHBOARD = "/",
 
   //Schedule

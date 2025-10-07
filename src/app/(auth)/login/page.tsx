@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { PageRoutes } from "@/constants/page-routes";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
@@ -19,6 +19,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     if (searchParams.get("resetSuccess") === "true") {
@@ -45,7 +46,31 @@ function LoginForm() {
       );
 
       if (error) {
-        toast.error(error.message ?? "Sign in failed!");
+        // Check if error is related to unverified email
+        const errorMessage = error.message?.toLowerCase() || "";
+        const isUnverifiedEmail =
+          errorMessage.includes("verify") ||
+          errorMessage.includes("verification") ||
+          errorMessage.includes("not verified");
+
+        if (isUnverifiedEmail) {
+          // Auto-send verification email
+          try {
+            await authClient.sendVerificationEmail({
+              email,
+              callbackURL: PageRoutes.DASHBOARD,
+            });
+
+            toast.info("Please verify your email.\nWe've sent a new verification link to your email address.");
+
+            // Redirect to verification page
+            router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+          } catch (resendError) {
+            toast.error("Failed to resend verification email. Please try again.");
+          }
+        } else {
+          toast.error(error.message ?? "Sign in failed!");
+        }
       }
     } finally {
       setLoading(false);
