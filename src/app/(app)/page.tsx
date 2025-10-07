@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { Roles } from "@/constants/roles";
 import PEInstructorDashBoard from "@/components/dashboards/pe-instructor";
 import StudentOrganizationDashboard from "@/components/dashboards/student-organization";
+import ClassroomManagerDashBoard from "@/components/dashboards/classroom-manager";
 export const metadata: Metadata = {
   title: "Dashboard",
 };
@@ -30,6 +31,8 @@ export default async function Page() {
         return <PEInstructorDashBoard />;
       case Roles.StudentOrganization:
         return <StudentOrganizationDashboard />;
+      case Roles.ClassroomManager:
+        return <ClassroomManagerDashBoard />;
       default:
         return <div></div>;
     }

@@ -1,7 +1,8 @@
 "use client";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-export default function NoReportsuser() {
+
+export default function NoRoomRequest() {
   return (
     <Card className="border-border">
       <CardContent className="flex items-center justify-center py-12">
@@ -11,7 +12,7 @@ export default function NoReportsuser() {
             No data found
           </h3>
           <p className="text-muted-foreground">
-            You have not made any reservations yet.
+            You have not made any classroom requests yet.
           </p>
         </div>
       </CardContent>

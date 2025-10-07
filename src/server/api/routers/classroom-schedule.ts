@@ -24,6 +24,7 @@ import {
   getCurrentlyAvailableClassrooms,
   getProfessorSchedulesForDate,
   getRoomRequestById,
+  getRoomRequestsByRequesterId,
   getRoomRequestsByResponderId,
   getRoomRequestStatsPerClassroomType,
   getRoomRequestStatsPerDepartment,
@@ -193,6 +194,21 @@ export const classroomScheduleRouter = createTRPCRouter({
         throw error;
       }
     }),
+  cancelRoomRequest: protectedProcedure
+    .input(z.object({ roomRequestId: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        await updateRoomRequestStatus(input.roomRequestId, RoomRequestStatus.Canceled);
+
+        return { message: "Room Request Canceled", status: 200 };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not cancel room request",
+        });
+      }
+    }),
   respondToRoomRequest: protectedProcedure
     .input(respondToRoomRequestSchema)
     .mutation(async ({ input }) => {
@@ -223,7 +239,7 @@ export const classroomScheduleRouter = createTRPCRouter({
         await updateRoomRequestStatus(input.roomRequestId, input.status);
         await notifyRoomRequestor(input.roomRequestId);
 
-        return { info: "Room Request Responded", status: 200 };
+        return { message: "Room Request Responded", status: 200 };
       } catch (error) {
         console.error(error);
         throw new TRPCError({
@@ -241,7 +257,12 @@ export const classroomScheduleRouter = createTRPCRouter({
     .input(z.object({ responderId: z.string() }))
     .query(async ({ input }) => {
       const res = await getRoomRequestsByResponderId(input.responderId);
-      console.log(res);
+      return res;
+    }),
+  getRoomRequestsByRequestorId: protectedProcedure
+    .input(z.object({ requestorId: z.string() }))
+    .query(async ({ input }) => {
+      const res = await getRoomRequestsByRequesterId(input.requestorId);
       return res;
     }),
   getRoomRequestStatsByDepartment: protectedProcedure.query(async () => {

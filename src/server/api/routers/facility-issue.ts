@@ -1,6 +1,6 @@
 import { REPORT_STATUS } from "@/constants/report-status";
 import { createFacilityIssueReport, editFacilityIssueReportStatus } from "@/lib/api/facility-issue/mutation";
-import { getAllFacilityIssueReports, getAllFacilityIssueReportsByUser, getRecentFacilityIssueReports } from "@/lib/api/facility-issue/query";
+import { getAllFacilityIssueReports, getAllFacilityIssueReportsByUser, getOngoingReportsCount, getRecentFacilityIssueReports, getResolvedReportsCountThisMonth, getUnresolvedReportsCount } from "@/lib/api/facility-issue/query";
 import { generateUUID } from "@/lib/utils";
 import { createFacilityIssueReportSchema, getAllFacilityIssueReportsSchema } from "@/server/api-utils/validators/facility-issue";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
@@ -25,6 +25,13 @@ export const facilityIssueRouter = createTRPCRouter({
     }),
   getRecentFacilityIssueReports: protectedProcedure.query(async () => {
     return await getRecentFacilityIssueReports();
+  }),
+  getFacilityIssueReportsCounts: protectedProcedure.query(async () => {
+    return {
+      unresolvedCount: await getUnresolvedReportsCount(),
+      ongoingCount: await getOngoingReportsCount(),
+      resolvedCount: await getResolvedReportsCountThisMonth(),
+    }
   }),
   editFacilityIssueReportStatus: protectedProcedure
     .input(z.object({ id: z.string(), status: z.enum(REPORT_STATUS) }))

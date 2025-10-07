@@ -138,3 +138,43 @@ export const getUnresolvedReportsCount = async () => {
     throw error;
   }
 }
+
+export const getOngoingReportsCount = async () => {
+  try {
+    const res = await db
+      .select({ count: count(facilityIssueReport.id) })
+      .from(facilityIssueReport)
+      .where(eq(facilityIssueReport.status, ReportStatusValues.Ongoing))
+      .get();
+
+    return res?.count ?? 0;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const getResolvedReportsCountThisMonth = async () => {
+  try {
+    const now = new Date();
+
+    // Get UTC start of month
+    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+
+    console.log(startOfMonth);
+
+    const res = await db
+      .select({ count: count(facilityIssueReport.id) })
+      .from(facilityIssueReport)
+      .where(and(
+        eq(facilityIssueReport.status, ReportStatusValues.Resolved),
+        gte(facilityIssueReport.dateUpdated, new Date(startOfMonth))
+      ))
+      .get();
+
+    return res?.count ?? 0;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
