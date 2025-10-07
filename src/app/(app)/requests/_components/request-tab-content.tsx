@@ -7,6 +7,7 @@ import VenueReservationUser from "./user-view/venue-reservation-user";
 import ResourceReservationUser from "./user-view/resource-reservation-user";
 import { authClient } from "@/lib/auth-client";
 import { Roles } from "@/constants/roles";
+import UserRoomRequest from "./classroom-request/user-room-request";
 
 type RequestTabContentProps = {
   role: string;
@@ -20,11 +21,13 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
           <>
             <TabsTrigger value="venue">Venue Request</TabsTrigger>
             <TabsTrigger value="resource">Resource Request</TabsTrigger>
+            <TabsTrigger value="room-request">Classroom Request</TabsTrigger>
           </>
         ) : (
           <>
             <TabsTrigger value="venue">Venue Request</TabsTrigger>
             <TabsTrigger value="resource">Resource Request</TabsTrigger>
+            <TabsTrigger value="room-request">Classroom Request</TabsTrigger>
           </>
         )}
       </TabsList>
@@ -38,6 +41,9 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
             <TabsContent value="resource" className="space-y-4">
               <ResourceReservation />
             </TabsContent>
+            <TabsContent value="room-request">
+              <UserRoomRequest />
+            </TabsContent>
           </>
         ) : (
           <>
@@ -46,6 +52,9 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
             </TabsContent>
             <TabsContent value="resource" className="space-y-4">
               <ResourceReservationUser />
+            </TabsContent>
+            <TabsContent value="room-request">
+              <UserRoomRequest />
             </TabsContent>
           </>
         )}
