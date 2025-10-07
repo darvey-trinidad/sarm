@@ -381,10 +381,7 @@ export default function ResourceReservation() {
           <LoadingMessage />
         ) : (
           filteredRequests.map((request) => (
-            <Card
-              key={request.id}
-              className="border-border transition-shadow hover:shadow-md"
-            >
+            <Card key={request.id}>
               <CardContent className="p-4">
                 <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="flex items-start gap-4">
@@ -443,19 +440,19 @@ export default function ResourceReservation() {
                       </div>
 
                       {request.borrowedItems.length > 0 && (
-                        <div className="mt-3 p-0 md:p-3">
+                        <div className="mt-3">
                           <div className="flex items-center gap-2">
                             <Package className="h-4 w-4" />
-                            <h4 className="text-medium font-semibold text-gray-800">
+                            <h4 className="text-sm font-semibold text-gray-800">
                               Resources Requested:
                             </h4>
                           </div>
-                          <ScrollArea className="h-32 w-full">
+                          <ScrollArea className="mt-2 h-30 w-full">
                             <div className="space-y-2">
                               {request.borrowedItems.map((item) => (
                                 <div
                                   key={item.id}
-                                  className="bg-background flex items-center justify-between rounded border p-2"
+                                  className="flex items-center justify-between rounded-md bg-stone-50 p-2"
                                 >
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2">
@@ -481,7 +478,7 @@ export default function ResourceReservation() {
                       )}
                       {/*representative borrower change the position */}
                       {request.representativeBorrower && (
-                        <div className="flex items-center gap-2 text-sm">
+                        <div className="mt-3 flex items-center gap-2 text-sm">
                           <h4 className="font-semibold text-gray-800">
                             Representative:
                           </h4>
@@ -553,7 +550,7 @@ export default function ResourceReservation() {
                   </div>
                 </div>
 
-                <div className="text-muted-foreground border-border flex border-t pt-3 text-sm">
+                <div className="text-muted-foreground border-border flex border-t pt-3 text-xs">
                   Submitted on {formatISODate(request.dateRequested)} {""}(
                   {formatLocalTime(request.dateRequested)})
                   {request.dateReturned && (
