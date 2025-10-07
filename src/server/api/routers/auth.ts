@@ -1,11 +1,11 @@
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
-import { signupSchema, getAllSchedulableFacultySchema } from "@/server/api-utils/validators/auth";
+import { signupSchema, getAllSchedulableFacultySchema, editUserProfileSchema } from "@/server/api-utils/validators/auth";
 import { getAllFaculty, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
 import { env } from "@/env";
 import { TRPCError } from "@trpc/server";
-import { toggleUserIsActive } from "@/lib/api/auth/mutation";
+import { editUserProfile, toggleUserIsActive } from "@/lib/api/auth/mutation";
 import { notifyAccountActivated } from "@/emails/notify-account-activation";
 import { tr } from "date-fns/locale";
 
@@ -43,6 +43,11 @@ export const authRouter = createTRPCRouter({
         throw error;
       }
     }),
+  getUserById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ input }) => {
+      return getUserById(input.id);
+    }),
   getAllFaculty: publicProcedure.query(() => {
     return getAllFaculty();
   }),
@@ -58,6 +63,16 @@ export const authRouter = createTRPCRouter({
   getAllPeInstructors: publicProcedure.query(() => {
     return getAllPeInstructors();
   }),
+  editUserProfile: publicProcedure
+    .input(editUserProfileSchema)
+    .mutation(({ input }) => {
+      try {
+        const { id, ...data } = input;
+        return editUserProfile(id, data);
+      } catch (error) {
+        throw error;
+      }
+    }),
   requestPasswordReset: publicProcedure
     .input(
       z.object({

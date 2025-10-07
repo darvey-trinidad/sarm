@@ -194,6 +194,21 @@ export const classroomScheduleRouter = createTRPCRouter({
         throw error;
       }
     }),
+  cancelRoomRequest: protectedProcedure
+    .input(z.object({ roomRequestId: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        await updateRoomRequestStatus(input.roomRequestId, RoomRequestStatus.Canceled);
+
+        return { message: "Room Request Canceled", status: 200 };
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Could not cancel room request",
+        });
+      }
+    }),
   respondToRoomRequest: protectedProcedure
     .input(respondToRoomRequestSchema)
     .mutation(async ({ input }) => {
@@ -224,7 +239,7 @@ export const classroomScheduleRouter = createTRPCRouter({
         await updateRoomRequestStatus(input.roomRequestId, input.status);
         await notifyRoomRequestor(input.roomRequestId);
 
-        return { info: "Room Request Responded", status: 200 };
+        return { message: "Room Request Responded", status: 200 };
       } catch (error) {
         console.error(error);
         throw new TRPCError({

@@ -24,10 +24,13 @@ import { TIME_MAP } from "@/constants/timeslot";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import NoRoomRequest from "@/components/loading-state/no-room-request";
 import LoadingMessage from "@/components/loading-state/loading-message";
+import { toast } from "sonner";
 export default function UserRoomRequest() {
   const { data: session } = authClient.useSession();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+
+  const { mutate: cancelRoomRequestMutation } = api.classroomSchedule.cancelRoomRequest.useMutation();
 
   const {
     data: userRoomRequests,
@@ -45,6 +48,31 @@ export default function UserRoomRequest() {
       classroomRequest.classroomName.toLowerCase().includes(searchLower),
     );
   }, [userRoomRequests, searchTerm]);
+
+  const handleCancel = (roomRequestId: string) => {
+    showConfirmation({
+      title: "Cancel Room Request",
+      description: "Are you sure you want to cancel this room request?",
+      variant: "destructive",
+      confirmText: "Confirm",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        await new Promise((resolve) => {
+          cancelRoomRequestMutation({ roomRequestId }, {
+            onSuccess: async () => {
+              await refetchClassroomRequests();
+              toast.success("Room request canceled!");
+              resolve(true);
+            },
+            onError: (error) => {
+              toast.error(error.message);
+              resolve(false);
+            },
+          });
+        })
+      },
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -124,17 +152,19 @@ export default function UserRoomRequest() {
                     <div className="mt-2 flex items-center gap-2 md:mt-0">
                       {classroomRequest.status ===
                         RoomRequestStatus.Pending && (
-                        <div>
-                          <Button
-                            size="sm"
-                            onClick={() => {}}
-                            className="bg-orange-600 text-white hover:bg-orange-700"
-                          >
-                            <XCircle className="mr-1 h-4 w-4" />
-                            Cancel
-                          </Button>
-                        </div>
-                      )}
+                          <div>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                handleCancel(classroomRequest.id);
+                              }}
+                              className="bg-orange-600 text-white hover:bg-orange-700"
+                            >
+                              <XCircle className="mr-1 h-4 w-4" />
+                              Cancel
+                            </Button>
+                          </div>
+                        )}
                     </div>
                   </div>
                   <div className="text-muted-foreground border-border flex border-t pt-3 text-xs">
@@ -146,6 +176,7 @@ export default function UserRoomRequest() {
           )}
         </div>
       </div>
+      {ConfirmationDialog}
     </div>
   );
 }
