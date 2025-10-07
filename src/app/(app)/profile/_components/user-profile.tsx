@@ -95,8 +95,8 @@ export default function UserProfile() {
         {/* User Profile */}
         <div className="xs:border-b flex w-[350px] flex-col items-center border-r-gray-300 p-4 md:border-r">
           <CircleUserRound className="h-60 w-60 stroke-1" />
-          <h1 className="mt-4 text-2xl font-bold">{User?.name}</h1>
-          <span>{User?.role ? ROLE_LABELS[User.role] : ""}</span>
+          <h1 className="mt-4 text-2xl font-bold">{User?.name ?? "Name"}</h1>
+          <span>{User?.role ? ROLE_LABELS[User.role] : "Role"}</span>
         </div>
 
         {/* User Details */}
@@ -133,7 +133,7 @@ export default function UserProfile() {
                   <span>Email Address</span>
                 </Label>
                 <p className="text-foreground text-md pl-6 font-medium">
-                  {User?.email}
+                  {User?.email ?? "emailexample@example.com"}
                 </p>
               </div>
 
@@ -144,7 +144,7 @@ export default function UserProfile() {
                   <span>Department</span>
                 </Label>
                 <p className="text-foreground text-md pl-6 font-medium">
-                  {User?.departmentOrOrganization ?? ""}
+                  {User?.departmentOrOrganization ?? "Itds"}
                 </p>
               </div>
 
