@@ -104,10 +104,7 @@ export default function ReportListUser() {
           <LoadingMessage />
         ) : (
           ReportListUser?.map((report) => (
-            <Card
-              key={report.id}
-              className="border-border transition-shadow hover:shadow-md"
-            >
+            <Card key={report.id}>
               <CardContent className="p-6">
                 <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                   <div className="flex items-start gap-4">
@@ -163,7 +160,7 @@ export default function ReportListUser() {
                       </div>
 
                       {report.details && (
-                        <div className="bg-muted mt-3 rounded-lg p-3">
+                        <div className="mt-3 rounded-lg bg-stone-50 p-3">
                           <h4 className="text-foreground mb-1 text-sm font-medium">
                             Additional Details:
                           </h4>

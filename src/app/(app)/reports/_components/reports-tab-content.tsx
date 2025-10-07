@@ -2,9 +2,8 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReportForm from "./submit/report-form";
-import ReportListContent from "./report-list/report-list-conent";
+import ReportListContent from "./report-list/report-list-all";
 import ReportListUser from "./report-list/report-list-user";
-import { authClient } from "@/lib/auth-client";
 import { Roles } from "@/constants/roles";
 
 type ReportStatusProps = {
