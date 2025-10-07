@@ -2,15 +2,24 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { CircleAlert, TriangleAlert, CircleCheckBig } from "lucide-react";
 import { Roles } from "@/constants/roles";
+import { api } from "@/trpc/react";
 
 type ReportCardsProps = {
   role: string;
 };
 
 export default function reportCards({ role }: ReportCardsProps) {
-  const Pending = 12;
-  const InProgress = 2;
-  const Completed = 8;
+  const { data: reportsCounts, isLoading } = api.facilityIssue.getFacilityIssueReportsCounts.useQuery();
+
+  const {
+    unresolvedCount,
+    ongoingCount,
+    resolvedCount,
+  } = reportsCounts ?? {
+    unresolvedCount: 0,
+    ongoingCount: 0,
+    resolvedCount: 0
+  }
 
   if (role !== Roles.FacilityManager) {
     return null;
@@ -20,11 +29,11 @@ export default function reportCards({ role }: ReportCardsProps) {
       {/* Pending */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-bold">Reported</CardTitle>
+          <CardTitle className="text-xl font-bold">Unresolved</CardTitle>
           <CircleAlert className="h-5 w-5 text-red-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{Pending}</div>
+          <div className="text-2xl font-bold">{unresolvedCount}</div>
         </CardContent>
       </Card>
 
@@ -35,7 +44,7 @@ export default function reportCards({ role }: ReportCardsProps) {
           <TriangleAlert className="h-5 w-5 text-orange-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{InProgress}</div>
+          <div className="text-2xl font-bold">{ongoingCount}</div>
         </CardContent>
       </Card>
 
@@ -46,7 +55,7 @@ export default function reportCards({ role }: ReportCardsProps) {
           <CircleCheckBig className="h-5 w-5 text-green-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{Completed}</div>
+          <div className="text-2xl font-bold">{resolvedCount}</div>
         </CardContent>
       </Card>
     </div>

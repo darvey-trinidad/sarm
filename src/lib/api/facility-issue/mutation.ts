@@ -14,7 +14,7 @@ export const createFacilityIssueReport = async (data: NewFacilityIssueReport) =>
 
 export const editFacilityIssueReportStatus = async (id: string, status: ReportStatus) => {
   try {
-    return await db.update(facilityIssueReport).set({ status }).where(eq(facilityIssueReport.id, id)).returning().get();
+    return await db.update(facilityIssueReport).set({ status, dateUpdated: new Date() }).where(eq(facilityIssueReport.id, id)).returning().get();
   } catch (error) {
     console.error(error);
     throw error;
