@@ -2,10 +2,12 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { signupSchema, getAllSchedulableFacultySchema } from "@/server/api-utils/validators/auth";
-import { getAllFaculty, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers } from "@/lib/api/auth/query";
+import { getAllFaculty, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
 import { env } from "@/env";
 import { TRPCError } from "@trpc/server";
 import { toggleUserIsActive } from "@/lib/api/auth/mutation";
+import { notifyAccountActivated } from "@/emails/notify-account-activation";
+import { tr } from "date-fns/locale";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(signupSchema).mutation(({ input }) => {
@@ -22,8 +24,24 @@ export const authRouter = createTRPCRouter({
   }),
   toggleUserIsActive: publicProcedure
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
-    .mutation(({ input }) => {
-      return toggleUserIsActive(input.id, input.isActive);
+    .mutation(async ({ input }) => {
+      try {
+        const toggleResult = await toggleUserIsActive(input.id, input.isActive);
+        if (!toggleResult) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to change user status",
+          });
+        }
+        await notifyAccountActivated(input.id);
+        return {
+          success: true,
+          message: "Status changed and email sent successfully",
+        }
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
     }),
   getAllFaculty: publicProcedure.query(() => {
     return getAllFaculty();

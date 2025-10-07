@@ -11,6 +11,10 @@ export const getAllFaculty = async () => {
   ).all();
 }
 
+export const getUserById = async (id: string) => {
+  return await db.select().from(user).where(eq(user.id, id)).get();
+}
+
 export const getAllPeInstructors = async () => {
   return await db.select().from(user).where(
     and(

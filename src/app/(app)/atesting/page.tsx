@@ -1,6 +1,6 @@
 import React from "react";
 import { type Metadata } from "next";
-import { VerifyEmail } from "@/emails/verify-email";
+import { AccountActivatedEmail } from "@/emails/account-activated";
 
 export const metadata: Metadata = {
   title: "Requests",
@@ -10,7 +10,7 @@ export default async function Page() {
 
   return (
     <div>
-      <VerifyEmail fullName="John Doe" verifyUrl="https://example.com/verify" />
+      <AccountActivatedEmail userName="John Doe" loginUrl="https://example.com/login" />
     </div>
   );
 }
