@@ -1,7 +1,20 @@
-export default function UserProfile() {
+"use client";
+import { authClient } from "@/lib/auth-client";
+type UserProfileProps = {
+  user: {
+    name: string;
+    role: string;
+    email: string;
+    departmentOrOrganization: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null;
+};
+export default function UserProfile({ user: InitialUser }: UserProfileProps) {
   return (
-    <div>
-      <h1>hello this is user profile</h1>
+    <div className="min-h-screen">
+      <div className=""></div>
     </div>
   );
 }

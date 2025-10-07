@@ -1,11 +1,12 @@
+"use client";
 import React from "react";
-import { type Metadata } from "next";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
+import UserProfile from "./_components/user-profile";
+import { authClient } from "@/lib/auth-client";
 
-export const metadata: Metadata = {
-  title: "Profile",
-};
 const Profile = () => {
+  const { data: userProfile } = authClient.useSession();
+
   return (
     <div className="flex w-full flex-col space-y-4">
       <BreadcrumbLayout currentPage="Profile" />
