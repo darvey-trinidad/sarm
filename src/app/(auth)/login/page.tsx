@@ -47,7 +47,7 @@ function LoginForm() {
 
       if (error) {
         // Check if error is related to unverified email
-        const errorMessage = error.message?.toLowerCase() || "";
+        const errorMessage = error.message?.toLowerCase() ?? "";
         const isUnverifiedEmail =
           errorMessage.includes("verify") ||
           errorMessage.includes("verification") ||

@@ -32,7 +32,7 @@ function VerificationContent() {
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold text-amber-800">Check Your Email</h2>
         <p className="text-gray-600">
-          We've sent a verification link to
+          We have sent a verification link to
         </p>
         {email && (
           <p className="font-semibold text-amber-800">{email}</p>
@@ -46,12 +46,12 @@ function VerificationContent() {
         <ol className="list-decimal list-inside space-y-1 text-sm text-gray-600">
           <li>Open your email inbox</li>
           <li>Click the verification link</li>
-          <li>You'll be automatically signed in</li>
+          <li>You will be automatically signed in</li>
         </ol>
       </div>
 
       <div className="text-center text-xs text-gray-500 space-y-1">
-        <p>Didn't receive the email? Check your spam folder.</p>
+        <p>Did not receive the email? Check your spam folder.</p>
         <p>The link will expire in 24 hours.</p>
       </div>
     </div>

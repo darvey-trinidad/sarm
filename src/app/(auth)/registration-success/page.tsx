@@ -73,7 +73,7 @@ export default async function RegistrationSuccessPage() {
                   Verify Your Email Address
                 </h3>
                 <p className="text-sm text-gray-600 mb-2">
-                  We've sent a verification link to your email. Click the link to verify your email address.
+                  We have sent a verification link to your email. Click the link to verify your email address.
                 </p>
                 <div className="flex items-center text-xs text-amber-700">
                   <svg
@@ -123,7 +123,7 @@ export default async function RegistrationSuccessPage() {
                   Start Using SARM
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Once approved, you'll receive an email notification and can sign in to access the system.
+                  Once approved, you will receive an email notification and can sign in to access the system.
                 </p>
               </div>
             </div>
