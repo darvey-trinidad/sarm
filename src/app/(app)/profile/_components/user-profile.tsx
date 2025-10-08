@@ -155,7 +155,7 @@ export default function UserProfile() {
             />
           ) : (
             <p className="pl-7 text-base">
-              {userData?.name || "Not provided"}
+              {userData?.name ?? "Not provided"}
             </p>
           )}
         </div>
@@ -199,7 +199,7 @@ export default function UserProfile() {
               {userData?.departmentOrOrganization
                 ? DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
                   (opt) => opt.value === userData.departmentOrOrganization,
-                )?.label || userData.departmentOrOrganization
+                )?.label ?? userData.departmentOrOrganization
                 : "Not provided"}
             </p>
           )}
