@@ -130,10 +130,13 @@ export const updateRoomRequestStatus = async (id: string, status: RoomRequestSta
 
 export const resetClassroomSchedules = async () => {
   try {
+    // Intentionally deleting all rows for reset functionality
+    /* eslint-disable drizzle/enforce-delete-with-where */
     await db.delete(roomRequests).run();
     await db.delete(classroomSchedule).run();
     await db.delete(classroomVacancy).run();
     await db.delete(classroomBorrowing).run();
+    /* eslint-enable drizzle/enforce-delete-with-where */
 
     return {
       success: true,
