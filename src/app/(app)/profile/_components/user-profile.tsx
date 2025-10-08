@@ -110,6 +110,7 @@ export default function UserProfile() {
           <Button
             onClick={() => setIsEditing(true)}
             variant="outline"
+            size="sm"
             className="gap-2"
           >
             <Edit2 className="h-4 w-4" />
@@ -117,13 +118,19 @@ export default function UserProfile() {
           </Button>
         ) : (
           <div className="flex gap-2">
-            <Button onClick={handleSave} className="gap-2" disabled={isPending}>
+            <Button
+              onClick={handleSave}
+              className="gap-2"
+              size="sm"
+              disabled={isPending}
+            >
               <Check className="h-4 w-4" />
               {isPending ? "Saving..." : "Save"}
             </Button>
             <Button
               onClick={handleCancel}
               variant="outline"
+              size="sm"
               className="gap-2"
               disabled={isPending}
             >
