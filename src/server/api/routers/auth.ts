@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { signupSchema, getAllSchedulableFacultySchema, editUserProfileSchema } from "@/server/api-utils/validators/auth";
@@ -22,7 +22,7 @@ export const authRouter = createTRPCRouter({
     });
     return res;
   }),
-  toggleUserIsActive: publicProcedure
+  toggleUserIsActive: protectedProcedure
     .input(z.object({ id: z.string(), isActive: z.boolean() }))
     .mutation(async ({ input }) => {
       try {
@@ -43,27 +43,27 @@ export const authRouter = createTRPCRouter({
         throw error;
       }
     }),
-  getUserById: publicProcedure
+  getUserById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ input }) => {
       return getUserById(input.id);
     }),
-  getAllFaculty: publicProcedure.query(() => {
+  getAllFaculty: protectedProcedure.query(() => {
     return getAllFaculty();
   }),
-  getAllSchedulableFaculty: publicProcedure
+  getAllSchedulableFaculty: protectedProcedure
     .input(getAllSchedulableFacultySchema)
     .query(({ input }) => {
       const data = getAllSchedulableFaculty(input.role, input.departmentOrOrganization);
       return data;
     }),
-  getAllUsers: publicProcedure.query(() => {
+  getAllUsers: protectedProcedure.query(() => {
     return getAllUsers();
   }),
-  getAllPeInstructors: publicProcedure.query(() => {
+  getAllPeInstructors: protectedProcedure.query(() => {
     return getAllPeInstructors();
   }),
-  editUserProfile: publicProcedure
+  editUserProfile: protectedProcedure
     .input(editUserProfileSchema)
     .mutation(({ input }) => {
       try {

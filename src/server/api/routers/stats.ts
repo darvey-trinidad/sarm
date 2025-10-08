@@ -1,10 +1,10 @@
 import { getUnresolvedReportsCount } from "@/lib/api/facility-issue/query";
 import { getPendingBorrowingTransactionsCount } from "@/lib/api/resource/query";
 import { getPendingVenueReservationsCount } from "@/lib/api/venue/query";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
 export const statsRouter = createTRPCRouter({
-  getReservationBorrowingIssueCounts: publicProcedure.query(async () => {
+  getReservationBorrowingIssueCounts: protectedProcedure.query(async () => {
     try {
       return {
         unresolvedReportsCount: await getUnresolvedReportsCount(),
