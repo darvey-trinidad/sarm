@@ -31,6 +31,9 @@ export enum PageRoutes {
   //Users
   USERS = "/users",
 
+  //User Profile
+  USER_PROFILE = "/profile",
+
   //Management
   MANAGEMENT = "/management",
 

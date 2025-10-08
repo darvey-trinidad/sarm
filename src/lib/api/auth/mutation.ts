@@ -13,6 +13,9 @@ export const toggleUserIsActive = async (id: string, isActive: boolean) => {
 
 export const editUserProfile = async (id: string, data: UpdateUser) => {
   try {
+    if (data.name?.length === 0) data.name = undefined;
+    if (data.departmentOrOrganization?.length === 0) data.departmentOrOrganization = undefined;
+
     if (data.name === undefined && data.departmentOrOrganization === undefined) {
       return; // nothing to update
     }

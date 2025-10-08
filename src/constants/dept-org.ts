@@ -1,12 +1,16 @@
 export const DEPARTMENT_OR_ORGANIZATION = [
   // departments
   "itds",
+  "bindtech",
   "gate",
   "gba",
   "htm",
   // organizations
-  "student_council",
   "elites",
+  "abacus",
+  "abatharm",
+  "aise",
+  "student_council",
   "laurel_publication"
 ] as const;
 
