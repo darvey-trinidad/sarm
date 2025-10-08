@@ -127,3 +127,23 @@ export const updateRoomRequestStatus = async (id: string, status: RoomRequestSta
     throw new Error("Could not update room request status");
   }
 }
+
+export const resetClassroomSchedules = async () => {
+  try {
+    await db.delete(roomRequests).run();
+    await db.delete(classroomSchedule).run();
+    await db.delete(classroomVacancy).run();
+    await db.delete(classroomBorrowing).run();
+
+    return {
+      success: true,
+      message: "Classroom schedules reset successfully",
+    }
+  } catch (err) {
+    console.error("Failed to reset classroom schedules:", err);
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Could not reset classroom schedules",
+    })
+  }
+}

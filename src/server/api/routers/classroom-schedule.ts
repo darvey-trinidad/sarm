@@ -6,6 +6,7 @@ import {
   deleteClassroomBorrowing,
   createRoomRequest,
   updateRoomRequestStatus,
+  resetClassroomSchedules,
 } from "@/lib/api/classroom-schedule/mutation";
 import {
   createClassroomScheduleSchema,
@@ -44,6 +45,7 @@ import { RoomRequestStatus } from "@/constants/room-request-status";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
+import { Roles } from "@/constants/roles";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -270,5 +272,14 @@ export const classroomScheduleRouter = createTRPCRouter({
   }),
   getRoomRequestStatsPerClassroomType: protectedProcedure.query(async () => {
     return getRoomRequestStatsPerClassroomType();
+  }),
+  resetClassroomSchedules: protectedProcedure.mutation(async ({ ctx }) => {
+    if (ctx.session?.user.role !== Roles.FacilityManager) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You must be an admin to reset classroom schedules",
+      });
+    }
+    return resetClassroomSchedules();
   })
 });
