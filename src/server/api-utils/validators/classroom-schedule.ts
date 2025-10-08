@@ -98,6 +98,15 @@ export const cancelClassroomBorrowingSchema = z.object({
   endTime: timeIntSchema,
 });
 
+export const deleteClassroomScheduleSchema = z.object({
+  classroomId: z.string(),
+  day: z.number(),
+  startTime: timeIntSchema,
+  endTime: timeIntSchema,
+});
+
+export type DeleteClassroomScheduleSchemaType = z.infer<typeof deleteClassroomScheduleSchema>;
+
 export const createRoomRequestSchema = z.object({
   classroomId: z.string(),
   date: requiredDateSchema(),

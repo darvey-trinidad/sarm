@@ -1,6 +1,6 @@
 import type { TimeInt } from "@/constants/timeslot";
 import { generateUUID } from "@/lib/utils";
-import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput, CancelClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
+import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput, CancelClassroomBorrowingInput, DeleteClassroomScheduleSchemaType } from "@/server/api-utils/validators/classroom-schedule";
 import type { FinalClassroomSchedule, InitialClassroomSchedule } from "@/types/clasroom-schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
 
@@ -63,6 +63,20 @@ export const splitTimeToHourlyTimeslot = (input: CancelClassroomBorrowingInput) 
     chunks.push({
       classroomId: input.classroomId,
       date: input.date,
+      startTime: time,
+      endTime: time + TIME_INTERVAL
+    });
+  }
+  return chunks;
+}
+
+export const splitTimeToHourlyTimeslotSchedule = (input: DeleteClassroomScheduleSchemaType) => {
+  const chunks: DeleteClassroomScheduleSchemaType[] = [];
+
+  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
+    chunks.push({
+      classroomId: input.classroomId,
+      day: input.day,
       startTime: time,
       endTime: time + TIME_INTERVAL
     });

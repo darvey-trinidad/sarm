@@ -7,6 +7,7 @@ import {
   createRoomRequest,
   updateRoomRequestStatus,
   resetClassroomSchedules,
+  deleteClassroomSchedule,
 } from "@/lib/api/classroom-schedule/mutation";
 import {
   createClassroomScheduleSchema,
@@ -19,6 +20,7 @@ import {
   getAvailableClassroomsSchema,
   getCurrentlyAvailableClassroomsSchema,
   getProfessorSchedulesForDateSchema,
+  deleteClassroomScheduleSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
 import {
   getAvailableClassrooms,
@@ -140,11 +142,27 @@ export const classroomScheduleRouter = createTRPCRouter({
       });
       return res;
     }),
+  deleteClassroomSchedule: protectedProcedure
+    .input(deleteClassroomScheduleSchema)
+    .mutation(({ input }) => {
+      try {
+        console.log(input);
+        return deleteClassroomSchedule(input);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    }),
   cancelClassroomBorrowing: protectedProcedure
     .input(cancelClassroomBorrowingSchema)
     .mutation(({ input }) => {
-      console.log(input);
-      return deleteClassroomBorrowing(input);
+      try {
+        console.log(input);
+        return deleteClassroomBorrowing(input);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     }),
   createRoomRequest: protectedProcedure
     .input(createRoomRequestSchema)

@@ -93,11 +93,35 @@ export default function PlottingFormDialog({
   const { mutate: createClassroomSchedule } =
     api.classroomSchedule.createClassroomSchedule.useMutation();
 
-  const handleDelete = () => {
-    toast.success("Schedule deleted successfully");
-  };
+  const { mutate: deleteClassroomSchedule } = api.classroomSchedule.deleteClassroomSchedule.useMutation();
 
   const utils = api.useUtils();
+
+  const handleDelete = (data: z.infer<typeof PlottingSchema>) => {
+    setIsSubmitting(true);
+    deleteClassroomSchedule(
+      {
+        classroomId: selectedItem?.classroomId ?? "",
+        startTime: data.startTime,
+        endTime: data.endTime,
+        day: selectedItem?.day ?? 0,
+      },
+      {
+        onSuccess: () => {
+          void utils.classroomSchedule.getWeeklyInitialClassroomSchedule.invalidate({
+            classroomId: selectedItem?.classroomId ?? "",
+          });
+          toast.success("Classroom schedule deleted successfully");
+          setIsSubmitting(false);
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(error.message ?? "Failed to delete schedule");
+          setIsSubmitting(false);
+        },
+      },
+    );
+  };
 
   const handleSubmit = async (data: z.infer<typeof PlottingSchema>) => {
     setIsSubmitting(true);
@@ -123,7 +147,7 @@ export default function PlottingFormDialog({
         },
         onError: (err) => {
           console.log(err);
-          toast.error(err.message || "Failed to create schedule");
+          toast.error(err.message ?? "Failed to create schedule");
           setIsSubmitting(false);
         },
       },
@@ -152,7 +176,7 @@ export default function PlottingFormDialog({
                   confirmText: "Delete",
                   cancelText: "Cancel",
                   variant: "warning",
-                  onConfirm: () => handleDelete(),
+                  onConfirm: () => handleDelete(data),
                 })
                 : showConfirmation({
                   title: "Confirm Schedule Creation",

@@ -1,11 +1,11 @@
 import { db, eq, and, or } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId, RoomRequest } from "@/server/db/types/classroom-schedule";
-import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot } from "@/lib/helper/classroom-schedule";
+import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot, splitTimeToHourlyTimeslotSchedule } from "@/lib/helper/classroom-schedule";
 import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts } from "@/lib/api/classroom-schedule/query";
 import type { TimeInt } from "@/constants/timeslot";
 import { TRPCError } from "@trpc/server";
-import type { CancelClassroomBorrowingInput } from "@/server/api-utils/validators/classroom-schedule";
+import type { CancelClassroomBorrowingInput, DeleteClassroomScheduleSchemaType } from "@/server/api-utils/validators/classroom-schedule";
 import { type RoomRequestStatusType } from "@/constants/room-request-status";
 
 export const createClassroomSchedule = async (data: ClassroomScheduleWithoutId) => {
@@ -80,6 +80,30 @@ export const createClassroomBorrowing = async (data: ClassroomBorrowingWithoutId
     throw new Error("Could not create classroom borrowing");
   }
 }
+
+export const deleteClassroomSchedule = async (records: DeleteClassroomScheduleSchemaType) => {
+  try {
+    const data = splitTimeToHourlyTimeslotSchedule(records);
+
+    if (data.length === 0) return;
+
+    const conditions = data.map((r) =>
+      and(
+        eq(classroomSchedule.classroomId, r.classroomId),
+        eq(classroomSchedule.day, r.day),
+        eq(classroomSchedule.startTime, r.startTime),
+        eq(classroomSchedule.endTime, r.endTime),
+      )
+    );
+
+    await db
+      .delete(classroomSchedule)
+      .where(or(...conditions));
+  } catch (err) {
+    console.error("Failed to delete classroom schedule:", err);
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not delete classroom schedule" });
+  }
+};
 
 export const deleteClassroomBorrowing = async (records: CancelClassroomBorrowingInput) => {
   try {
