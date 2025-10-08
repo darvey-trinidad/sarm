@@ -1,13 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { api } from "@/trpc/react";
 import { authClient } from "@/lib/auth-client";
-import { CircleUserRound } from "lucide-react";
-import { ROLE_LABELS, ROLES_OPTIONS } from "@/constants/roles";
+import { ROLE_LABELS } from "@/constants/roles";
+import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import {
   UserRound,
   Mail,
@@ -26,41 +26,53 @@ import {
   Check,
   CircleX,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { formatISODate } from "@/lib/utils";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 
 export default function UserProfile() {
   const { data: session, refetch: refetchSession } = authClient.useSession();
-  const { data: User } = api.auth.getUserById.useQuery(
-    {
-      id: session?.user.id ?? "",
-    },
-    {
-      enabled: !!session?.user.id,
-    },
-  );
+  const { data: userData, refetch: refetchUserData } =
+    api.auth.getUserById.useQuery(
+      {
+        id: session?.user.id ?? "",
+      },
+      {
+        enabled: !!session?.user.id,
+      },
+    );
 
-  const { mutate: updateUser } = api.auth.editUserProfile.useMutation();
+  const { mutate: updateUser, isPending } =
+    api.auth.editUserProfile.useMutation();
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState(User);
-  const [editedName, setEditedName] = useState(User?.name ?? "");
-  const [editedDepartmentOrRole, setEditedDepartmentOrRole] = useState(
-    User?.role ?? "",
-  );
+  const [editedName, setEditedName] = useState("");
+  const [editedDepartment, setEditedDepartment] = useState("");
+
+  // Sync state when userData is loaded or updated
+  useEffect(() => {
+    if (userData) {
+      setEditedName(userData.name ?? "");
+      setEditedDepartment(userData.departmentOrOrganization ?? "");
+    }
+  }, [userData]);
 
   const handleCancel = () => {
-    setEditedName(User?.name ?? "");
-    setEditedDepartmentOrRole(User?.role ?? "");
+    setEditedName(userData?.name ?? "");
+    setEditedDepartment(userData?.departmentOrOrganization ?? "");
     setIsEditing(false);
   };
 
   const handleSave = () => {
+    // Basic validation
+    if (!editedName.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+
     showConfirmation({
       title: "Update User Profile",
-      description: "Are you sure you want to save changes?",
-      confirmText: "Save",
+      description: "Are you sure you want to save these changes?",
+      confirmText: "Save Changes",
       cancelText: "Cancel",
       variant: "success",
       onConfirm: () => {
@@ -68,18 +80,19 @@ export default function UserProfile() {
           updateUser(
             {
               id: session?.user.id ?? "",
-              name: editedName,
-              departmentOrOrganization: editedDepartmentOrRole,
+              name: editedName.trim().length === 0 ? undefined : editedName,
+              departmentOrOrganization: editedDepartment.trim() ?? undefined,
             },
             {
               onSuccess: () => {
-                toast.success("User profile updated!");
+                toast.success("Profile updated successfully!");
                 setIsEditing(false);
                 void refetchSession();
+                void refetchUserData();
                 resolve(true);
               },
               onError: (error) => {
-                toast.error(error.message);
+                toast.error(error.message ?? "Failed to update profile");
                 resolve(false);
               },
             },
@@ -90,143 +103,133 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="flex min-h-screen items-start justify-center px-10">
-      <Card className="container flex h-auto flex-col justify-center px-10 md:flex-row">
-        {/* User Profile */}
-        <div className="xs:border-b flex w-[350px] flex-col items-center border-r-gray-300 p-4 md:border-r">
-          <CircleUserRound className="h-60 w-60 stroke-1" />
-          <h1 className="mt-4 text-2xl font-bold">{User?.name ?? "Name"}</h1>
-          <span>{User?.role ? ROLE_LABELS[User.role] : "Role"}</span>
+    <div className="container mr-auto max-w-2xl px-4 py-2">
+      {/* Action Buttons - Fixed at top */}
+      <div className="mb-2 md:mb-[-2rem] flex justify-end">
+        {!isEditing ? (
+          <Button
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+            className="gap-2"
+          >
+            <Edit2 className="h-4 w-4" />
+            Edit Profile
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button onClick={handleSave} className="gap-2" disabled={isPending}>
+              <Check className="h-4 w-4" />
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              className="gap-2"
+              disabled={isPending}
+            >
+              <CircleX className="h-4 w-4" />
+              Cancel
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Form Fields */}
+      <div className="space-y-8">
+        {/* Name Field - EDITABLE */}
+        <div className="space-y-3">
+          <Label
+            htmlFor="name"
+            className="flex items-center gap-2 text-sm font-semibold"
+          >
+            <UserRound className="h-5 w-5 text-muted-foreground" />
+            <span>Full Name</span>
+          </Label>
+          {isEditing ? (
+            <Input
+              id="name"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              className="max-w-xl md:w-3/5"
+              placeholder="Enter your full name"
+            />
+          ) : (
+            <p className="pl-7 text-base">
+              {userData?.name || "Not provided"}
+            </p>
+          )}
         </div>
 
-        {/* User Details */}
-        <CardContent className="w-auto md:w-[500px]">
-          <div className="flex w-full flex-col gap-4 md:flex-row md:justify-between">
-            <div className="flex-1 space-y-5 md:mt-10">
-              {/* Name Field */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="name"
-                  className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
-                >
-                  <UserRound className="h-4 w-4" />
-                  <span>Full Name</span>
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="name"
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                    className="font-medium"
-                  />
-                ) : (
-                  <p className="text-foreground text-md pl-6 font-medium">
-                    {User?.name}
-                  </p>
-                )}
-              </div>
+        {/* Email Field - READ ONLY */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-sm font-semibold">
+            <Mail className="h-5 w-5 text-muted-foreground" />
+            <span>Email Address</span>
+          </Label>
+          <p className="pl-7 text-base">{userData?.email ?? "Not provided"}</p>
+        </div>
 
-              {/* Email Field */}
-              <div className="space-y-2">
-                <Label className="text-muted-foreground font-xl flex items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4" />
-                  <span>Email Address</span>
-                </Label>
-                <p className="text-foreground text-md pl-6 font-medium">
-                  {User?.email ?? "emailexample@example.com"}
-                </p>
-              </div>
+        {/* Department Field - EDITABLE */}
+        <div className="space-y-3">
+          <Label
+            htmlFor="department"
+            className="flex items-center gap-2 text-sm font-semibold"
+          >
+            <Building2 className="h-5 w-5 text-muted-foreground" />
+            <span>Department / Organization</span>
+          </Label>
+          {isEditing ? (
+            <Select
+              value={editedDepartment}
+              onValueChange={setEditedDepartment}
+            >
+              <SelectTrigger id="department" className="max-w-xl">
+                <SelectValue placeholder="Select department or organization" />
+              </SelectTrigger>
+              <SelectContent>
+                {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <p className="pl-7 text-base">
+              {userData?.departmentOrOrganization
+                ? DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
+                  (opt) => opt.value === userData.departmentOrOrganization,
+                )?.label || userData.departmentOrOrganization
+                : "Not provided"}
+            </p>
+          )}
+        </div>
 
-              {/* Department Field (Read-only) */}
-              <div className="space-y-2">
-                <Label className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-                  <Building2 className="h-4 w-4" />
-                  <span>Department</span>
-                </Label>
-                <p className="text-foreground text-md pl-6 font-medium">
-                  {User?.departmentOrOrganization ?? "Itds"}
-                </p>
-              </div>
+        {/* Role Field - READ ONLY */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-sm font-semibold">
+            <Briefcase className="h-5 w-5 text-muted-foreground" />
+            <span>Role</span>
+          </Label>
+          <p className="pl-7 text-base">
+            {userData?.role ? ROLE_LABELS[userData.role] : "Not assigned"}
+          </p>
+        </div>
 
-              {/* Role Field (Editable) */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="role"
-                  className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  <span>Role</span>
-                </Label>
-                {isEditing ? (
-                  <Select
-                    value={editedDepartmentOrRole}
-                    onValueChange={setEditedDepartmentOrRole}
-                  >
-                    <SelectTrigger id="role" className="w-full font-medium">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ROLES_OPTIONS.map((role) => (
-                        <SelectItem
-                          key={role.value}
-                          value={role.value}
-                          className="font-medium"
-                        >
-                          {role.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="text-foreground text-md pl-6 font-medium">
-                    {ROLE_LABELS[User?.role ?? ""]}
-                  </p>
-                )}
-              </div>
+        {/* Created At Field - READ ONLY */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-sm font-semibold">
+            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <span>Created On</span>
+          </Label>
+          <p className="pl-7 text-base">
+            {userData?.createdAt
+              ? formatISODate(userData.createdAt)
+              : "Not available"}
+          </p>
+        </div>
+      </div>
 
-              {/* Created At Field (Read-only) */}
-              <div className="space-y-2">
-                <Label className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-                  <Calendar className="h-4 w-4" />
-                  <span>Created At</span>
-                </Label>
-                <p className="text-foreground text-md pl-6 font-medium">
-                  {User?.createdAt ? formatISODate(User.createdAt) : ""}
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end">
-              {!isEditing ? (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="outline"
-                  size="sm"
-                  className="bg-backgrounds gap-2"
-                >
-                  <Edit2 className="h-4 w-4" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button onClick={handleSave} size="sm" className="gap-2">
-                    <Check className="h-4 w-4" />
-                    Save
-                  </Button>
-                  <Button
-                    onClick={handleCancel}
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 bg-transparent"
-                  >
-                    <CircleX className="h-4 w-4" />
-                    Cancel
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
       {ConfirmationDialog}
     </div>
   );
