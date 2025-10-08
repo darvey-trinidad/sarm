@@ -2,6 +2,7 @@ import { Html } from "@react-email/html";
 import { DAYS } from "@/constants/days";
 import { TIME_MAP } from "@/constants/timeslot";
 import { toTimeInt } from "@/lib/utils";
+import type { RoomRequestStatusType } from "@/constants/room-request-status";
 
 interface RoomRequestResponseEmailProps {
   classroomName: string;
@@ -11,7 +12,7 @@ interface RoomRequestResponseEmailProps {
   subject: string;
   section: string;
   responderName: string | null;
-  status: "pending" | "accepted" | "declined";
+  status: RoomRequestStatusType;
 }
 
 export const RoomRequestResponseEmail = ({
