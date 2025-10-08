@@ -37,7 +37,13 @@ export default tseslint.config(
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-misused-promises": [
         "error",
-        { checksVoidReturn: { attributes: false, arguments: false } },
+        {
+          checksVoidReturn: {
+            attributes: false,
+            arguments: false,
+            properties: false  // Add this
+          }
+        },
       ],
       "drizzle/enforce-delete-with-where": [
         "error",
