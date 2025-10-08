@@ -1,16 +1,26 @@
 import { REPORT_STATUS } from "@/constants/report-status";
+import { notifyFmIssue } from "@/emails/notify-fm-report";
 import { createFacilityIssueReport, editFacilityIssueReportStatus } from "@/lib/api/facility-issue/mutation";
 import { getAllFacilityIssueReports, getAllFacilityIssueReportsByUser, getOngoingReportsCount, getRecentFacilityIssueReports, getResolvedReportsCountThisMonth, getUnresolvedReportsCount } from "@/lib/api/facility-issue/query";
 import { generateUUID } from "@/lib/utils";
 import { createFacilityIssueReportSchema, getAllFacilityIssueReportsSchema } from "@/server/api-utils/validators/facility-issue";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { TRPCError } from "@trpc/server";
 import z from "zod";
 
 export const facilityIssueRouter = createTRPCRouter({
   createFacilityIssueReport: protectedProcedure
     .input(createFacilityIssueReportSchema)
-    .mutation(({ input }) => {
-      return createFacilityIssueReport({ id: generateUUID(), ...input });
+    .mutation(async ({ input }) => {
+      try {
+        const res = await createFacilityIssueReport({ id: generateUUID(), ...input });
+        if (!res) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create facility issue report" });
+        await notifyFmIssue(res.id);
+        return res;
+      } catch (error) {
+        console.log(error);
+        throw error
+      }
     }),
   getAllFacilityIssueReports: protectedProcedure
     .input(getAllFacilityIssueReportsSchema)

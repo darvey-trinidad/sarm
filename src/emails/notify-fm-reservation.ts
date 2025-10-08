@@ -7,6 +7,7 @@ import { render } from "@react-email/render";
 import { TIME_MAP } from "@/constants/timeslot";
 import { toTimeInt } from "@/lib/utils";
 import { ReservationRequestEmail } from "./reservation-request";
+import { Roles } from "@/constants/roles";
 
 export const notifyFmReservation = async (venueReservationId: string) => {
 
@@ -22,12 +23,12 @@ export const notifyFmReservation = async (venueReservationId: string) => {
 
   console.log("RESERVATION INSIDE NOTIFY FM: ", reservation);
 
-  if (reservation.user.role == "facility_manager") return;
+  if (reservation.user.role == Roles.FacilityManager) return;
 
   const fmRecipients = await db
     .select()
     .from(user)
-    .where(eq(user.role, "facility_manager"))
+    .where(eq(user.role, Roles.FacilityManager))
     .all();
 
   if (!fmRecipients) return;

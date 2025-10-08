@@ -33,11 +33,6 @@ import {
   AlertTriangle,
   CheckCircle,
   AlertCircle,
-  Zap,
-  Wrench,
-  Settings,
-  Droplets,
-  HelpCircle,
   Building,
   Camera,
   Copy,
@@ -53,7 +48,6 @@ import {
 } from "@/constants/report-status";
 import NoReports from "@/components/loading-state/no-reports";
 import LoadingMessage from "@/components/loading-state/loading-message";
-import { D } from "node_modules/better-auth/dist/shared/better-auth.CUMpWXN6";
 
 export default function ReportListContent() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -66,6 +60,8 @@ export default function ReportListContent() {
   const [selectedCategory, setSelectedCategory] = useState<
     ReportCategory | "all"
   >("all");
+
+  const utils = api.useUtils();
 
   const filters = useMemo(
     () => ({
@@ -90,10 +86,10 @@ export default function ReportListContent() {
     startDate: filters.startDate ? newDate(filters.startDate) : undefined,
     endDate: filters.endDate
       ? (() => {
-          const adjustedDate = new Date(filters.endDate);
-          adjustedDate.setDate(adjustedDate.getDate() + 1);
-          return newDate(adjustedDate);
-        })()
+        const adjustedDate = new Date(filters.endDate);
+        adjustedDate.setDate(adjustedDate.getDate() + 1);
+        return newDate(adjustedDate);
+      })()
       : undefined,
   });
   const filteredReports = useMemo(() => {
@@ -129,6 +125,7 @@ export default function ReportListContent() {
             {
               onSuccess: () => {
                 toast.success(`Report status updated to ${newStatus}`);
+                void utils.facilityIssue.getFacilityIssueReportsCounts.invalidate();
                 void refetchReports();
                 resolve(true);
               },
