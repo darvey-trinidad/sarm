@@ -75,8 +75,8 @@ export default function UserProfile() {
       confirmText: "Save Changes",
       cancelText: "Cancel",
       variant: "success",
-      onConfirm: () => {
-        return new Promise<boolean>((resolve) => {
+      onConfirm: async () => {
+        await new Promise((resolve) => {
           updateUser(
             {
               id: session?.user.id ?? "",
@@ -183,7 +183,7 @@ export default function UserProfile() {
               value={editedDepartment}
               onValueChange={setEditedDepartment}
             >
-              <SelectTrigger id="department" className="max-w-xl">
+              <SelectTrigger id="department" className="max-w-xl md:w-3/5">
                 <SelectValue placeholder="Select department or organization" />
               </SelectTrigger>
               <SelectContent>
