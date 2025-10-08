@@ -76,7 +76,7 @@ export default function UserProfile() {
       cancelText: "Cancel",
       variant: "success",
       onConfirm: async () => {
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           updateUser(
             {
               id: session?.user.id ?? "",
@@ -84,16 +84,16 @@ export default function UserProfile() {
               departmentOrOrganization: editedDepartment.trim() ?? undefined,
             },
             {
-              onSuccess: () => {
+              onSuccess: async () => {
                 toast.success("Profile updated successfully!");
                 setIsEditing(false);
                 void refetchSession();
-                void refetchUserData();
-                resolve(true);
+                await refetchUserData();
+                resolve();
               },
               onError: (error) => {
                 toast.error(error.message ?? "Failed to update profile");
-                resolve(false);
+                resolve();
               },
             },
           );

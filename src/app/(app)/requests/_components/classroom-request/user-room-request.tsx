@@ -56,20 +56,23 @@ export default function UserRoomRequest() {
       variant: "destructive",
       confirmText: "Confirm",
       cancelText: "Cancel",
-      onConfirm: async () => {
-        await new Promise((resolve) => {
-          cancelRoomRequestMutation({ roomRequestId }, {
-            onSuccess: async () => {
-              await refetchClassroomRequests();
-              toast.success("Room request canceled!");
-              resolve(true);
+      onConfirm: () => {
+        return new Promise<void>((resolve) => {
+          cancelRoomRequestMutation(
+            { roomRequestId },
+            {
+              onSuccess: async () => {
+                await refetchClassroomRequests();
+                toast.success("Room request canceled!");
+                resolve();
+              },
+              onError: (error) => {
+                toast.error(error.message);
+                resolve();
+              },
             },
-            onError: (error) => {
-              toast.error(error.message);
-              resolve(false);
-            },
-          });
-        })
+          );
+        });
       },
     });
   };

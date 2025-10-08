@@ -22,7 +22,7 @@ export function getStatusIconRoomRequest(
 
 export function getStatusColorRoomRequest(
   status: RoomRequestStatusType,
-): ReactNode {
+): string {
   switch (status) {
     case RoomRequestStatus.Accepted:
       return "bg-green-100 text-green-800 border-green-200";
