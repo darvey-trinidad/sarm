@@ -105,11 +105,12 @@ export default function UserProfile() {
   return (
     <div className="container mr-auto max-w-2xl px-4 py-2">
       {/* Action Buttons - Fixed at top */}
-      <div className="mb-2 md:mb-[-2rem] flex justify-end">
+      <div className="mb-2 flex justify-end md:mb-[-2rem]">
         {!isEditing ? (
           <Button
             onClick={() => setIsEditing(true)}
             variant="outline"
+            size="sm"
             className="gap-2"
           >
             <Edit2 className="h-4 w-4" />
@@ -117,13 +118,19 @@ export default function UserProfile() {
           </Button>
         ) : (
           <div className="flex gap-2">
-            <Button onClick={handleSave} className="gap-2" disabled={isPending}>
+            <Button
+              onClick={handleSave}
+              className="gap-2"
+              size="sm"
+              disabled={isPending}
+            >
               <Check className="h-4 w-4" />
               {isPending ? "Saving..." : "Save"}
             </Button>
             <Button
               onClick={handleCancel}
               variant="outline"
+              size="sm"
               className="gap-2"
               disabled={isPending}
             >
@@ -142,7 +149,7 @@ export default function UserProfile() {
             htmlFor="name"
             className="flex items-center gap-2 text-sm font-semibold"
           >
-            <UserRound className="h-5 w-5 text-muted-foreground" />
+            <UserRound className="text-muted-foreground h-5 w-5" />
             <span>Full Name</span>
           </Label>
           {isEditing ? (
@@ -154,16 +161,14 @@ export default function UserProfile() {
               placeholder="Enter your full name"
             />
           ) : (
-            <p className="pl-7 text-base">
-              {userData?.name ?? "Not provided"}
-            </p>
+            <p className="pl-7 text-base">{userData?.name ?? "Not provided"}</p>
           )}
         </div>
 
         {/* Email Field - READ ONLY */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm font-semibold">
-            <Mail className="h-5 w-5 text-muted-foreground" />
+            <Mail className="text-muted-foreground h-5 w-5" />
             <span>Email Address</span>
           </Label>
           <p className="pl-7 text-base">{userData?.email ?? "Not provided"}</p>
@@ -175,7 +180,7 @@ export default function UserProfile() {
             htmlFor="department"
             className="flex items-center gap-2 text-sm font-semibold"
           >
-            <Building2 className="h-5 w-5 text-muted-foreground" />
+            <Building2 className="text-muted-foreground h-5 w-5" />
             <span>Department / Organization</span>
           </Label>
           {isEditing ? (
@@ -183,7 +188,7 @@ export default function UserProfile() {
               value={editedDepartment}
               onValueChange={setEditedDepartment}
             >
-              <SelectTrigger id="department" className="max-w-xl md:w-3/5">
+              <SelectTrigger id="department" className="w-full md:w-3/5">
                 <SelectValue placeholder="Select department or organization" />
               </SelectTrigger>
               <SelectContent>
@@ -197,9 +202,9 @@ export default function UserProfile() {
           ) : (
             <p className="pl-7 text-base">
               {userData?.departmentOrOrganization
-                ? DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
-                  (opt) => opt.value === userData.departmentOrOrganization,
-                )?.label ?? userData.departmentOrOrganization
+                ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
+                    (opt) => opt.value === userData.departmentOrOrganization,
+                  )?.label ?? userData.departmentOrOrganization)
                 : "Not provided"}
             </p>
           )}
@@ -208,7 +213,7 @@ export default function UserProfile() {
         {/* Role Field - READ ONLY */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm font-semibold">
-            <Briefcase className="h-5 w-5 text-muted-foreground" />
+            <Briefcase className="text-muted-foreground h-5 w-5" />
             <span>Role</span>
           </Label>
           <p className="pl-7 text-base">
@@ -219,7 +224,7 @@ export default function UserProfile() {
         {/* Created At Field - READ ONLY */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm font-semibold">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <Calendar className="text-muted-foreground h-5 w-5" />
             <span>Created On</span>
           </Label>
           <p className="pl-7 text-base">

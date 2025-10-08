@@ -1,7 +1,12 @@
 "use client";
 import { useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { checkIsPastSchedule, formatISODate, newDate, toTimeInt } from "@/lib/utils";
+import {
+  checkIsPastSchedule,
+  formatISODate,
+  newDate,
+  toTimeInt,
+} from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CurrentScheduleSkeleton } from "../skeletons/received-room-skeleton";
@@ -114,7 +119,7 @@ export default function FacultyCurrentSchedule() {
 
                   <CardContent>
                     <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
+                      <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
                         <Building2 className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
@@ -126,7 +131,7 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
 
-                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
+                      <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
                         <MapPin className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
@@ -138,7 +143,7 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
 
-                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
+                      <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
                         <Calendar className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
@@ -150,7 +155,7 @@ export default function FacultyCurrentSchedule() {
                         </div>
                       </div>
 
-                      <div className="bg-primary/10 flex items-center gap-2 rounded-lg p-3">
+                      <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
                         <Clock className="text-muted-foreground h-4 w-4" />
                         <div className="flex flex-col">
                           <span className="text-muted-foreground text-xs">
