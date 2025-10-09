@@ -1,0 +1,19 @@
+import { School } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+export default function NoRooms() {
+  return (
+    <Card className="border-border">
+      <CardContent className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <School className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+          <h3 className="text-foreground text-lg font-semibold">
+            No classrooms found
+          </h3>
+          <p className="text-muted-foreground">
+            Try adjusting your filters to see more results.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

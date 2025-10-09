@@ -43,6 +43,7 @@ import ReadySearch from "@/components/loading-state/ready-search";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import { env } from "@/env";
 import { Separator } from "@/components/ui/separator";
+import NoRooms from "@/components/loading-state/no-room";
 
 export default function FindRoomContent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
@@ -256,7 +257,7 @@ export default function FindRoomContent() {
                                 </h3>
                                 <Badge
                                   className={`${getTypeColor(
-                                    classroom.type
+                                    classroom.type,
                                   )} flex items-center gap-1`}
                                 >
                                   {getTypeIcon(classroom.type)}
@@ -311,9 +312,7 @@ export default function FindRoomContent() {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-center">
-            No classrooms available for the selected filters.
-          </p>
+          <NoRooms />
         )}
       </div>
     </div>
