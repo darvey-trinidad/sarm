@@ -8,7 +8,7 @@ import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
 import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
-import { newDate } from "@/lib/utils";
+import { checkRoomAuthority, newDate } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
@@ -17,6 +17,7 @@ import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { CLASSROOM_TYPE_LABELS, type ClassroomType } from "@/constants/classroom-type";
 import Link from "next/link";
 import { Roles } from "@/constants/roles";
+import { DeptOrOrgValues } from "@/constants/dept-org";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -133,6 +134,11 @@ export default function ClassroomCalendarView({
   };
 
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
+    if (session?.user.role !== Roles.FacilityManager) {
+      const authorizedToRoom = checkRoomAuthority(session?.user.departmentOrOrganization ?? DeptOrOrgValues.ITDS, classRoomType);
+      if (!authorizedToRoom) return;
+    }
+
     const now = new Date();
     const dateToday = new Date(
       now.getFullYear(),
