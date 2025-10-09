@@ -3,6 +3,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { createSortableHeader } from "@/components/table/data-table";
 import { Badge } from "@/components/ui/badge";
 import type { ReactNode } from "react";
+import { CLASSROOM_TYPE_LABELS, ClassroomTypeValues, type ClassroomType } from "@/constants/classroom-type";
 
 const getUsabilityBadge = (usability: string | null) => {
   switch (usability) {
@@ -29,29 +30,30 @@ const getUsabilityBadge = (usability: string | null) => {
   }
 };
 
-const getTypeBadge = (type: string | null) => {
+const getTypeBadge = (type: ClassroomType) => {
   switch (type) {
-    case "lecture":
+    case ClassroomTypeValues.Lecture:
       return (
         <Badge
           variant="outline"
           className="border-yellow-200 bg-yellow-50 text-yellow-700"
         >
-          Lecture
+          {CLASSROOM_TYPE_LABELS[type]}
         </Badge>
       );
-    case "laboratory":
+    default:
       return (
         <Badge
           variant="outline"
           className="border-blue-200 bg-blue-50 text-blue-700"
         >
-          Laboratory
+          {CLASSROOM_TYPE_LABELS[type]}
         </Badge>
       );
-    default:
   }
 };
+
+
 interface Classroom {
   id: string;
   name: string;
@@ -59,7 +61,7 @@ interface Classroom {
   buildingName: string | null;
   capacity: number;
   floor: string;
-  type: string;
+  type: ClassroomType;
   usability: "operational" | "non-operational";
 }
 export const columns: ColumnDef<Classroom>[] = [

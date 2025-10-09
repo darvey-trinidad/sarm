@@ -9,7 +9,7 @@ import { AvailableRoomSkeleton } from "../skeletons/received-room-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
-import type { ClassroomType } from "@/constants/classroom-type";
+import { ClassroomTypeValues, type ClassroomType } from "@/constants/classroom-type";
 import {
   MapPin,
   Building,
@@ -41,18 +41,18 @@ export default function CurrentAvailableRooms() {
 
   const getTypeColor = (type: ClassroomType) => {
     switch (type) {
-      case "lecture":
+      case ClassroomTypeValues.Lecture:
         return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "laboratory":
+      default:
         return "bg-blue-50 text-blue-700 border-blue-200";
     }
   };
 
   const getTypeIcon = (type: ClassroomType) => {
     switch (type) {
-      case "lecture":
+      case ClassroomTypeValues.Lecture:
         return <Book className="h-4 w-4 text-yellow-600" />;
-      case "laboratory":
+      default:
         return <Microscope className="h-4 w-4 text-blue-600" />;
     }
   };

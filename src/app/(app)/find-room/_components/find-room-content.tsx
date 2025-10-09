@@ -10,7 +10,9 @@ import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
 import { PageRoutes } from "@/constants/page-routes";
 import {
   type ClassroomType,
+  CLASSROOM_TYPE_LABELS,
   CLASSROOM_TYPE_OPTIONS,
+  ClassroomTypeValues,
 } from "@/constants/classroom-type";
 import {
   Select,
@@ -90,18 +92,18 @@ export default function FindRoomContent() {
 
   const getTypeColor = (type: ClassroomType) => {
     switch (type) {
-      case "lecture":
+      case ClassroomTypeValues.Lecture:
         return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "laboratory":
+      default:
         return "bg-blue-50 text-blue-700 border-blue-200";
     }
   };
 
   const getTypeIcon = (type: ClassroomType) => {
     switch (type) {
-      case "lecture":
+      case ClassroomTypeValues.Lecture:
         return <Book className="h-4 w-4 text-yellow-600" />;
-      case "laboratory":
+      default:
         return <Microscope className="h-4 w-4 text-blue-600" />;
     }
   };
@@ -258,8 +260,7 @@ export default function FindRoomContent() {
                                   )} flex items-center gap-1`}
                                 >
                                   {getTypeIcon(classroom.type as ClassroomType)}
-                                  {classroom.type.charAt(0).toUpperCase() +
-                                    classroom.type.slice(1)}
+                                  {CLASSROOM_TYPE_LABELS[classroom.type as ClassroomType]}
                                 </Badge>
                               </div>
 

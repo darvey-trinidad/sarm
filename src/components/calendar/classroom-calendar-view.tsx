@@ -14,7 +14,7 @@ import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
 import { getScheduleColor } from "@/constants/schedule-colors";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
-import type { ClassroomType } from "@/constants/classroom-type";
+import { CLASSROOM_TYPE_LABELS, type ClassroomType } from "@/constants/classroom-type";
 import Link from "next/link";
 import { Roles } from "@/constants/roles";
 const SLOT_HEIGHT = 45;
@@ -195,7 +195,7 @@ export default function ClassroomCalendarView({
               {buildingName}
             </h1>
             <p className="text-muted-foreground">
-              Classroom - {classroomName} <strong>({classRoomType}</strong>)
+              Classroom - {classroomName} <strong>({CLASSROOM_TYPE_LABELS[classRoomType]}</strong>)
             </p>
           </div>
         </div>

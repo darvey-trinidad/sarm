@@ -750,7 +750,7 @@ export const getAvailableClassrooms = async (
       classroomName: string;
       buildingId: string;
       buildingName: string;
-      type: string;
+      type: ClassroomType;
       capacity: number;
       floor: string;
     }[] = [];
@@ -823,7 +823,7 @@ export const getAvailableClassrooms = async (
       classrooms: {
         classroomId: string;
         classroomName: string;
-        type: string;
+        type: ClassroomType;
         capacity: number;
         floor: string;
       }[];
