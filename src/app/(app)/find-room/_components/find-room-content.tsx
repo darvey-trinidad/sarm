@@ -256,11 +256,11 @@ export default function FindRoomContent() {
                                 </h3>
                                 <Badge
                                   className={`${getTypeColor(
-                                    classroom.type as ClassroomType,
+                                    classroom.type
                                   )} flex items-center gap-1`}
                                 >
-                                  {getTypeIcon(classroom.type as ClassroomType)}
-                                  {CLASSROOM_TYPE_LABELS[classroom.type as ClassroomType]}
+                                  {getTypeIcon(classroom.type)}
+                                  {CLASSROOM_TYPE_LABELS[classroom.type]}
                                 </Badge>
                               </div>
 
