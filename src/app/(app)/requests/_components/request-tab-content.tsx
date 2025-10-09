@@ -19,15 +19,33 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
       <TabsList>
         {role === Roles.FacilityManager ? (
           <>
-            <TabsTrigger value="venue">Venue Request</TabsTrigger>
-            <TabsTrigger value="resource">Resource Request</TabsTrigger>
-            <TabsTrigger value="room-request">Classroom Request</TabsTrigger>
+            <TabsTrigger value="venue">
+              <span className="hidden md:inline">Venue Request</span>
+              <span className="inline md:hidden">Venue</span>
+            </TabsTrigger>
+            <TabsTrigger value="resource">
+              <span className="hidden md:inline">Resource Request</span>
+              <span className="inline md:hidden">Resource</span>
+            </TabsTrigger>
+            <TabsTrigger value="room-request">
+              <span className="hidden md:inline">Classroom Request</span>
+              <span className="inline md:hidden">Classroom</span>
+            </TabsTrigger>
           </>
         ) : (
           <>
-            <TabsTrigger value="venue">Venue Request</TabsTrigger>
-            <TabsTrigger value="resource">Resource Request</TabsTrigger>
-            <TabsTrigger value="room-request">Classroom Request</TabsTrigger>
+            <TabsTrigger value="venue">
+              <span className="hidden md:inline">Venue Request</span>
+              <span className="inline md:hidden">Venue</span>
+            </TabsTrigger>
+            <TabsTrigger value="resource">
+              <span className="hidden md:inline">Resource Request</span>
+              <span className="inline md:hidden">Resource</span>
+            </TabsTrigger>
+            <TabsTrigger value="room-request">
+              <span className="hidden md:inline">Classroom Request</span>
+              <span className="inline md:hidden">Classroom</span>
+            </TabsTrigger>
           </>
         )}
       </TabsList>
