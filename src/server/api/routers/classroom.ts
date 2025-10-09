@@ -38,7 +38,7 @@ export const classroomRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return createClassroom({ id: generateUUID(), ...input });
     }),
-  getClassroom: protectedProcedure
+  getClassroomById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ input }) => {
       return getClassroom(input.id);

@@ -9,6 +9,10 @@ import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getScheduleColor } from "@/constants/schedule-colors";
 import PlottingFormDialog from "@/app/(app)/plotting/_components/plot/plotting-form-dialog";
+import { Roles } from "@/constants/roles";
+import { checkRoomAuthority } from "@/lib/utils";
+import { DeptOrOrgValues } from "@/constants/dept-org";
+import { ClassroomTypeValues } from "@/constants/classroom-type";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -40,6 +44,8 @@ export default function PlottingClassroomCalendarView({
     api.classroomSchedule.getWeeklyInitialClassroomSchedule.useQuery({
       classroomId,
     });
+
+  const { data: currentClassroom } = api.classroom.getClassroomById.useQuery({ id: classroomId })
 
   useEffect(() => {
     setSchedules(scheduleData ?? []);
@@ -100,6 +106,11 @@ export default function PlottingClassroomCalendarView({
   };
 
   const handleScheduleClick = (schedule: InitialClassroomSchedule) => {
+    if (session?.user.role !== Roles.FacilityManager) {
+      const authorizedToRoom = checkRoomAuthority(session?.user.departmentOrOrganization ?? DeptOrOrgValues.ITDS,
+        currentClassroom?.type ?? ClassroomTypeValues.Lecture);
+      if (!authorizedToRoom) return;
+    }
     setSelectedItem(schedule);
     setIsDialogOpen(true);
   };
@@ -151,9 +162,8 @@ export default function PlottingClassroomCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px]" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px]" : ""
+                        }`}
                     >
                       <div className="py-1 text-sm font-medium">{day}</div>
                     </div>
@@ -186,9 +196,8 @@ export default function PlottingClassroomCalendarView({
               {Array.from({ length: 6 }).map((_, dayIndex) => (
                 <div
                   key={dayIndex}
-                  className={`relative border-r last:border-r-0 ${
-                    isMobile ? "w-[280px]" : ""
-                  }`}
+                  className={`relative border-r last:border-r-0 ${isMobile ? "w-[280px]" : ""
+                    }`}
                 >
                   {TIME_ENTRIES.map(([value]) => (
                     <div
