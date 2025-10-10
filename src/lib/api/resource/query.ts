@@ -23,6 +23,7 @@ import {
   BorrowingStatus,
 } from "@/constants/borrowing-status";
 import { venueReservation } from "@/server/db/schema/venue";
+import type { BorrowingTransaction } from "@/server/db/types/resource";
 
 export const getAllResources = async () => {
   try {
@@ -394,33 +395,6 @@ export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
     throw error;
   }
 };
-
-type BorrowedItems = {
-  id: string;
-  resourceId: string;
-  resourceName: string;
-  resourceDescription: string;
-  quantity: number;
-};
-
-type BorrowingTransaction = {
-  id: string;
-  borrowerId: string;
-  borrowerName: string;
-  startTime: number;
-  endTime: number;
-  purpose: string;
-  status: string;
-  representativeBorrower: string;
-  dateRequested: Date;
-  dateBorrowed: Date | null;
-  dateReturned: Date | null;
-  fileUrl: string | null;
-  venueReservationId: string | null;
-  venueReservationStatus: string | null;
-  borrowedItems: BorrowedItems[];
-};
-
 
 /*
 ** COUNT
