@@ -15,10 +15,12 @@ export const ResourceScehma = z.object({
   fileUrl: z
     .string({ required_error: "Please upload a file" })
     .min(1, { message: "Please upload a file" }),
-  itemsBorrowed: z.array(
-    z.object({
-      id: z.string().min(1, { message: "Please select an item" }),
-      quantity: z.coerce.number(),
-    }),
-  ),
+  itemsBorrowed: z
+    .array(
+      z.object({
+        id: z.string().min(1, { message: "Please select an item" }),
+        quantity: z.coerce.number(),
+      }),
+    )
+    .min(1, { message: "Please select at least one item" }),
 });

@@ -431,10 +431,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
 
                           return (
                             <div key={field.id}>
-                              <div
-                                key={field.id}
-                                className="flex flex-col gap-4 sm:flex-row"
-                              >
+                              <div className="flex flex-col gap-4 sm:flex-row">
                                 {/* Item Name */}
                                 <div className="w-full">
                                   <FormField
