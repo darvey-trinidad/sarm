@@ -231,10 +231,11 @@ export default function RequestResourcesDialog({
                               captionLayout="dropdown"
                               disabled={(date) => {
                                 const today = new Date();
+                                // Normalize both to midnight (no time component)
+                                const normalizedDate = new Date(date);
+                                normalizedDate.setHours(0, 0, 0, 0);
                                 today.setHours(0, 0, 0, 0);
-                                return (
-                                  date < today || date < new Date("1900-01-01")
-                                );
+                                return normalizedDate <= today; // disable today and past
                               }}
                             />
                           </PopoverContent>

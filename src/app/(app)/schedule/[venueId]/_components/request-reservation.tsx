@@ -90,14 +90,16 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const endTime = form.watch("endTime");
 
   const { data: availableResources } =
-    api.resource.getAllAvailableResources.useQuery({
-      requestedDate: newDate(dateParam),
-      requestedStartTime: startTime.toString(),
-      requestedEndTime: endTime.toString(),
-    },
+    api.resource.getAllAvailableResources.useQuery(
+      {
+        requestedDate: newDate(dateParam),
+        requestedStartTime: startTime.toString(),
+        requestedEndTime: endTime.toString(),
+      },
       {
         enabled: !!dateParam && !!startTime && !!endTime,
-      });
+      },
+    );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -109,7 +111,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
 
   const { mutate: createVenueReservationWithBorrowing } =
     api.venue.createVenueReservationWithBorrowing.useMutation();
-
+  console.log("Date:", new Date());
   const handleSubmit = async (data: z.infer<typeof VenueSchema>) => {
     setIsSubmitting(true);
     console.log("Data", data);
@@ -275,7 +277,13 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                               selected={field.value}
                               onSelect={field.onChange}
                               captionLayout="dropdown"
-                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                              disabled={(date) => {
+                                const today = new Date();
+                                const normalizedDate = new Date(date);
+                                normalizedDate.setHours(0, 0, 0, 0);
+                                today.setHours(0, 0, 0, 0);
+                                return normalizedDate <= today;
+                              }}
                             />
                           </PopoverContent>
                         </Popover>

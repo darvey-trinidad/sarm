@@ -91,8 +91,11 @@ export default function ResourceTable({
                   onSelect={setRequestedDate}
                   disabled={(date) => {
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0); // normalize to midnight
-                    return date < today || date < new Date("1900-01-01");
+                    // Normalize both to midnight (no time component)
+                    const normalizedDate = new Date(date);
+                    normalizedDate.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+                    return normalizedDate <= today; // disable today and past
                   }}
                   required={true}
                 />
