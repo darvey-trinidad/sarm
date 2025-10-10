@@ -13,6 +13,7 @@ import { useState, useRef } from "react";
 import PlottingClassroomCalendarView from "@/components/calendar/plotting-calendar-view";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import { toast } from "sonner";
 
 export default function PlottingContent() {
   const { data: buildings } = api.classroom.getClassroomsPerBuilding.useQuery();
@@ -173,10 +174,11 @@ export default function PlottingContent() {
       const filename = `${selectedBuildingName}_${selectedClassroomName}_Schedule.pdf`;
 
       // Download
+      toast.success("PDF generated successfully");
       pdf.save(filename);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
+      toast.error("Failed to generate PDF");
     } finally {
       setIsGeneratingPDF(false);
     }
