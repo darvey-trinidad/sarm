@@ -457,7 +457,7 @@ export default function VenueReservation({
                         className="flex items-center gap-1"
                       >
                         <FileText className="h-4 w-4" />
-                        View Document
+                        View Attachment
                       </Button>
                     )}
 

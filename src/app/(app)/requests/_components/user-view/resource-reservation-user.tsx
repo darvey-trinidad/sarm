@@ -193,13 +193,13 @@ export default function ResourceReservationUser() {
                           <span>
                             {
                               TIME_MAP[
-                                resource.startTime as keyof typeof TIME_MAP
+                              resource.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                                resource.endTime as keyof typeof TIME_MAP
+                              resource.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>
@@ -268,7 +268,7 @@ export default function ResourceReservationUser() {
                         className="flex items-center gap-1"
                       >
                         <FileText className="h-4 w-4" />
-                        View Document
+                        View Attachment
                       </Button>
                     )}
 

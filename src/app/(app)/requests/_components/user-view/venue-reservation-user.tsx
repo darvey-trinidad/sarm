@@ -167,13 +167,13 @@ export default function VenueReservationUser() {
                           <span>
                             {
                               TIME_MAP[
-                                reservation.startTime as keyof typeof TIME_MAP
+                              reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                                reservation.endTime as keyof typeof TIME_MAP
+                              reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>
@@ -194,7 +194,7 @@ export default function VenueReservationUser() {
                         className="flex items-center gap-1"
                       >
                         <FileText className="h-4 w-4" />
-                        View Document
+                        View Attachment
                       </Button>
                     )}
 

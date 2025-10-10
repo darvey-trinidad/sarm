@@ -58,10 +58,6 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
               <span className="hidden md:inline">Resource Request</span>
               <span className="inline md:hidden">Resource</span>
             </TabsTrigger>
-            <TabsTrigger value="room-request">
-              <span className="hidden md:inline">Classroom Request</span>
-              <span className="inline md:hidden">Classroom</span>
-            </TabsTrigger>
           </>
         ) : (
           <>
@@ -73,10 +69,14 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
               <span className="hidden md:inline">Resource Request</span>
               <span className="inline md:hidden">Resource</span>
             </TabsTrigger>
-            <TabsTrigger value="room-request">
-              <span className="hidden md:inline">Classroom Request</span>
-              <span className="inline md:hidden">Classroom</span>
-            </TabsTrigger>
+            {
+              (role === Roles.DepartmentHead || role === Roles.Faculty || role === Roles.PEInstructor) && (
+                <TabsTrigger value="room-request">
+                  <span className="hidden md:inline">Classroom Request</span>
+                  <span className="inline md:hidden">Classroom</span>
+                </TabsTrigger>
+              )
+            }
           </>
         )}
       </TabsList>
@@ -96,9 +96,6 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
                 linkedBorrowingId={linkedBorrowingId}
               />
             </TabsContent>
-            <TabsContent value="room-request">
-              <UserRoomRequest />
-            </TabsContent>
           </>
         ) : (
           <>
@@ -108,9 +105,13 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
             <TabsContent value="resource" className="space-y-4">
               <ResourceReservationUser />
             </TabsContent>
-            <TabsContent value="room-request">
-              <UserRoomRequest />
-            </TabsContent>
+            {
+              (role === Roles.DepartmentHead || role === Roles.Faculty || role === Roles.PEInstructor) && (
+                <TabsContent value="room-request">
+                  <UserRoomRequest />
+                </TabsContent>
+              )
+            }
           </>
         )}
       </div>
