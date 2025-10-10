@@ -90,14 +90,16 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
   const endTime = form.watch("endTime");
 
   const { data: availableResources } =
-    api.resource.getAllAvailableResources.useQuery({
-      requestedDate: newDate(dateParam),
-      requestedStartTime: startTime.toString(),
-      requestedEndTime: endTime.toString(),
-    },
+    api.resource.getAllAvailableResources.useQuery(
+      {
+        requestedDate: newDate(dateParam),
+        requestedStartTime: startTime.toString(),
+        requestedEndTime: endTime.toString(),
+      },
       {
         enabled: !!dateParam && !!startTime && !!endTime,
-      });
+      },
+    );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -109,7 +111,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
 
   const { mutate: createVenueReservationWithBorrowing } =
     api.venue.createVenueReservationWithBorrowing.useMutation();
-
+  console.log("Date:", new Date());
   const handleSubmit = async (data: z.infer<typeof VenueSchema>) => {
     setIsSubmitting(true);
     console.log("Data", data);
@@ -275,7 +277,13 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                               selected={field.value}
                               onSelect={field.onChange}
                               captionLayout="dropdown"
-                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                              disabled={(date) => {
+                                const today = new Date();
+                                const normalizedDate = new Date(date);
+                                normalizedDate.setHours(0, 0, 0, 0);
+                                today.setHours(0, 0, 0, 0);
+                                return normalizedDate <= today;
+                              }}
                             />
                           </PopoverContent>
                         </Popover>
@@ -364,7 +372,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                     name="purpose"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Purpose</FormLabel>
+                        <FormLabel>
+                          Purpose <p className="text-destructive">*</p>
+                        </FormLabel>
                         <FormControl>
                           <Input placeholder="Enter purpose" {...field} />
                         </FormControl>
@@ -412,7 +422,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                   {isBorrowingItems && (
                     <div>
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Borrow Items</h3>
+                        <h3 className="text-md font-semibold">
+                          <div className="flex items-center gap-2">
+                            Borrow Items
+                            <p className="text-destructive">*</p>
+                          </div>
+                        </h3>
 
                         {fields.map((field, index) => {
                           // get the selected resource details
@@ -423,10 +438,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
 
                           return (
                             <div key={field.id}>
-                              <div
-                                key={field.id}
-                                className="flex flex-col gap-4 sm:flex-row"
-                              >
+                              <div className="flex flex-col gap-4 sm:flex-row">
                                 {/* Item Name */}
                                 <div className="w-full">
                                   <FormField
@@ -570,33 +582,48 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                   )}
 
                   <div className="flex flex-col gap-2">
-                    <Label>Attachments</Label>
-                    {pdfUrl.length ? (
-                      <a
-                        className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
-                        href={pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="">{pdfName || "pdf"}</div>
-                      </a>
-                    ) : null}
+                    <FormField
+                      control={form.control}
+                      name="fileUrl"
+                      render={({ field, fieldState }) => (
+                        <div className="flex flex-col gap-2">
+                          <Label>Attachments</Label>
+                          {fieldState.error && (
+                            <p className="text-sm text-red-500">
+                              {fieldState.error.message}
+                            </p>
+                          )}
 
-                    <UploadButton
-                      className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
-                      endpoint="pdfUploader"
-                      onClientUploadComplete={(res) => {
-                        console.log("File uploaded:", res);
-                        const url = res[0]?.ufsUrl ?? "";
-                        const name = res[0]?.name ?? "";
-                        setPdfUrl(url);
-                        setPdfName(name);
-                        form.setValue("fileUrl", url);
-                        toast.success("File uploaded successfully!");
-                      }}
-                      onUploadError={(error: Error) =>
-                        console.log("Error uploading:", error.message)
-                      }
+                          {pdfUrl.length ? (
+                            <a
+                              className="text-primary border-grey rounded-sm border px-2 py-1 underline"
+                              href={pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <div>{pdfName || "pdf"}</div>
+                            </a>
+                          ) : null}
+
+                          <UploadButton
+                            className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                            endpoint="pdfUploader"
+                            onClientUploadComplete={(res) => {
+                              console.log("File uploaded:", res);
+                              const url = res[0]?.ufsUrl ?? "";
+                              const name = res[0]?.name ?? "";
+                              setPdfUrl(url);
+                              setPdfName(name);
+                              field.onChange(url);
+                              form.setValue("fileUrl", url);
+                              toast.success("File uploaded successfully!");
+                            }}
+                            onUploadError={(error: Error) =>
+                              console.log("Error uploading:", error.message)
+                            }
+                          />
+                        </div>
+                      )}
                     />
                   </div>
                 </div>

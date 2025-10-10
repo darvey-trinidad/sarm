@@ -231,10 +231,11 @@ export default function RequestResourcesDialog({
                               captionLayout="dropdown"
                               disabled={(date) => {
                                 const today = new Date();
+                                // Normalize both to midnight (no time component)
+                                const normalizedDate = new Date(date);
+                                normalizedDate.setHours(0, 0, 0, 0);
                                 today.setHours(0, 0, 0, 0);
-                                return (
-                                  date < today || date < new Date("1900-01-01")
-                                );
+                                return normalizedDate <= today; // disable today and past
                               }}
                             />
                           </PopoverContent>
@@ -383,165 +384,199 @@ export default function RequestResourcesDialog({
                   />
 
                   {/* Resource Items */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Borrow Items</h3>
-
-                    {fields.map((field, index) => {
-                      const selectedResource = availableResources?.find(
-                        (r) => r.id === form.watch(`itemsBorrowed.${index}.id`),
-                      );
-
-                      return (
-                        <div key={field.id}>
-                          <div
-                            key={field.id}
-                            className="flex flex-col gap-4 sm:flex-row"
-                          >
-                            {/* Item Name */}
-                            <div className="w-full">
-                              <FormField
-                                control={form.control}
-                                name={`itemsBorrowed.${index}.id`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Item Name</FormLabel>
-                                    <Select
-                                      value={field.value}
-                                      onValueChange={field.onChange}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger className="w-full truncate">
-                                          <SelectValue placeholder="Select item" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {availableResources
-                                          ?.filter(
-                                            (item) =>
-                                              !selectedId.includes(item.id) ||
-                                              item.id === field.value,
-                                          )
-                                          .map((item) => (
-                                            <SelectItem
-                                              key={item.id}
-                                              value={item.id}
-                                              title={
-                                                item.description ??
-                                                "No description"
-                                              }
-                                            >
-                                              {item.name}
-                                            </SelectItem>
-                                          ))}
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              {/* Available (read-only, aligned like other fields) */}
-                              <div className="w-full">
-                                <FormItem>
-                                  <FormLabel>Available</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      value={
-                                        selectedResource
-                                          ? selectedResource.available
-                                          : ""
-                                      }
-                                      readOnly
-                                      className="bg-muted text-muted-foreground"
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              </div>
-
-                              {/* Quantity */}
-                              <div className="w-full">
-                                <FormField
-                                  control={form.control}
-                                  name={`itemsBorrowed.${index}.quantity`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Quantity</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          type="number"
-                                          min={1}
-                                          max={selectedResource?.available ?? 1}
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-
-                              {/* Remove button */}
-                              <Button
-                                type="button"
-                                size="icon"
-                                variant="outline"
-                                onClick={() => remove(index)}
-                                className="mt-5 self-center"
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                            </div>
+                  <FormField
+                    control={form.control}
+                    name="itemsBorrowed"
+                    render={() => (
+                      <FormItem>
+                        <h3 className="text-md font-semibold">
+                          <div className="flex items-center gap-2">
+                            Items Borrowed <p className="text-destructive">*</p>
                           </div>
-                          <span className="text-muted-foreground pl-3 text-xs">
-                            {selectedResource?.description}
-                          </span>
-                          <Separator className="my-4" />
-                        </div>
-                      );
-                    })}
+                        </h3>
 
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => append({ id: "", quantity: 1 })}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add Item
-                    </Button>
-                  </div>
+                        <div className="space-y-4">
+                          {fields.map((field, index) => {
+                            const selectedResource = availableResources?.find(
+                              (r) =>
+                                r.id ===
+                                form.watch(`itemsBorrowed.${index}.id`),
+                            );
+
+                            return (
+                              <div key={field.id}>
+                                <div className="flex flex-col gap-4 sm:flex-row">
+                                  {/* Item Name */}
+                                  <div className="w-full">
+                                    <FormField
+                                      control={form.control}
+                                      name={`itemsBorrowed.${index}.id`}
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Item Name</FormLabel>
+                                          <Select
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                          >
+                                            <FormControl>
+                                              <SelectTrigger className="w-full truncate">
+                                                <SelectValue placeholder="Select item" />
+                                              </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                              {availableResources
+                                                ?.filter(
+                                                  (item) =>
+                                                    !selectedId.includes(
+                                                      item.id,
+                                                    ) ||
+                                                    item.id === field.value,
+                                                )
+                                                .map((item) => (
+                                                  <SelectItem
+                                                    key={item.id}
+                                                    value={item.id}
+                                                    title={
+                                                      item.description ??
+                                                      "No description"
+                                                    }
+                                                  >
+                                                    {item.name}
+                                                  </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                          </Select>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    {/* Available (readonly) */}
+                                    <div className="w-full">
+                                      <FormItem>
+                                        <FormLabel>Available</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            value={
+                                              selectedResource
+                                                ? selectedResource.available
+                                                : ""
+                                            }
+                                            readOnly
+                                            className="bg-muted text-muted-foreground"
+                                          />
+                                        </FormControl>
+                                      </FormItem>
+                                    </div>
+
+                                    {/* Quantity */}
+                                    <div className="w-full">
+                                      <FormField
+                                        control={form.control}
+                                        name={`itemsBorrowed.${index}.quantity`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Quantity</FormLabel>
+                                            <FormControl>
+                                              <Input
+                                                type="number"
+                                                min={1}
+                                                max={
+                                                  selectedResource?.available ??
+                                                  1
+                                                }
+                                                {...field}
+                                              />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </div>
+
+                                    {/* Remove button */}
+                                    <Button
+                                      type="button"
+                                      size="icon"
+                                      variant="outline"
+                                      onClick={() => remove(index)}
+                                      className="mt-5 self-center"
+                                    >
+                                      <Minus className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <span className="text-muted-foreground pl-3 text-xs">
+                                  {selectedResource?.description}
+                                </span>
+                                <Separator className="my-4" />
+                              </div>
+                            );
+                          })}
+
+                          {/* Array-level error message */}
+                          <FormMessage />
+
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => append({ id: "", quantity: 1 })}
+                          >
+                            <Plus className="h-4 w-4" />
+                            Add Item
+                          </Button>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
 
                   {/* File Attachement */}
                   <div className="flex flex-col gap-2">
-                    <Label>Attachments</Label>
-                    {pdfUrl.length ? (
-                      <a
-                        className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
-                        href={pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="">{pdfName ?? "pdf"}</div>
-                      </a>
-                    ) : null}
+                    <FormField
+                      control={form.control}
+                      name="fileUrl"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <Label>
+                            Attachments <p className="text-destructive">*</p>
+                          </Label>
+                          {fieldState.error && (
+                            <p className="mt-1 text-sm text-red-500">
+                              {fieldState.error.message}
+                            </p>
+                          )}
+                          {pdfUrl.length ? (
+                            <a
+                              className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
+                              href={pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <div className="">{pdfName ?? "pdf"}</div>
+                            </a>
+                          ) : null}
 
-                    <UploadButton
-                      className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
-                      endpoint="pdfUploader"
-                      onClientUploadComplete={(res) => {
-                        console.log("File uploaded:", res);
-                        const url = res[0]?.ufsUrl ?? "";
-                        const name = res[0]?.name ?? "";
-                        setPdfUrl(url);
-                        setPdfName(name);
-                        form.setValue("fileUrl", url);
-                        toast.success("File uploaded successfully!");
-                      }}
-                      onUploadError={(error: Error) =>
-                        console.log("Error uploading:", error.message)
-                      }
+                          <UploadButton
+                            className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                            endpoint="pdfUploader"
+                            onClientUploadComplete={(res) => {
+                              const url = res[0]?.ufsUrl ?? "";
+                              const name = res[0]?.name ?? "";
+                              setPdfUrl(url);
+                              setPdfName(name);
+                              field.onChange(url); // ✅ updates form value properly
+                              toast.success("File uploaded successfully!");
+                            }}
+                            onUploadError={(error: Error) =>
+                              console.log("Error uploading:", error.message)
+                            }
+                          />
+                        </FormItem>
+                      )}
                     />
                   </div>
                 </div>

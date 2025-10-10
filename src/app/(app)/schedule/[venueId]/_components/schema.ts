@@ -17,6 +17,8 @@ export const VenueSchema = z.object({
         quantity: z.coerce.number(),
       }),
     )
-    .optional(),
-  fileUrl: z.string().optional(),
+    .min(1),
+  fileUrl: z
+    .string({ required_error: "Please upload a file" })
+    .min(1, { message: "Please upload a file" }),
 });
