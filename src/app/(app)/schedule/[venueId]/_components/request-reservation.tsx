@@ -578,33 +578,48 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                   )}
 
                   <div className="flex flex-col gap-2">
-                    <Label>Attachments</Label>
-                    {pdfUrl.length ? (
-                      <a
-                        className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
-                        href={pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="">{pdfName || "pdf"}</div>
-                      </a>
-                    ) : null}
+                    <FormField
+                      control={form.control}
+                      name="fileUrl"
+                      render={({ field, fieldState }) => (
+                        <div className="flex flex-col gap-2">
+                          <Label>Attachments</Label>
+                          {fieldState.error && (
+                            <p className="text-sm text-red-500">
+                              {fieldState.error.message}
+                            </p>
+                          )}
 
-                    <UploadButton
-                      className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
-                      endpoint="pdfUploader"
-                      onClientUploadComplete={(res) => {
-                        console.log("File uploaded:", res);
-                        const url = res[0]?.ufsUrl ?? "";
-                        const name = res[0]?.name ?? "";
-                        setPdfUrl(url);
-                        setPdfName(name);
-                        form.setValue("fileUrl", url);
-                        toast.success("File uploaded successfully!");
-                      }}
-                      onUploadError={(error: Error) =>
-                        console.log("Error uploading:", error.message)
-                      }
+                          {pdfUrl.length ? (
+                            <a
+                              className="text-primary border-grey rounded-sm border px-2 py-1 underline"
+                              href={pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <div>{pdfName || "pdf"}</div>
+                            </a>
+                          ) : null}
+
+                          <UploadButton
+                            className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                            endpoint="pdfUploader"
+                            onClientUploadComplete={(res) => {
+                              console.log("File uploaded:", res);
+                              const url = res[0]?.ufsUrl ?? "";
+                              const name = res[0]?.name ?? "";
+                              setPdfUrl(url);
+                              setPdfName(name);
+                              field.onChange(url);
+                              form.setValue("fileUrl", url);
+                              toast.success("File uploaded successfully!");
+                            }}
+                            onUploadError={(error: Error) =>
+                              console.log("Error uploading:", error.message)
+                            }
+                          />
+                        </div>
+                      )}
                     />
                   </div>
                 </div>
