@@ -52,7 +52,11 @@ export default function PlottingContent() {
       );
 
       // Store original styles
-      const originalStyles = new Map();
+      const originalStyles = new Map<HTMLElement, {
+        height?: string;
+        overflow?: string;
+        maxHeight?: string;
+      }>();
 
       if (scrollArea instanceof HTMLElement) {
         originalStyles.set(scrollArea, {
@@ -101,9 +105,9 @@ export default function PlottingContent() {
 
       // Restore all original styles
       originalStyles.forEach((styles, element) => {
-        Object.keys(styles).forEach((key) => {
-          element.style[key] = styles[key];
-        });
+        if (styles.height !== undefined) element.style.height = styles.height;
+        if (styles.overflow !== undefined) element.style.overflow = styles.overflow;
+        if (styles.maxHeight !== undefined) element.style.maxHeight = styles.maxHeight;
       });
 
       // Create image to get dimensions

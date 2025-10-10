@@ -24,7 +24,7 @@ import { api } from '@/trpc/react';
 
 export default function VenueReservationRecords() {
   const [status, setStatus] = useState<BorrowingStatus | ''>('');
-  const [venueId, setVenueId] = useState<string | ''>('');
+  const [venueId, setVenueId] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [loading, setLoading] = useState(false);
