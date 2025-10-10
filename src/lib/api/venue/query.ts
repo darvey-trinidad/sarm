@@ -4,7 +4,7 @@ import { user } from "@/server/db/schema/auth";
 import { ReservationStatus } from "@/constants/reservation-status";
 import { borrowingTransaction, resource, resourceBorrowing } from "@/server/db/schema/resource";
 
-import type { VenueReservationWithoutId } from "@/server/db/types/venue";
+import type { VenueReservationWithoutId, ReservationWithBorrowing } from "@/server/db/types/venue";
 
 export const getAllVenues = async () => {
   try {
@@ -350,39 +350,6 @@ export async function getVenueReservationPastMonthsStats() {
     ...m.counts,
   }));
 }
-
-
-// types
-type BorrowedItem = {
-  id: string;
-  name: string;
-  description: string;
-  quantity: number;
-};
-
-type BorrowingTransaction = {
-  id: string;
-  venueReservationId: string;
-  representativeBorrower: string;
-  itemsBorrowed: BorrowedItem[];
-  status: string;
-} | null;
-
-type ReservationWithBorrowing = {
-  venueReservationId: string;
-  venueId: string;
-  venueName: string | null;
-  reserverId: string;
-  reserverName: string | null;
-  date: Date;
-  startTime: number;
-  endTime: number;
-  purpose: string;
-  status: string;
-  createdAt: Date;
-  fileUrl: string | null;
-  borrowingTransaction: BorrowingTransaction;
-};
 
 /*
 ** COUNT

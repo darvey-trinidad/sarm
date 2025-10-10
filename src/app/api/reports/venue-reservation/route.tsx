@@ -1,14 +1,15 @@
 // app/api/reports/borrowing/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getAllBorrowingTransactions } from '@/lib/api/resource/query';
 import { pdf } from '@react-pdf/renderer';
-import { BorrowingReportDocument } from '@/components/pdf/borrowing-report';
 import { z } from 'zod';
-import { BORROWING_STATUS } from '@/constants/borrowing-status';
+import { RESERVATION_STATUS } from '@/constants/reservation-status';
+import { getAllVenueReservations } from '@/lib/api/venue/query';
+import { VenueReservationReportDocument } from '@/components/pdf/venue-reservation-report';
 
 const querySchema = z.object({
-  status: z.enum(BORROWING_STATUS).optional(),
+  venueId: z.string().optional(),
+  status: z.enum(RESERVATION_STATUS).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
 });
@@ -33,23 +34,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("parsed: ", parsed);
-
-    const { status, startDate, endDate } = parsed.data;
+    const { venueId, status, startDate, endDate } = parsed.data;
 
     // Convert string dates to Date objects
     const startDateObj = startDate ? new Date(startDate) : undefined;
     const endDateObj = endDate ? new Date(endDate) : undefined;
 
     // Fetch data from database
-    const transactions = await getAllBorrowingTransactions({
+    const reservations = await getAllVenueReservations({
+      venueId,
       status,
       startDate: startDateObj,
-      endDate: endDateObj,
+      endDate: endDateObj
     });
 
-
-    if (transactions.length === 0) {
+    if (reservations.length === 0) {
       return NextResponse.json(
         { error: 'No transactions found for the given filters' },
         { status: 404 }
@@ -58,9 +57,9 @@ export async function POST(request: NextRequest) {
 
     // Generate PDF - use toBlob() instead of toBuffer()
     const blob = await pdf(
-      <BorrowingReportDocument
-        transactions={transactions}
-        filters={{ status, startDate: startDateObj, endDate: endDateObj }}
+      <VenueReservationReportDocument
+        venueReservations={reservations}
+        filters={{ venueId, status, startDate: startDateObj, endDate: endDateObj }}
       />
     ).toBlob();
 
@@ -72,12 +71,12 @@ export async function POST(request: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="borrowing-report-${Date.now()}.pdf"`,
+        'Content-Disposition': `attachment; filename="venue-reservations-report-${Date.now()}.pdf"`,
         'Content-Length': buffer.length.toString(),
       },
     });
   } catch (error) {
-    console.error('Error generating borrowing report:', error);
+    console.error('Error generating venue reservation report:', error);
     return NextResponse.json(
       { error: 'Failed to generate report' },
       { status: 500 }

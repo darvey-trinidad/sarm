@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BorrowingRecords from "./borrowing-records";
+import VenueReservationRecords from "./venue-reservation-records";
 
 export default function RecordsTabContent() {
   const [tab, setTab] = useState("submit");
@@ -22,6 +23,7 @@ export default function RecordsTabContent() {
                 Lorem ipsum
               </p>
             </div>
+            <VenueReservationRecords />
           </div>
         </TabsContent>
         <TabsContent value="resource">

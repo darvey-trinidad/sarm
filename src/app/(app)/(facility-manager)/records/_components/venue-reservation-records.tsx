@@ -1,6 +1,5 @@
-// app/admin/reports/borrowing/page.tsx
 'use client';
-import type { BorrowingReportError } from '@/types/api';
+import type { VenueReservationReportError } from '@/types/api';
 import { useState } from 'react';
 import { Calendar, Download, X, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,13 +20,17 @@ import { Badge } from '@/components/ui/badge';
 import { BORROWING_STATUS_OPTIONS, type BorrowingStatus } from '@/constants/borrowing-status';
 import { format } from 'date-fns';
 import { cn, newDate } from '@/lib/utils';
+import { api } from '@/trpc/react';
 
-export default function BorrowingRecords() {
+export default function VenueReservationRecords() {
   const [status, setStatus] = useState<BorrowingStatus | ''>('');
+  const [venueId, setVenueId] = useState<string | ''>('');
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: venueList } = api.venue.getAllVenues.useQuery();
 
   const handleGenerateReport = async () => {
     setLoading(true);
@@ -35,11 +38,12 @@ export default function BorrowingRecords() {
 
     try {
       const body: Record<string, string> = {};
+      if (venueId) body.venueId = venueId;
       if (status) body.status = status;
       if (startDate) body.startDate = newDate(startDate).toISOString();
       if (endDate) body.endDate = newDate(endDate).toISOString();
 
-      const response = await fetch('/api/reports/borrowing', {
+      const response = await fetch('/api/reports/venue-reservation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +52,7 @@ export default function BorrowingRecords() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as BorrowingReportError;
+        const errorData = await response.json() as VenueReservationReportError;
         throw new Error(errorData.error ?? 'Failed to generate report');
       }
 
@@ -56,7 +60,7 @@ export default function BorrowingRecords() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `borrowing-report-${Date.now()}.pdf`;
+      a.download = `venue-reservation-report-${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -69,6 +73,7 @@ export default function BorrowingRecords() {
   };
 
   const handleClearFilters = () => {
+    setVenueId('');
     setStatus('');
     setStartDate(undefined);
     setEndDate(undefined);
@@ -76,7 +81,7 @@ export default function BorrowingRecords() {
   };
 
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  const hasFilters = status ?? startDate ?? endDate;
+  const hasFilters = venueId ?? status ?? startDate ?? endDate;
 
   return (
     <div className="space-y-4">
@@ -100,7 +105,24 @@ export default function BorrowingRecords() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          {/* Venues */}
+          <Select
+            value={venueId}
+            onValueChange={(value) => setVenueId(value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select specific venue" />
+            </SelectTrigger>
+            <SelectContent>
+              {venueList?.map((venue) => (
+                <SelectItem key={venue.id} value={venue.id}>
+                  {venue.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           {/* Status */}
           <Select
             value={status}

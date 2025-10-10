@@ -7,3 +7,14 @@ export type BorrowingReportRequest = {
   startDate?: string;
   endDate?: string;
 };
+
+export type VenueReservationReportRequest = {
+  venueId?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type VenueReservationReportError = {
+  error: string;
+};
