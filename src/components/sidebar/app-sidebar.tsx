@@ -8,6 +8,7 @@ import {
   Users,
   Blocks,
   Search,
+  Files
 } from "lucide-react";
 import {
   Sidebar,
@@ -78,6 +79,12 @@ const items = [
     href: "/plotting",
     icon: Grid2x2Check,
     roles: PLOTTING_ROLES,
+  },
+  {
+    title: "Records",
+    href: "/records",
+    icon: Files,
+    roles: ROLES,
   },
   {
     title: "Users",

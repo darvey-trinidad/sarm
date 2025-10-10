@@ -5,7 +5,7 @@ import BorrowingRecords from "./borrowing-records";
 import VenueReservationRecords from "./venue-reservation-records";
 
 export default function RecordsTabContent() {
-  const [tab, setTab] = useState("submit");
+  const [tab, setTab] = useState("venue");
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="space-y-2">
@@ -20,7 +20,7 @@ export default function RecordsTabContent() {
             <div className="flex flex-col">
               <h2 className="text-2xl font-bold">Venue Reservation Records</h2>
               <p className="text-muted-foreground">
-                Lorem ipsum
+                Download your venue reservation records
               </p>
             </div>
             <VenueReservationRecords />
@@ -31,7 +31,7 @@ export default function RecordsTabContent() {
             <div className="flex flex-col">
               <h2 className="text-2xl font-bold">Resource Borrowing Records</h2>
               <p className="text-muted-foreground">
-                Lorem ipsum
+                Download your resource borrowing records
               </p>
             </div>
             <BorrowingRecords />
