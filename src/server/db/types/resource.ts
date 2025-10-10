@@ -5,7 +5,7 @@ export type Resource = InferSelectModel<typeof resource>;
 export type NewResource = InferInsertModel<typeof resource>;
 
 export type NewBorrowingTransaction = InferInsertModel<typeof borrowingTransaction>;
-export type EditBorrowingTransaction = Partial<Omit<BorrowingTransaction, "id">>;
+export type EditBorrowingTransaction = Partial<Omit<InferInsertModel<typeof borrowingTransaction>, "id">>;
 
 export type ResourceBorrowing = InferSelectModel<typeof resourceBorrowing>;
 export type NewResourceBorrowing = InferInsertModel<typeof resourceBorrowing>;
