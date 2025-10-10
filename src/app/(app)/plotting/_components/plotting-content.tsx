@@ -1,4 +1,3 @@
-// src/app/plotting/PlottingContent.tsx
 "use client";
 import {
   Select,
