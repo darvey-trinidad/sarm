@@ -385,7 +385,12 @@ export default function RequestResourcesDialog({
 
                   {/* Resource Items */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Borrow Items</h3>
+                    <h3 className="text-lg font-semibold">
+                      <div className="flex flex-row">
+                        Borrow Items {""}
+                        <p className="text-destructive"> *</p>
+                      </div>
+                    </h3>
 
                     {fields.map((field, index) => {
                       const selectedResource = availableResources?.find(
@@ -516,33 +521,47 @@ export default function RequestResourcesDialog({
 
                   {/* File Attachement */}
                   <div className="flex flex-col gap-2">
-                    <Label>Attachments</Label>
-                    {pdfUrl.length ? (
-                      <a
-                        className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
-                        href={pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div className="">{pdfName ?? "pdf"}</div>
-                      </a>
-                    ) : null}
+                    <FormField
+                      control={form.control}
+                      name="fileUrl"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <Label>
+                            Attachments <p className="text-destructive">*</p>
+                          </Label>
+                          {fieldState.error && (
+                            <p className="mt-1 text-sm text-red-500">
+                              {fieldState.error.message}
+                            </p>
+                          )}
+                          {pdfUrl.length ? (
+                            <a
+                              className="text-primary border-grey rounded-sm border-1 px-2 py-1 underline"
+                              href={pdfUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <div className="">{pdfName ?? "pdf"}</div>
+                            </a>
+                          ) : null}
 
-                    <UploadButton
-                      className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
-                      endpoint="pdfUploader"
-                      onClientUploadComplete={(res) => {
-                        console.log("File uploaded:", res);
-                        const url = res[0]?.ufsUrl ?? "";
-                        const name = res[0]?.name ?? "";
-                        setPdfUrl(url);
-                        setPdfName(name);
-                        form.setValue("fileUrl", url);
-                        toast.success("File uploaded successfully!");
-                      }}
-                      onUploadError={(error: Error) =>
-                        console.log("Error uploading:", error.message)
-                      }
+                          <UploadButton
+                            className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                            endpoint="pdfUploader"
+                            onClientUploadComplete={(res) => {
+                              const url = res[0]?.ufsUrl ?? "";
+                              const name = res[0]?.name ?? "";
+                              setPdfUrl(url);
+                              setPdfName(name);
+                              field.onChange(url); // ✅ updates form value properly
+                              toast.success("File uploaded successfully!");
+                            }}
+                            onUploadError={(error: Error) =>
+                              console.log("Error uploading:", error.message)
+                            }
+                          />
+                        </FormItem>
+                      )}
                     />
                   </div>
                 </div>
