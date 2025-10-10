@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,7 @@ import {
   CheckCircle,
   XCircle,
   Undo2,
+  ExternalLink,
 } from "lucide-react";
 import {
   BORROWING_STATUS_OPTIONS,
@@ -53,7 +54,15 @@ import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorResource, getStatusIconResource } from "../icon-status";
 
-export default function ResourceReservation() {
+type ResourceReservationProps = {
+  onShowLinkedVenue: (venueReservationId: string) => void;
+  linkedBorrowingId: string | null;
+};
+
+export default function ResourceReservation({
+  onShowLinkedVenue,
+  linkedBorrowingId,
+}: ResourceReservationProps) {
   const [selectedResource, setSelectedResource] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -101,28 +110,46 @@ export default function ResourceReservation() {
   const filteredRequests = useMemo(() => {
     if (!resources) return [];
 
-    return resources.filter((request) => {
-      // 1. Resource filter
-      if (selectedResource !== "all") {
+    let filtered = resources;
+
+    // Filter by linked borrowing ID if present
+    if (linkedBorrowingId) {
+      filtered = filtered.filter(
+        (request) => request.id === linkedBorrowingId
+      );
+    }
+
+    // Resource filter
+    if (selectedResource !== "all") {
+      filtered = filtered.filter((request) => {
         const hasResource = request.borrowedItems.some(
           (item) => item.resourceId === selectedResource,
         );
-        if (!hasResource) return false;
-      }
+        return hasResource;
+      });
+    }
 
-      // 2. Search filter
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter((request) => {
         const matchesSearch =
           request.borrowerName.toLowerCase().includes(searchLower) ||
           request.purpose.toLowerCase().includes(searchLower) ||
           request.representativeBorrower.toLowerCase().includes(searchLower);
-        if (!matchesSearch) return false;
-      }
+        return matchesSearch;
+      });
+    }
 
-      return true;
-    });
-  }, [resources, selectedResource, searchTerm]);
+    return filtered;
+  }, [resources, selectedResource, searchTerm, linkedBorrowingId]);
+
+  // Show alert when filtering by linked borrowing
+  useEffect(() => {
+    if (linkedBorrowingId && filteredRequests.length > 0) {
+      toast.info("Showing linked resource borrowing");
+    }
+  }, [linkedBorrowingId, filteredRequests.length]);
 
   const handleApprove = (borrowingTransactionId: string) => {
     showConfirmation({
@@ -258,6 +285,26 @@ export default function ResourceReservation() {
           </p>
         </div>
 
+        {/* Show active filter indicator */}
+        {linkedBorrowingId && (
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-blue-600" />
+              <span className="text-sm text-blue-800 font-medium">
+                Showing linked resource borrowing
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.location.reload()}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              Clear filter
+            </Button>
+          </div>
+        )}
+
         {/* Filter  Section*/}
         <div className="flex flex-row items-center gap-2">
           <Filter className="h-5 w-5" />
@@ -390,7 +437,7 @@ export default function ResourceReservation() {
                         <h3 className="text-medium font-semibold text-gray-800">
                           {request.purpose}
                         </h3>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
                           <Badge
                             className={`${getStatusColorResource(request.status)} flex items-center gap-1`}
                           >
@@ -400,11 +447,15 @@ export default function ResourceReservation() {
                           </Badge>
                           {request.venueReservationId && (
                             <Badge
-                              className="ml-2 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800"
-                              title="This request has a linked venue reservation"
+                              className="ml-0 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800 cursor-pointer hover:bg-sky-200 transition-colors"
+                              title="Click to view linked venue reservation"
+                              onClick={() =>
+                                onShowLinkedVenue(request.venueReservationId!)
+                              }
                             >
                               <MapPin className="h-3 w-3" />
                               With {request.venueReservationStatus} venue
+                              <ExternalLink className="h-3 w-3 ml-1" />
                             </Badge>
                           )}
                         </div>
@@ -430,7 +481,7 @@ export default function ResourceReservation() {
                           <span>
                             {
                               TIME_MAP[
-                                request.startTime as keyof typeof TIME_MAP
+                              request.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}

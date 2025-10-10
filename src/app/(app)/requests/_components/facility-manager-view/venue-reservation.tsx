@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,12 +39,21 @@ import {
   CheckCircle,
   XCircle,
   Package,
+  ExternalLink,
 } from "lucide-react";
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorVenue, getStatusIconVenue } from "../icon-status";
 
-export default function VenueReservation() {
+type VenueReservationProps = {
+  onShowLinkedBorrowing: (borrowingId: string) => void;
+  linkedVenueId: string | null;
+};
+
+export default function VenueReservation({
+  onShowLinkedBorrowing,
+  linkedVenueId
+}: VenueReservationProps) {
   const [selectedVenue, setSelectedVenue] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -90,20 +99,40 @@ export default function VenueReservation() {
     });
     return Array.from(venueMap.values());
   }, [venues]);
+
   const filteredReservations = useMemo(() => {
     if (!venues) return [];
 
-    if (!searchTerm) return venues;
+    let filtered = venues;
 
-    const searchLower = searchTerm.toLowerCase();
-    return venues.filter(
-      (reservation) =>
-        (reservation.reserverName?.toLowerCase().includes(searchLower) ??
-          false) ||
-        reservation.purpose.toLowerCase().includes(searchLower) ||
-        (reservation.venueName?.toLowerCase().includes(searchLower) ?? false),
-    );
-  }, [venues, searchTerm]);
+    // Filter by linked venue ID if present
+    if (linkedVenueId) {
+      filtered = filtered.filter(
+        (reservation) => reservation.venueReservationId === linkedVenueId
+      );
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (reservation) =>
+          (reservation.reserverName?.toLowerCase().includes(searchLower) ??
+            false) ||
+          reservation.purpose.toLowerCase().includes(searchLower) ||
+          (reservation.venueName?.toLowerCase().includes(searchLower) ?? false),
+      );
+    }
+
+    return filtered;
+  }, [venues, searchTerm, linkedVenueId]);
+
+  // Show alert when filtering by linked venue
+  useEffect(() => {
+    if (linkedVenueId && filteredReservations.length > 0) {
+      toast.info("Showing linked venue reservation");
+    }
+  }, [linkedVenueId, filteredReservations.length]);
 
   const handleApprove = (reservationId: string) => {
     showConfirmation({
@@ -207,6 +236,26 @@ export default function VenueReservation() {
             Review and manage venue reservations
           </p>
         </div>
+
+        {/* Show active filter indicator */}
+        {linkedVenueId && (
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-blue-600" />
+              <span className="text-sm text-blue-800 font-medium">
+                Showing linked venue reservation
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.location.reload()}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              Clear filter
+            </Button>
+          </div>
+        )}
 
         {/* Filter Section */}
         <div className="flex flex-row items-center gap-2">
@@ -336,7 +385,7 @@ export default function VenueReservation() {
                         <h3 className="text-medium font-semibold text-gray-800">
                           {reservation.purpose}
                         </h3>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
                           <Badge
                             className={`${getStatusColorVenue(reservation.status)} flex items-center gap-1`}
                           >
@@ -346,14 +395,15 @@ export default function VenueReservation() {
                           </Badge>
                           {reservation.borrowingTransaction && (
                             <Badge
-                              className="ml-2 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800"
-                              title="This request has a linked resource borrowing"
+                              className="ml-0 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800 cursor-pointer hover:bg-sky-200 transition-colors"
+                              title="Click to view linked resource borrowing"
+                              onClick={() =>
+                                onShowLinkedBorrowing(reservation.borrowingTransaction!.id)
+                              }
                             >
                               <Package className="h-3 w-3" />
-                              With {
-                                reservation.borrowingTransaction.status
-                              }{" "}
-                              borrowing
+                              With {reservation.borrowingTransaction.status} borrowing
+                              <ExternalLink className="h-3 w-3 ml-1" />
                             </Badge>
                           )}
                         </div>
@@ -380,13 +430,13 @@ export default function VenueReservation() {
                           <span>
                             {
                               TIME_MAP[
-                                reservation.startTime as keyof typeof TIME_MAP
+                              reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                                reservation.endTime as keyof typeof TIME_MAP
+                              reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>

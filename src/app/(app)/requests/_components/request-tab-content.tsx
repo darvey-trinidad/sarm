@@ -14,8 +14,39 @@ type RequestTabContentProps = {
 };
 export default function RequestTabContent({ role }: RequestTabContentProps) {
   const [tab, setTab] = useState("venue");
+  const [linkedBorrowingId, setLinkedBorrowingId] = useState<string | null>(null);
+  const [linkedVenueId, setLinkedVenueId] = useState<string | null>(null);
+
+  const handleShowLinkedBorrowing = (borrowingId: string) => {
+    setLinkedBorrowingId(borrowingId);
+    setLinkedVenueId(null); // Clear venue filter
+    setTab("resource");
+  };
+
+  // Handler to switch to venue tab and filter by linked venue
+  const handleShowLinkedVenue = (venueReservationId: string) => {
+    setLinkedVenueId(venueReservationId);
+    setLinkedBorrowingId(null); // Clear borrowing filter
+    setTab("venue");
+  };
+
+  // Clear filters when manually switching tabs
+  const handleTabChange = (value: string) => {
+    setTab(value);
+    // Clear filters when switching to a different tab manually
+    if (value === "venue") {
+      setLinkedBorrowingId(null);
+    } else if (value === "resource") {
+      setLinkedVenueId(null);
+    } else {
+      // Classroom tab - clear all filters
+      setLinkedBorrowingId(null);
+      setLinkedVenueId(null);
+    }
+  };
+
   return (
-    <Tabs value={tab} onValueChange={setTab} className="space-y-2">
+    <Tabs value={tab} onValueChange={handleTabChange} className="space-y-2">
       <TabsList>
         {role === Roles.FacilityManager ? (
           <>
@@ -54,10 +85,16 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
         {role === Roles.FacilityManager ? (
           <>
             <TabsContent value="venue" className="space-y-4">
-              <VenueReservation />
+              <VenueReservation
+                onShowLinkedBorrowing={handleShowLinkedBorrowing}
+                linkedVenueId={linkedVenueId}
+              />
             </TabsContent>
             <TabsContent value="resource" className="space-y-4">
-              <ResourceReservation />
+              <ResourceReservation
+                onShowLinkedVenue={handleShowLinkedVenue}
+                linkedBorrowingId={linkedBorrowingId}
+              />
             </TabsContent>
             <TabsContent value="room-request">
               <UserRoomRequest />
