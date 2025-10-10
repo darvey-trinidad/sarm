@@ -372,7 +372,9 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                     name="purpose"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Purpose</FormLabel>
+                        <FormLabel>
+                          Purpose <p className="text-destructive">*</p>
+                        </FormLabel>
                         <FormControl>
                           <Input placeholder="Enter purpose" {...field} />
                         </FormControl>
@@ -420,7 +422,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                   {isBorrowingItems && (
                     <div>
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Borrow Items</h3>
+                        <h3 className="text-md font-semibold">
+                          <div className="flex items-center gap-2">
+                            Borrow Items
+                            <p className="text-destructive">*</p>
+                          </div>
+                        </h3>
 
                         {fields.map((field, index) => {
                           // get the selected resource details
