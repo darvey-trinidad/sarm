@@ -1,6 +1,6 @@
 // app/admin/reports/borrowing/page.tsx
 'use client';
-
+import type { BorrowingReportError } from '@/types/api';
 import { useState } from 'react';
 import { Calendar, Download, X, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -48,8 +48,8 @@ export default function BorrowingRecords() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate report');
+        const errorData = await response.json() as BorrowingReportError;
+        throw new Error(errorData.error ?? 'Failed to generate report');
       }
 
       const blob = await response.blob();
@@ -75,7 +75,8 @@ export default function BorrowingRecords() {
     setError(null);
   };
 
-  const hasFilters = status || startDate || endDate;
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  const hasFilters = status ?? startDate ?? endDate;
 
   return (
     <div className="space-y-4">
