@@ -17,7 +17,7 @@ export const ResourceScehma = z.object({
     .min(1, { message: "Please upload a file" }),
   itemsBorrowed: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().min(1, { message: "Please select an item" }),
       quantity: z.coerce.number(),
     }),
   ),
