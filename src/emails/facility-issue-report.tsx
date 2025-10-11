@@ -94,7 +94,7 @@ export function FacilityIssueReportEmail({
           Please review and address this issue at your earliest convenience. For
           more details, please visit{" "}
           <a
-            href={env.NEXT_PUBLIC_APP_URL + PageRoutes.REPORTS}
+            href={env.NEXT_PUBLIC_APP_URL + PageRoutes.ISSUES}
             style={{ textDecoration: "underline", color: "#337ab7" }}
           >
             here

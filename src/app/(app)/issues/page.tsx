@@ -5,7 +5,7 @@ import ReportsTabContent from "./_components/reports-tab-content";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 export const metadata: Metadata = {
-  title: "Reports",
+  title: "Issues",
 };
 
 export default async function Page() {
@@ -14,7 +14,7 @@ export default async function Page() {
   });
   return (
     <div className="flex w-full flex-col space-y-4">
-      <BreadcrumbLayout currentPage="Reports" />
+      <BreadcrumbLayout currentPage="Issues" />
 
       <ReportCards role={session?.user.role ?? ""} />
       <ReportsTabContent role={session?.user.role ?? ""} />

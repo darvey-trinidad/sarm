@@ -23,10 +23,13 @@ export enum PageRoutes {
   REQUESTS = "/requests",
 
   //Reports
-  REPORTS = "/reports",
+  ISSUES = "/issues",
 
   //Plotting =
   PLOTTING = "/plotting",
+
+  // Records
+  RECORDS = "/records",
 
   //Users
   USERS = "/users",

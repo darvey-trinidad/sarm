@@ -69,8 +69,8 @@ const items = [
     roles: REQUESTS_ROLES,
   },
   {
-    title: "Reports",
-    href: "/reports",
+    title: "Issues",
+    href: "/issues",
     icon: MessageSquareWarning,
     roles: ROLES,
   },
