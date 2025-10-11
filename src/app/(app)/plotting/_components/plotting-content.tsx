@@ -90,7 +90,10 @@ export default function PlottingContent() {
           <SelectContent>
             {buildings?.map((building) => (
               <SelectItem key={building.buildingId} value={building.buildingId}>
-                {building.name} - {building.description}
+                <span className="hidden md:block">
+                  {building.name} - {building.description}
+                </span>
+                <span className="block md:hidden">{building.name}</span>
               </SelectItem>
             ))}
           </SelectContent>
