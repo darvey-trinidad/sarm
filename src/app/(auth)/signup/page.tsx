@@ -44,6 +44,13 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (password.length < 8)
+      return toast.error("Sign up failed: Password must be at least 8 characters long!");
+
+    if (!role || !departmentOrOrganization || !name || !email || !password || !confirmPassword) {
+      return toast.error("Sign up failed: Please fill out all fields");
+    }
+
     if (password !== confirmPassword)
       return toast.error("Sign up failed: Passwords do not match!");
 
