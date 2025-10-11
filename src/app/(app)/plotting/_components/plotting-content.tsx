@@ -46,7 +46,7 @@ export default function PlottingContent() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col justify-between gap-4 md:flex-row">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
             Create Classroom Schedule
