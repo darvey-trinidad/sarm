@@ -54,3 +54,17 @@ export const verification = sqliteTable("verification", {
 	createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => /* @__PURE__ */ new Date()),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => /* @__PURE__ */ new Date())
 });
+
+export const pushSubscriptions = sqliteTable('push_subscriptions', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }), // Add foreign key
+	endpoint: text('endpoint').notNull().unique(), // Should be unique
+	p256dh: text('p256dh').notNull(),
+	auth: text('auth').notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+}, (table) => ({
+	userIdIdx: index('push_subscriptions_user_id_idx').on(table.userId),
+	endpointIdx: index('push_subscriptions_endpoint_idx').on(table.endpoint),
+}));
