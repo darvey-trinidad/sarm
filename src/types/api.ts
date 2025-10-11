@@ -18,3 +18,14 @@ export type VenueReservationReportRequest = {
 export type VenueReservationReportError = {
   error: string;
 };
+
+export type FacilityIssueReportRequest = {
+  category?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type FacilityIssueReportError = {
+  error: string;
+};

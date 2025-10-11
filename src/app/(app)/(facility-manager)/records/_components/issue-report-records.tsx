@@ -1,6 +1,5 @@
-// app/admin/reports/borrowing/page.tsx
 'use client';
-import type { BorrowingReportError } from '@/types/api';
+import type { FacilityIssueReportError } from '@/types/api';
 import { useState } from 'react';
 import { Calendar, Download, X, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,12 +17,14 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
-import { BORROWING_STATUS_OPTIONS, type BorrowingStatus } from '@/constants/borrowing-status';
 import { format } from 'date-fns';
 import { cn, newDate } from '@/lib/utils';
+import { REPORT_CATEGORY_OPTIONS, type ReportCategory } from '@/constants/report-category';
+import { REPORT_STATUS_OPTIONS, type ReportStatus } from '@/constants/report-status';
 
-export default function BorrowingRecords() {
-  const [status, setStatus] = useState<BorrowingStatus | ''>('');
+export default function FacilityIssueReportRecords() {
+  const [category, setCategory] = useState<ReportCategory | ''>('');
+  const [status, setStatus] = useState<ReportStatus | ''>('');
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [loading, setLoading] = useState(false);
@@ -35,11 +36,12 @@ export default function BorrowingRecords() {
 
     try {
       const body: Record<string, string> = {};
+      if (category) body.category = category;
       if (status) body.status = status;
       if (startDate) body.startDate = newDate(startDate).toISOString();
       if (endDate) body.endDate = newDate(endDate).toISOString();
 
-      const response = await fetch('/api/reports/borrowing', {
+      const response = await fetch('/api/reports/issue-report', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +50,7 @@ export default function BorrowingRecords() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as BorrowingReportError;
+        const errorData = await response.json() as FacilityIssueReportError;
         throw new Error(errorData.error ?? 'Failed to generate report');
       }
 
@@ -56,7 +58,7 @@ export default function BorrowingRecords() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `borrowing-report-${Date.now()}.pdf`;
+      a.download = `facility-issues-report-${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -69,6 +71,7 @@ export default function BorrowingRecords() {
   };
 
   const handleClearFilters = () => {
+    setCategory('');
     setStatus('');
     setStartDate(undefined);
     setEndDate(undefined);
@@ -76,7 +79,7 @@ export default function BorrowingRecords() {
   };
 
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  const hasFilters = status || startDate || endDate;
+  const hasFilters = category || status || startDate || endDate;
 
   return (
     <div className="space-y-4">
@@ -100,19 +103,36 @@ export default function BorrowingRecords() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          {/* Venues */}
+          <Select
+            value={category}
+            onValueChange={(value) => setCategory(value as ReportCategory | '')}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {REPORT_CATEGORY_OPTIONS.map((reportCategory) => (
+                <SelectItem key={reportCategory.value} value={reportCategory.value}>
+                  {reportCategory.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           {/* Status */}
           <Select
             value={status}
-            onValueChange={(value) => setStatus(value as BorrowingStatus | '')}
+            onValueChange={(value) => setStatus(value as ReportStatus | '')}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              {BORROWING_STATUS_OPTIONS.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
+              {REPORT_STATUS_OPTIONS.map((reportStatus) => (
+                <SelectItem key={reportStatus.value} value={reportStatus.value}>
+                  {reportStatus.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -172,9 +192,14 @@ export default function BorrowingRecords() {
         {/* Active Filters */}
         {hasFilters && (
           <div className="flex flex-wrap gap-2">
+            {category && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                {REPORT_CATEGORY_OPTIONS.find((c) => c.value === category)?.label}
+              </Badge>
+            )}
             {status && (
               <Badge variant="secondary" className="flex items-center gap-1">
-                {BORROWING_STATUS_OPTIONS.find((s) => s.value === status)?.label}
+                {REPORT_STATUS_OPTIONS.find((s) => s.value === status)?.label}
               </Badge>
             )}
             {startDate && (

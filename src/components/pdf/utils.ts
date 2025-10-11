@@ -12,8 +12,10 @@ export const getStatusStyle = (status: string) => {
       return styles.statusRejected;
     case 'canceled':
       return styles.statusCanceled;
+    case 'resolved':
+      return styles.statusResolved;
     default:
-      return {};
+      return styles.statusReported;
   }
 };
 

@@ -81,7 +81,7 @@ export default function VenueReservationRecords() {
   };
 
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  const hasFilters = venueId ?? status ?? startDate ?? endDate;
+  const hasFilters = venueId || status || startDate || endDate;
 
   return (
     <div className="space-y-4">

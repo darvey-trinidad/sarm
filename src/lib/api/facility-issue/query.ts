@@ -1,4 +1,4 @@
-import { db, desc, eq, gte, lte, and, count } from "@/server/db";
+import { db, desc, eq, gte, lte, and, count, not } from "@/server/db";
 import { facilityIssueReport } from "@/server/db/schema/facility-issue-report";
 import { user } from "@/server/db/schema/auth";
 import { building, classroom } from "@/server/db/schema/classroom";
@@ -20,6 +20,7 @@ export const getAllFacilityIssueReports = async ({
     const conditions = [];
     if (category) conditions.push(eq(facilityIssueReport.category, category));
     if (status) conditions.push(eq(facilityIssueReport.status, status));
+    conditions.push(not(eq(facilityIssueReport.status, ReportStatusValues.Duplicate)));
     if (startDate) conditions.push(gte(facilityIssueReport.dateReported, startDate));
     if (endDate) conditions.push(lte(facilityIssueReport.dateReported, endDate));
 
@@ -58,6 +59,8 @@ export const getAllFacilityIssueReports = async ({
     throw error;
   }
 };
+
+export type FacilityIssueReportReturnType = Awaited<ReturnType<typeof getAllFacilityIssueReports>>;
 
 export const getAllFacilityIssueReportsByUser = async (userId: string) => {
   try {

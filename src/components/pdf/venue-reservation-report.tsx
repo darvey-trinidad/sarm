@@ -8,15 +8,6 @@ import { styles } from './styles';
 import { formatDate, getStatusStyle } from './utils';
 import type { ReservationWithBorrowing } from '@/server/db/types/venue';
 
-type BorrowingReportProps = {
-  transactions: BorrowingTransaction[];
-  filters: {
-    status?: string;
-    startDate?: Date;
-    endDate?: Date;
-  };
-};
-
 type VenueReservationReportProps = {
   venueReservations: ReservationWithBorrowing[];
   filters: {
@@ -35,7 +26,7 @@ export const VenueReservationReportDocument = ({ venueReservations, filters }: V
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
-        <Text style={styles.title}>Resource Borrowings Report</Text>
+        <Text style={styles.title}>Venue Reservations Report</Text>
         {filterText.length > 0 && (
           <Text style={styles.filterInfo}>Filter: {filterText.join(' ')}</Text>
         )}

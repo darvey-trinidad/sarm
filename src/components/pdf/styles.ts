@@ -74,6 +74,12 @@ export const styles = StyleSheet.create({
   statusCanceled: {
     color: '#555'
   },
+  statusResolved: {
+    color: '#000000'
+  },
+  statusReported: {
+    color: '#555'
+  },
   footer: {
     marginTop: 30,
     paddingTop: 10,
