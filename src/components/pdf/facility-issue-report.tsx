@@ -77,8 +77,8 @@ export const FacilityIssueReportDocument = ({ issueReports, filters }: FacilityI
               </View>
 
               <View style={[styles.cell, { flex: 2.5 }]}>
-                <Text>{`Building: ${issueReport.buildingName ? issueReport.buildingName : 'N/A'}`}</Text>
-                <Text>{`Room: ${issueReport.classroomName ? issueReport.classroomName : 'N/A'}`}</Text>
+                <Text>{`Building: ${issueReport.buildingName ?? 'N/A'}`}</Text>
+                <Text>{`Room: ${issueReport.classroomName ?? 'N/A'}`}</Text>
                 <Text style={{ fontSize: 8, color: '#555' }}>
                   {issueReport.location}
                 </Text>
