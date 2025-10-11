@@ -9,7 +9,11 @@ import { AvailableRoomSkeleton } from "../skeletons/received-room-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
-import { ClassroomTypeValues, type ClassroomType } from "@/constants/classroom-type";
+import {
+  CLASSROOM_TYPE_LABELS,
+  ClassroomTypeValues,
+  type ClassroomType,
+} from "@/constants/classroom-type";
 import {
   MapPin,
   Building,
@@ -157,8 +161,11 @@ export default function CurrentAvailableRooms() {
                                   className={`${getTypeColor(classroom.type as ClassroomType)} flex items-center gap-1`}
                                 >
                                   {getTypeIcon(classroom.type as ClassroomType)}
-                                  {classroom.type.charAt(0).toUpperCase() +
-                                    classroom.type.slice(1)}
+                                  {
+                                    CLASSROOM_TYPE_LABELS[
+                                      classroom.type as ClassroomType
+                                    ]
+                                  }
                                 </Badge>
                               </div>
 
