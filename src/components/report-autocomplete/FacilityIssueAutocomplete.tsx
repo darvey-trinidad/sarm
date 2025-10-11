@@ -9,10 +9,8 @@ import { useState, useRef, useCallback, type KeyboardEvent } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type Option = Record<"value" | "label", string> & Record<string, string>;
-
 type FacilityIssueAutocompleteProps = {
-  options: Option[];
+  options: readonly string[];
   emptyMessage: string;
   value?: string;
   onValueChange?: (value: string) => void;
@@ -69,9 +67,9 @@ export const FacilityIssueAutocomplete = ({
   }, [inputValue, onValueChange]);
 
   const handleSelectOption = useCallback(
-    (selectedOption: Option) => {
-      setInputValue(selectedOption.label);
-      onValueChange?.(selectedOption.label);
+    (selectedOption: string) => {
+      setInputValue(selectedOption);
+      onValueChange?.(selectedOption);
 
       // Close the dropdown after selection
       setTimeout(() => {
@@ -82,11 +80,11 @@ export const FacilityIssueAutocomplete = ({
   );
 
   const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(inputValue.toLowerCase()),
+    option.toLowerCase().includes(inputValue.toLowerCase()),
   );
 
   return (
-    <CommandPrimitive onKeyDown={handleKeyDown}>
+    <CommandPrimitive onKeyDown={handleKeyDown} className="overflow-visible">
       <div
         className={cn(
           // Shadcn Input style
@@ -103,24 +101,25 @@ export const FacilityIssueAutocomplete = ({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
+          className="flex-1"
         />
       </div>
       <div className="relative mt-1">
         <div
           className={cn(
-            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full rounded-xl bg-white outline-none",
+            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full min-w-[300px] rounded-xl bg-white outline-none",
             isOpen ? "block" : "hidden",
           )}
         >
-          <CommandList className="rounded-lg ring-1 ring-slate-200">
+          <CommandList className="max-h-[300px] rounded-lg ring-1 ring-slate-200">
             {filteredOptions.length > 0 ? (
               <CommandGroup>
                 {filteredOptions.map((option) => {
-                  const isSelected = inputValue === option.label;
+                  const isSelected = inputValue === option;
                   return (
                     <CommandItem
-                      key={option.value}
-                      value={option.label}
+                      key={option}
+                      value={option}
                       onMouseDown={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
@@ -132,7 +131,7 @@ export const FacilityIssueAutocomplete = ({
                       )}
                     >
                       {isSelected ? <Check className="h-3 w-3" /> : null}
-                      {option.label}
+                      {option}
                     </CommandItem>
                   );
                 })}
