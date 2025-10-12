@@ -14,6 +14,9 @@ export async function generateSchedulePDF({
   if (!calendarRef.current) return;
 
   try {
+    // Check if mobile view
+    const wasMobileView = window.innerWidth < 768;
+
     // Find all scrollable elements and expand them
     const scrollArea = calendarRef.current.querySelector(
       "[data-radix-scroll-area-viewport]",
@@ -24,11 +27,28 @@ export async function generateSchedulePDF({
       '[style*="overflow"]',
     );
 
-    // Store original styles
+    // Store original styles including viewport width
     const originalStyles = new Map<
-      HTMLElement,
-      { height?: string; overflow?: string; maxHeight?: string }
+      HTMLElement | string,
+      | {
+          height?: string;
+          overflow?: string;
+          maxHeight?: string;
+          width?: string;
+          minWidth?: string;
+        }
+      | string
     >();
+
+    // Store original viewport meta for mobile
+    let originalViewport = "";
+    if (wasMobileView) {
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        originalViewport = viewportMeta.getAttribute("content") || "";
+        viewportMeta.setAttribute("content", "width=1200");
+      }
+    }
 
     if (scrollArea instanceof HTMLElement) {
       originalStyles.set(scrollArea, {
@@ -64,24 +84,72 @@ export async function generateSchedulePDF({
       }
     });
 
-    // Wait for layout to settle
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // Force desktop layout on mobile with proper width
+    if (wasMobileView && calendarRef.current) {
+      originalStyles.set("rootWidth", calendarRef.current.style.width);
+      originalStyles.set("rootMinWidth", calendarRef.current.style.minWidth);
+      calendarRef.current.style.width = "1200px";
+      calendarRef.current.style.minWidth = "1200px";
 
-    // Capture image
+      // Also force the parent containers to be wide enough
+      const parent = calendarRef.current.parentElement;
+      if (parent) {
+        originalStyles.set("parentWidth", parent.style.width);
+        parent.style.width = "1200px";
+      }
+    }
+
+    // Wait longer for layout to settle and re-render
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Capture image with explicit width
     const dataUrl = await toPng(calendarRef.current, {
       quality: 0.92,
       pixelRatio: 1.5,
       backgroundColor: "#ffffff",
       cacheBust: true,
+      width: wasMobileView ? 1200 : undefined,
     });
 
-    // Restore styles
+    // Restore viewport meta
+    if (wasMobileView && originalViewport) {
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        viewportMeta.setAttribute("content", originalViewport);
+      }
+    }
+
+    // Restore all original styles
     originalStyles.forEach((styles, element) => {
-      if (styles.height !== undefined) element.style.height = styles.height;
-      if (styles.overflow !== undefined)
-        element.style.overflow = styles.overflow;
-      if (styles.maxHeight !== undefined)
-        element.style.maxHeight = styles.maxHeight;
+      if (element === "rootWidth" && calendarRef.current) {
+        calendarRef.current.style.width = styles as string;
+      } else if (element === "rootMinWidth" && calendarRef.current) {
+        calendarRef.current.style.minWidth = styles as string;
+      } else if (
+        element === "parentWidth" &&
+        calendarRef.current?.parentElement
+      ) {
+        calendarRef.current.parentElement.style.width = styles as string;
+      } else if (typeof element !== "string") {
+        const htmlElement = element as HTMLElement;
+        const styleObj = styles as {
+          height?: string;
+          overflow?: string;
+          maxHeight?: string;
+          width?: string;
+          minWidth?: string;
+        };
+        if (styleObj.height !== undefined)
+          htmlElement.style.height = styleObj.height;
+        if (styleObj.overflow !== undefined)
+          htmlElement.style.overflow = styleObj.overflow;
+        if (styleObj.maxHeight !== undefined)
+          htmlElement.style.maxHeight = styleObj.maxHeight;
+        if (styleObj.width !== undefined)
+          htmlElement.style.width = styleObj.width;
+        if (styleObj.minWidth !== undefined)
+          htmlElement.style.minWidth = styleObj.minWidth;
+      }
     });
 
     // Create image to get dimensions

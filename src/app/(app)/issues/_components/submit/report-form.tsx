@@ -31,6 +31,8 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { api } from "@/trpc/react";
+import { FacilityIssueAutocomplete } from "@/components/report-autocomplete/FacilityIssueAutocomplete";
+import { COMMON_FACILITY_ISSUES } from "@/constants/commont-facility-reports";
 
 export default function ReportForm() {
   const { data: session } = authClient.useSession();
@@ -114,10 +116,17 @@ export default function ReportForm() {
                 <FormItem>
                   <FormLabel>Issue Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g Broken Ceiling Fan" {...field} />
+                    <FacilityIssueAutocomplete
+                      options={COMMON_FACILITY_ISSUES}
+                      emptyMessage="Start typing to describe the issue..."
+                      placeholder="e.g., Broken Ceiling Fan"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
                   <FormDescription className="pt-0">
-                    Provide a brief title that describes the issue.
+                    Select from common issues or type your own description.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
