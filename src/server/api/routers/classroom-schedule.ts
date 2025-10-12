@@ -252,6 +252,7 @@ export const classroomScheduleRouter = createTRPCRouter({
     .input(respondToRoomRequestSchema)
     .mutation(async ({ input }) => {
       try {
+        console.log("Input from respond procedure: ", input);
         const roomRequestRecord = await getRoomRequestById(input.roomRequestId);
 
         if (!roomRequestRecord) {

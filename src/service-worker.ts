@@ -60,15 +60,15 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
 
   if (action === 'accept' || action === 'decline') {
     event.waitUntil(
-      fetch('/api/trpc/classroomSchedule.respondToRoomRequest', {
+      fetch('/api/respond-to-room-request', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          requestId: data.requestId,
-          action: action.toUpperCase()
+          roomRequestId: data.requestId,
+          status: action
         })
       })
         .then(response => response.json())
