@@ -1,4 +1,3 @@
-// components/NotificationSubscribeButton.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,9 +11,19 @@ export function NotificationSubscribeButton() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [currentEndpoint, setCurrentEndpoint] = useState<string | null>(null);
+
+  // Query with the current browser's endpoint
+  const { data: dbSubscription, refetch: refetchSubscription } =
+    api.notifications.checkSubscription.useQuery(
+      { endpoint: currentEndpoint ?? '' },
+      {
+        enabled: !!currentEndpoint, // Only run when we have an endpoint
+        refetchOnMount: true,
+      }
+    );
 
   useEffect(() => {
-    // Check current permission status
     if (typeof Notification !== 'undefined') {
       setPermission(Notification.permission);
       void checkExistingSubscription();
@@ -25,13 +34,29 @@ export function NotificationSubscribeButton() {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
-        setIsSubscribed(!!subscription && Notification.permission === 'granted');
+        const browserSubscription = await registration.pushManager.getSubscription();
+
+        if (browserSubscription) {
+          setCurrentEndpoint(browserSubscription.endpoint);
+
+          // Will trigger the query with the endpoint
+          // The query result will determine if we're subscribed
+        } else {
+          setCurrentEndpoint(null);
+          setIsSubscribed(false);
+        }
       } catch (error) {
         console.error('Error checking subscription:', error);
       }
     }
   };
+
+  // Update subscription status when DB query returns
+  useEffect(() => {
+    if (currentEndpoint && dbSubscription !== undefined) {
+      setIsSubscribed(!!dbSubscription && Notification.permission === 'granted');
+    }
+  }, [dbSubscription, currentEndpoint]);
 
   const { mutateAsync: subscribeMutation } = api.notifications.subscribe.useMutation();
 
@@ -39,16 +64,16 @@ export function NotificationSubscribeButton() {
     try {
       setLoading(true);
 
-      // Get push subscription from browser
       const subscription = await subscribeToPushNotifications();
 
-      // Send to server
       await subscribeMutation({
         endpoint: subscription.endpoint,
         p256dh: arrayBufferToBase64(subscription.getKey('p256dh')!),
         auth: arrayBufferToBase64(subscription.getKey('auth')!),
       });
 
+      setCurrentEndpoint(subscription.endpoint);
+      await refetchSubscription();
       setIsSubscribed(true);
       setPermission('granted');
       toast.success('Notifications enabled successfully!');
@@ -65,7 +90,7 @@ export function NotificationSubscribeButton() {
     }
   };
 
-  // If already subscribed
+  // Rest of the component stays the same...
   if (isSubscribed && permission === 'granted') {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2 dark:border-green-800 dark:bg-green-950">
@@ -77,7 +102,6 @@ export function NotificationSubscribeButton() {
     );
   }
 
-  // If permission denied
   if (permission === 'denied') {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 dark:border-amber-800 dark:bg-amber-950">
