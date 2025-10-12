@@ -118,13 +118,11 @@ export default function FacultyCurrentSchedule() {
                   </CardHeader>
 
                   <CardContent>
-                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-2 text-gray-600 md:grid-cols-2">
                       <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
-                        <Building2 className="text-muted-foreground h-4 w-4" />
+                        <Building2 className="h-4 w-4" />
                         <div className="flex flex-col">
-                          <span className="text-muted-foreground text-xs">
-                            Building
-                          </span>
+                          <span className="text-xs">Building</span>
                           <span className="font-medium">
                             {schedule.buildingName}
                           </span>
@@ -132,11 +130,9 @@ export default function FacultyCurrentSchedule() {
                       </div>
 
                       <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
-                        <MapPin className="text-muted-foreground h-4 w-4" />
+                        <MapPin className="h-4 w-4" />
                         <div className="flex flex-col">
-                          <span className="text-muted-foreground text-xs">
-                            Classroom
-                          </span>
+                          <span className="text-xs">Classroom</span>
                           <span className="font-medium">
                             Room {schedule.classroomName}
                           </span>
@@ -144,11 +140,9 @@ export default function FacultyCurrentSchedule() {
                       </div>
 
                       <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
-                        <Calendar className="text-muted-foreground h-4 w-4" />
+                        <Calendar className="h-4 w-4" />
                         <div className="flex flex-col">
-                          <span className="text-muted-foreground text-xs">
-                            Date
-                          </span>
+                          <span className="text-xs">Date</span>
                           <span className="font-medium">
                             {formatISODate(schedule.date)}
                           </span>
@@ -156,11 +150,9 @@ export default function FacultyCurrentSchedule() {
                       </div>
 
                       <div className="flex items-center gap-2 rounded-lg bg-stone-100 p-3">
-                        <Clock className="text-muted-foreground h-4 w-4" />
+                        <Clock className="h-4 w-4" />
                         <div className="flex flex-col">
-                          <span className="text-muted-foreground text-xs">
-                            Time
-                          </span>
+                          <span className="text-xs">Time</span>
                           <span className="font-medium">
                             {`${TIME_MAP[toTimeInt(schedule.startTime)]}`} {""}{" "}
                             -{""}
