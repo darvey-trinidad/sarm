@@ -32,6 +32,8 @@ export const borrowingTransaction = sqliteTable("borrowing_transaction", {
   representativeBorrower: text("representative_borrower").notNull(),
   fileUrl: text("file_url"),
 
+  rejectionReason: text("rejection_reason"),
+
   dateRequested: integer("date_requested", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),

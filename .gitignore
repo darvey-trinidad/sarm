@@ -44,3 +44,7 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# Generated files
+public/sw.js
+public/sw.js.map

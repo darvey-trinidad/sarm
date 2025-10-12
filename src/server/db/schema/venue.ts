@@ -28,6 +28,8 @@ export const venueReservation = sqliteTable("venue_reservation", {
 
   fileUrl: text("file_url"),
 
+  rejectionReason: text("rejection_reason"),
+
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
 }, (table) => ({

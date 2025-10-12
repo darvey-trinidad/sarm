@@ -52,7 +52,7 @@ export function useScheduleActions({
     isSuccess: isSuccessCancelBorrowing,
   } = api.classroomSchedule.cancelClassroomBorrowing.useMutation();
 
-  const { mutate: createRoomRequest } =
+  const { mutateAsync: createRoomRequest } =
     api.classroomSchedule.createRoomRequest.useMutation();
 
   const requestToBorrow = async (
@@ -61,7 +61,7 @@ export function useScheduleActions({
   ) => {
     setLoading(true);
     try {
-      createRoomRequest(
+      await createRoomRequest(
         {
           classroomId: schedule.classroomId,
           date: schedule.date,

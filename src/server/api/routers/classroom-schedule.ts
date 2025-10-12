@@ -40,7 +40,7 @@ import {
 } from "@/lib/helper/classroom-schedule";
 import { env } from "@/env";
 import { RequestRoomEmail } from "@/emails/room-request";
-import { generateUUID } from "@/lib/utils";
+import { formatDate, generateUUID } from "@/lib/utils";
 import nodemailer from "nodemailer";
 import { render } from "@react-email/render";
 import { RoomRequestStatus } from "@/constants/room-request-status";
@@ -48,6 +48,8 @@ import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
 import { Roles } from "@/constants/roles";
+import { sendPushNotification } from "@/lib/push-service";
+import { TIME_MAP, type TimeInt } from "@/constants/timeslot";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -179,6 +181,22 @@ export const classroomScheduleRouter = createTRPCRouter({
         const roomRequestRecord = await getRoomRequestById(roomRequestId);
         console.log("Room Request Record: ", roomRequestRecord);
 
+        sendPushNotification({
+          userId: roomRequestRecord?.responderId ?? "",
+          title: "Classroom Borrowing Request",
+          body: `${roomRequestRecord?.requestorName} wants to borrow room ${roomRequestRecord?.classroomName} 
+          on ${formatDate(roomRequestRecord?.date.toISOString() ?? "")} 
+          (${TIME_MAP[roomRequestRecord?.startTime as TimeInt]}-${TIME_MAP[roomRequestRecord?.endTime as TimeInt]})`,
+          data: {
+            requestId: roomRequestRecord?.id,
+            type: 'borrow_request',
+          },
+          actions: [
+            { action: 'accept', title: 'Accept' },
+            { action: 'decline', title: 'Decline' },
+          ],
+        })
+
         const transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
@@ -207,8 +225,9 @@ export const classroomScheduleRouter = createTRPCRouter({
           html: emailHtml,
         });
 
-        console.log("Email Sent: ", info);
-        return { info, status: 200 };
+        // console.log("Email Sent: ", info);
+
+        return { success: true, requestId: roomRequestId };
       } catch (error) {
         console.error(error);
         throw error;
@@ -233,6 +252,7 @@ export const classroomScheduleRouter = createTRPCRouter({
     .input(respondToRoomRequestSchema)
     .mutation(async ({ input }) => {
       try {
+        console.log("Input from respond procedure: ", input);
         const roomRequestRecord = await getRoomRequestById(input.roomRequestId);
 
         if (!roomRequestRecord) {
@@ -257,6 +277,17 @@ export const classroomScheduleRouter = createTRPCRouter({
           });
         }
         await updateRoomRequestStatus(input.roomRequestId, input.status);
+
+        await sendPushNotification({
+          userId: roomRequestRecord.requestorId,
+          title: `Room Request ${input.status}`,
+          body: `${roomRequestRecord.responderName} ${input.status} your request for room ${roomRequestRecord.classroomName}`,
+          data: {
+            requestId: roomRequestRecord.id,
+            type: 'borrow_response',
+          },
+        });
+
         await notifyRoomRequestor(input.roomRequestId);
 
         return { message: "Room Request Responded", status: 200 };

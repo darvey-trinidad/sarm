@@ -84,7 +84,7 @@ const items = [
     title: "Records",
     href: "/records",
     icon: Files,
-    roles: ROLES,
+    roles: MANAGE_ROLES,
   },
   {
     title: "Users",

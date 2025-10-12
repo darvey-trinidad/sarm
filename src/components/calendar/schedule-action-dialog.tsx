@@ -273,7 +273,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                selectedItem.subject
+                  selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
@@ -528,7 +528,7 @@ export default function ScheduleActionDialog({
                 }
                 className="w-full"
               >
-                {loading ? "Submitting Request..." : "Borrow Room"}
+                {loading ? "Borrowing..." : "Borrow Room"}
               </Button>
             </div>
           )}

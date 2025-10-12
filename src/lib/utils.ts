@@ -35,7 +35,7 @@ export function formatISODate(date: Date | string): string {
 }
 
 export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
+  return new Date(dateString).toLocaleDateString("en-PH", {
     year: "numeric",
     month: "long",
     day: "numeric",
