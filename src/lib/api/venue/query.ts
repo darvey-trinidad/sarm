@@ -48,6 +48,7 @@ export async function getAllVenueReservations({
       status: venueReservation.status,
       createdAt: venueReservation.createdAt,
       fileUrl: venueReservation.fileUrl,
+      rejectionReason: venueReservation.rejectionReason,
 
       transactionId: borrowingTransaction.id,
       transactionStatus: borrowingTransaction.status,
@@ -88,6 +89,7 @@ export async function getAllVenueReservations({
         purpose: row.purpose,
         status: row.status,
         fileUrl: row.fileUrl,
+        rejectionReason: row.rejectionReason,
         createdAt: row.createdAt,
         borrowingTransaction: row.transactionId
           ? {
@@ -134,6 +136,7 @@ export const getAllVenueReservationsByUserId = async (userId: string) => {
         status: venueReservation.status,
         createdAt: venueReservation.createdAt,
         fileUrl: venueReservation.fileUrl,
+        rejectionReason: venueReservation.rejectionReason,
 
         transactionId: borrowingTransaction.id,
         transactionStatus: borrowingTransaction.status,
@@ -174,6 +177,7 @@ export const getAllVenueReservationsByUserId = async (userId: string) => {
           purpose: row.purpose,
           status: row.status,
           fileUrl: row.fileUrl,
+          rejectionReason: row.rejectionReason,
           createdAt: row.createdAt,
           borrowingTransaction: row.transactionId
             ? {

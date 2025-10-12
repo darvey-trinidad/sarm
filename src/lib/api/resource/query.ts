@@ -133,6 +133,7 @@ export const getAllBorrowingTransactions = async ({
         fileUrl: borrowingTransaction.fileUrl,
         venueReservationId: borrowingTransaction.venueReservationId,
         venueReservationStatus: venueReservation.status,
+        rejectionReason: borrowingTransaction.rejectionReason,
 
         resourceBorrowingId: resourceBorrowing.id,
         resourceId: resourceBorrowing.resourceId,
@@ -172,6 +173,7 @@ export const getAllBorrowingTransactions = async ({
           dateBorrowed: row.dateBorrowed,
           dateReturned: row.dateReturned,
           fileUrl: row.fileUrl,
+          rejectionReason: row.rejectionReason,
           venueReservationId: row.venueReservationId,
           venueReservationStatus: row.venueReservationStatus,
           borrowedItems: [],
@@ -242,6 +244,7 @@ export const getUpcomingBorrowingTransactions = async (
         dateBorrowed: borrowingTransaction.dateBorrowed,
         dateReturned: borrowingTransaction.dateReturned,
         fileUrl: borrowingTransaction.fileUrl,
+        rejectionReason: borrowingTransaction.rejectionReason,
         venueReservationId: borrowingTransaction.venueReservationId,
         venueReservationStatus: venueReservation.status,
 
@@ -286,6 +289,7 @@ export const getUpcomingBorrowingTransactions = async (
           dateBorrowed: row.dateBorrowed,
           dateReturned: row.dateReturned,
           fileUrl: row.fileUrl,
+          rejectionReason: row.rejectionReason,
           venueReservationId: row.venueReservationId,
           venueReservationStatus: row.venueReservationStatus,
           borrowedItems: [],
@@ -328,6 +332,7 @@ export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
         dateBorrowed: borrowingTransaction.dateBorrowed,
         dateReturned: borrowingTransaction.dateReturned,
         fileUrl: borrowingTransaction.fileUrl,
+        rejectionReason: borrowingTransaction.rejectionReason,
         venueReservationId: borrowingTransaction.venueReservationId,
         venueReservationStatus: venueReservation.status,
 
@@ -369,6 +374,7 @@ export const getAllBorrowingTransactionsByUserId = async (userId: string) => {
           dateBorrowed: row.dateBorrowed,
           dateReturned: row.dateReturned,
           fileUrl: row.fileUrl,
+          rejectionReason: row.rejectionReason,
           venueReservationId: row.venueReservationId,
           venueReservationStatus: row.venueReservationStatus,
           borrowedItems: [],
