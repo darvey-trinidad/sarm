@@ -163,7 +163,9 @@ export default function UserProfile() {
                 placeholder="Enter your full name"
               />
             ) : (
-              <p className="pl-7 text-base">{userData?.name ?? "Not provided"}</p>
+              <p className="pl-7 text-base">
+                {userData?.name ?? "Not provided"}
+              </p>
             )}
           </div>
 
@@ -173,7 +175,9 @@ export default function UserProfile() {
               <Mail className="text-muted-foreground h-5 w-5" />
               <span>Email Address</span>
             </Label>
-            <p className="pl-7 text-base">{userData?.email ?? "Not provided"}</p>
+            <p className="pl-7 text-base">
+              {userData?.email ?? "Not provided"}
+            </p>
           </div>
 
           {/* Department Field - EDITABLE */}
@@ -205,8 +209,8 @@ export default function UserProfile() {
               <p className="pl-7 text-base">
                 {userData?.departmentOrOrganization
                   ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
-                    (opt) => opt.value === userData.departmentOrOrganization,
-                  )?.label ?? userData.departmentOrOrganization)
+                      (opt) => opt.value === userData.departmentOrOrganization,
+                    )?.label ?? userData.departmentOrOrganization)
                   : "Not provided"}
               </p>
             )}
@@ -235,12 +239,12 @@ export default function UserProfile() {
                 : "Not available"}
             </p>
           </div>
+          <div className="flex justify-end space-y-3">
+            <NotificationSubscribeButton />
+          </div>
         </div>
 
         {ConfirmationDialog}
-      </div>
-      <div>
-        <NotificationSubscribeButton />
       </div>
     </div>
   );
