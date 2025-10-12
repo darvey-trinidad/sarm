@@ -44,7 +44,7 @@ import {
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorVenue, getStatusIconVenue } from "../icon-status";
-
+import { useReasonDialog } from "@/components/rejectiondialog/reasonDialog";
 type VenueReservationProps = {
   onShowLinkedBorrowing: (borrowingId: string) => void;
   linkedVenueId: string | null;
@@ -52,7 +52,7 @@ type VenueReservationProps = {
 
 export default function VenueReservation({
   onShowLinkedBorrowing,
-  linkedVenueId
+  linkedVenueId,
 }: VenueReservationProps) {
   const [selectedVenue, setSelectedVenue] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -62,7 +62,7 @@ export default function VenueReservation({
     ReservationStatus | "all"
   >("all");
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
-
+  const { showReasonDialog, ReasonDialog } = useReasonDialog();
   const { mutate: editStatusMutation } =
     api.venue.editVenueReservationStatus.useMutation();
 
@@ -108,7 +108,7 @@ export default function VenueReservation({
     // Filter by linked venue ID if present
     if (linkedVenueId) {
       filtered = filtered.filter(
-        (reservation) => reservation.venueReservationId === linkedVenueId
+        (reservation) => reservation.venueReservationId === linkedVenueId,
       );
     }
 
@@ -166,18 +166,19 @@ export default function VenueReservation({
   };
 
   const handleReject = (reservationId: string) => {
-    showConfirmation({
+    showReasonDialog({
       title: "Reject Venue Reservation",
       description: "Are you sure you want to reject this reservation?",
-      confirmText: "Confirm",
+      confirmText: "Reject",
       cancelText: " Cancel",
       variant: "destructive",
-      onConfirm: () => {
+      onConfirm: async (reason: string) => {
         return new Promise<boolean>((resolve) => {
           editStatusMutation(
             {
               id: reservationId,
               status: ReservationStatus.Rejected,
+              rejectionReason: reason,
             },
             {
               onSuccess: () => {
@@ -239,10 +240,10 @@ export default function VenueReservation({
 
         {/* Show active filter indicator */}
         {linkedVenueId && (
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 p-3">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-blue-600" />
-              <span className="text-sm text-blue-800 font-medium">
+              <span className="text-sm font-medium text-blue-800">
                 Showing linked venue reservation
               </span>
             </div>
@@ -395,15 +396,20 @@ export default function VenueReservation({
                           </Badge>
                           {reservation.borrowingTransaction && (
                             <Badge
-                              className="ml-0 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800 cursor-pointer hover:bg-sky-200 transition-colors"
+                              className="ml-0 flex cursor-pointer items-center gap-1 border-sky-200 bg-sky-100 text-sky-800 transition-colors hover:bg-sky-200"
                               title="Click to view linked resource borrowing"
                               onClick={() =>
-                                onShowLinkedBorrowing(reservation.borrowingTransaction!.id)
+                                onShowLinkedBorrowing(
+                                  reservation.borrowingTransaction!.id,
+                                )
                               }
                             >
                               <Package className="h-3 w-3" />
-                              With {reservation.borrowingTransaction.status} borrowing
-                              <ExternalLink className="h-3 w-3 ml-1" />
+                              With {
+                                reservation.borrowingTransaction.status
+                              }{" "}
+                              borrowing
+                              <ExternalLink className="ml-1 h-3 w-3" />
                             </Badge>
                           )}
                         </div>
@@ -430,13 +436,13 @@ export default function VenueReservation({
                           <span>
                             {
                               TIME_MAP[
-                              reservation.startTime as keyof typeof TIME_MAP
+                                reservation.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
                             {
                               TIME_MAP[
-                              reservation.endTime as keyof typeof TIME_MAP
+                                reservation.endTime as keyof typeof TIME_MAP
                               ]
                             }
                           </span>
@@ -502,10 +508,8 @@ export default function VenueReservation({
                 </div>
 
                 {reservation.rejectionReason && (
-                  <div className="my-3 flex items-center gap-2 text-sm  text-red-500">
-                    <h4>
-                      Rejection Reason:
-                    </h4>
+                  <div className="my-3 flex items-center gap-2 text-sm text-red-500">
+                    <h4>Rejection Reason:</h4>
                     <span>{reservation.rejectionReason}</span>
                   </div>
                 )}
@@ -520,6 +524,7 @@ export default function VenueReservation({
         )}
       </div>
       {ConfirmationDialog}
+      {ReasonDialog}
     </div>
   );
 }

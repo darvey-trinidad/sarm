@@ -53,7 +53,7 @@ import {
 import LoadingMessage from "@/components/loading-state/loading-message";
 import NoReports from "@/components/loading-state/no-reports";
 import { getStatusColorResource, getStatusIconResource } from "../icon-status";
-
+import { useReasonDialog } from "@/components/rejectiondialog/reasonDialog";
 type ResourceReservationProps = {
   onShowLinkedVenue: (venueReservationId: string) => void;
   linkedBorrowingId: string | null;
@@ -68,6 +68,7 @@ export default function ResourceReservation({
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+  const { showReasonDialog, ReasonDialog } = useReasonDialog();
   const [selectedStatus, setSelectedStatus] = useState<BorrowingStatus | "all">(
     "all",
   );
@@ -114,9 +115,7 @@ export default function ResourceReservation({
 
     // Filter by linked borrowing ID if present
     if (linkedBorrowingId) {
-      filtered = filtered.filter(
-        (request) => request.id === linkedBorrowingId
-      );
+      filtered = filtered.filter((request) => request.id === linkedBorrowingId);
     }
 
     // Resource filter
@@ -214,18 +213,19 @@ export default function ResourceReservation({
   };
 
   const handleReject = (borrowingTransactionId: string) => {
-    showConfirmation({
+    showReasonDialog({
       title: "Reject Resource Reservation",
       description: "Are you sure you want to reject this reservation?",
-      confirmText: "Confirm",
+      confirmText: "Reject",
       cancelText: "Cancel",
       variant: "destructive",
-      onConfirm: () => {
+      onConfirm: async (reason: string) => {
         return new Promise<boolean>((resolve) => {
           editStatusMutation(
             {
               id: borrowingTransactionId,
               status: "rejected",
+              rejectionReason: reason,
             },
             {
               onSuccess: () => {
@@ -287,10 +287,10 @@ export default function ResourceReservation({
 
         {/* Show active filter indicator */}
         {linkedBorrowingId && (
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 p-3">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-blue-600" />
-              <span className="text-sm text-blue-800 font-medium">
+              <span className="text-sm font-medium text-blue-800">
                 Showing linked resource borrowing
               </span>
             </div>
@@ -447,7 +447,7 @@ export default function ResourceReservation({
                           </Badge>
                           {request.venueReservationId && (
                             <Badge
-                              className="ml-0 flex items-center gap-1 border-sky-200 bg-sky-100 text-sky-800 cursor-pointer hover:bg-sky-200 transition-colors"
+                              className="ml-0 flex cursor-pointer items-center gap-1 border-sky-200 bg-sky-100 text-sky-800 transition-colors hover:bg-sky-200"
                               title="Click to view linked venue reservation"
                               onClick={() =>
                                 onShowLinkedVenue(request.venueReservationId!)
@@ -455,7 +455,7 @@ export default function ResourceReservation({
                             >
                               <MapPin className="h-3 w-3" />
                               With {request.venueReservationStatus} venue
-                              <ExternalLink className="h-3 w-3 ml-1" />
+                              <ExternalLink className="ml-1 h-3 w-3" />
                             </Badge>
                           )}
                         </div>
@@ -481,7 +481,7 @@ export default function ResourceReservation({
                           <span>
                             {
                               TIME_MAP[
-                              request.startTime as keyof typeof TIME_MAP
+                                request.startTime as keyof typeof TIME_MAP
                               ]
                             }{" "}
                             -{" "}
@@ -539,10 +539,8 @@ export default function ResourceReservation({
                       )}
 
                       {request.rejectionReason && (
-                        <div className="mt-3 flex items-center gap-2 text-sm  text-red-500">
-                          <h4>
-                            Rejection Reason:
-                          </h4>
+                        <div className="mt-3 flex items-center gap-2 text-sm text-red-500">
+                          <h4>Rejection Reason:</h4>
                           <span>{request.rejectionReason}</span>
                         </div>
                       )}
@@ -625,7 +623,9 @@ export default function ResourceReservation({
           ))
         )}
       </div>
+
       {ConfirmationDialog}
+      {ReasonDialog}
     </div>
   );
 }
