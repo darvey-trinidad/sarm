@@ -76,6 +76,7 @@ export const editBorrowingTransactionSchema = z.object({
   purpose: z.string().optional(),
   status: z.enum(BORROWING_STATUS).optional(),
   fileUrl: z.string().optional(),
+  rejectionReason: z.string().optional(),
   venueReservationId: z.string().optional(),
   representativeBorrower: z.string().optional(),
   dateRequested: requiredDateSchema().optional(),

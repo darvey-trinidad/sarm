@@ -109,7 +109,7 @@ export const venueRouter = createTRPCRouter({
     .input(editVenueReservationStatusSchema)
     .mutation(async ({ input }) => {
       try {
-        const editVenueReservationRes = await editVenueReservation(input.id, { status: input.status });
+        const editVenueReservationRes = await editVenueReservation(input.id, { status: input.status, rejectionReason: input.rejectionReason });
 
         if (!editVenueReservationRes) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation status" });
 
