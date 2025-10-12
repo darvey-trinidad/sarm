@@ -25,18 +25,19 @@ interface NotificationAction {
 }
 
 // Force immediate activation of new service worker
-self.addEventListener('install', (event: ExtendableEvent) => {
-  event.waitUntil(self.skipWaiting());
+self.addEventListener('install', (event) => {
+  (event as ExtendableEvent).waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('activate', (event: ExtendableEvent) => {
-  event.waitUntil(self.clients.claim());
+self.addEventListener('activate', (event) => {
+  (event as ExtendableEvent).waitUntil(self.clients.claim());
 });
 
-self.addEventListener('push', (event: PushEvent) => {
-  if (!event.data) return;
+self.addEventListener('push', (event) => {
+  const pushEvent = event as PushEvent;
+  if (!pushEvent.data) return;
 
-  const payload: NotificationPayload = event.data.json();
+  const payload: NotificationPayload = pushEvent.data.json();
 
   const options: NotificationOptions & { actions?: NotificationAction[] } = {
     body: payload.body,
@@ -47,19 +48,20 @@ self.addEventListener('push', (event: PushEvent) => {
     tag: payload.tag,
   };
 
-  event.waitUntil(
+  (event as ExtendableEvent).waitUntil(
     self.registration.showNotification(payload.title, options)
   );
 });
 
-self.addEventListener('notificationclick', (event: NotificationEvent) => {
-  event.notification.close();
+self.addEventListener('notificationclick', (event) => {
+  const notifEvent = event as NotificationEvent;
+  notifEvent.notification.close();
 
-  const data = event.notification.data as NotificationData;
-  const action = event.action;
+  const data = notifEvent.notification.data as NotificationData;
+  const action = notifEvent.action;
 
   if (action === 'accept' || action === 'decline') {
-    event.waitUntil(
+    (event as ExtendableEvent).waitUntil(
       fetch('/api/respond-to-room-request', {
         method: 'POST',
         credentials: 'include',
@@ -89,7 +91,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
         })
     );
   } else {
-    event.waitUntil(
+    (event as ExtendableEvent).waitUntil(
       self.clients.openWindow(`/requests/${data.requestId}`)
     );
   }
