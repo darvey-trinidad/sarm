@@ -104,7 +104,7 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-row justify-between">
       <div className="container mr-auto max-w-2xl px-4 py-2">
         {/* Action Buttons - Fixed at top */}
         <div className="mb-2 flex justify-end md:mb-[-2rem]">
