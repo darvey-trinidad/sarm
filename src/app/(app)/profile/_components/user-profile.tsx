@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { formatISODate } from "@/lib/utils";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
+import { NotificationSubscribeButton } from "@/components/notifications/notification-subscription-button";
 
 export default function UserProfile() {
   const { data: session, refetch: refetchSession } = authClient.useSession();
@@ -103,139 +104,144 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="container mr-auto max-w-2xl px-4 py-2">
-      {/* Action Buttons - Fixed at top */}
-      <div className="mb-2 flex justify-end md:mb-[-2rem]">
-        {!isEditing ? (
-          <Button
-            onClick={() => setIsEditing(true)}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <Edit2 className="h-4 w-4" />
-            Edit Profile
-          </Button>
-        ) : (
-          <div className="flex gap-2">
+    <div className="flex flex-col gap-4">
+      <div className="container mr-auto max-w-2xl px-4 py-2">
+        {/* Action Buttons - Fixed at top */}
+        <div className="mb-2 flex justify-end md:mb-[-2rem]">
+          {!isEditing ? (
             <Button
-              onClick={handleSave}
-              className="gap-2"
-              size="sm"
-              disabled={isPending}
-            >
-              <Check className="h-4 w-4" />
-              {isPending ? "Saving..." : "Save"}
-            </Button>
-            <Button
-              onClick={handleCancel}
+              onClick={() => setIsEditing(true)}
               variant="outline"
               size="sm"
               className="gap-2"
-              disabled={isPending}
             >
-              <CircleX className="h-4 w-4" />
-              Cancel
+              <Edit2 className="h-4 w-4" />
+              Edit Profile
             </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Form Fields */}
-      <div className="space-y-8">
-        {/* Name Field - EDITABLE */}
-        <div className="space-y-3">
-          <Label
-            htmlFor="name"
-            className="flex items-center gap-2 text-sm font-semibold"
-          >
-            <UserRound className="text-muted-foreground h-5 w-5" />
-            <span>Full Name</span>
-          </Label>
-          {isEditing ? (
-            <Input
-              id="name"
-              value={editedName}
-              onChange={(e) => setEditedName(e.target.value)}
-              className="max-w-xl md:w-3/5"
-              placeholder="Enter your full name"
-            />
           ) : (
-            <p className="pl-7 text-base">{userData?.name ?? "Not provided"}</p>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleSave}
+                className="gap-2"
+                size="sm"
+                disabled={isPending}
+              >
+                <Check className="h-4 w-4" />
+                {isPending ? "Saving..." : "Save"}
+              </Button>
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={isPending}
+              >
+                <CircleX className="h-4 w-4" />
+                Cancel
+              </Button>
+            </div>
           )}
         </div>
 
-        {/* Email Field - READ ONLY */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-sm font-semibold">
-            <Mail className="text-muted-foreground h-5 w-5" />
-            <span>Email Address</span>
-          </Label>
-          <p className="pl-7 text-base">{userData?.email ?? "Not provided"}</p>
-        </div>
-
-        {/* Department Field - EDITABLE */}
-        <div className="space-y-3">
-          <Label
-            htmlFor="department"
-            className="flex items-center gap-2 text-sm font-semibold"
-          >
-            <Building2 className="text-muted-foreground h-5 w-5" />
-            <span>Department / Organization</span>
-          </Label>
-          {isEditing ? (
-            <Select
-              value={editedDepartment}
-              onValueChange={setEditedDepartment}
+        {/* Form Fields */}
+        <div className="space-y-8">
+          {/* Name Field - EDITABLE */}
+          <div className="space-y-3">
+            <Label
+              htmlFor="name"
+              className="flex items-center gap-2 text-sm font-semibold"
             >
-              <SelectTrigger id="department" className="w-full md:w-3/5">
-                <SelectValue placeholder="Select department or organization" />
-              </SelectTrigger>
-              <SelectContent>
-                {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <p className="pl-7 text-base">
-              {userData?.departmentOrOrganization
-                ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
+              <UserRound className="text-muted-foreground h-5 w-5" />
+              <span>Full Name</span>
+            </Label>
+            {isEditing ? (
+              <Input
+                id="name"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="max-w-xl md:w-3/5"
+                placeholder="Enter your full name"
+              />
+            ) : (
+              <p className="pl-7 text-base">{userData?.name ?? "Not provided"}</p>
+            )}
+          </div>
+
+          {/* Email Field - READ ONLY */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm font-semibold">
+              <Mail className="text-muted-foreground h-5 w-5" />
+              <span>Email Address</span>
+            </Label>
+            <p className="pl-7 text-base">{userData?.email ?? "Not provided"}</p>
+          </div>
+
+          {/* Department Field - EDITABLE */}
+          <div className="space-y-3">
+            <Label
+              htmlFor="department"
+              className="flex items-center gap-2 text-sm font-semibold"
+            >
+              <Building2 className="text-muted-foreground h-5 w-5" />
+              <span>Department / Organization</span>
+            </Label>
+            {isEditing ? (
+              <Select
+                value={editedDepartment}
+                onValueChange={setEditedDepartment}
+              >
+                <SelectTrigger id="department" className="w-full md:w-3/5">
+                  <SelectValue placeholder="Select department or organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <p className="pl-7 text-base">
+                {userData?.departmentOrOrganization
+                  ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
                     (opt) => opt.value === userData.departmentOrOrganization,
                   )?.label ?? userData.departmentOrOrganization)
-                : "Not provided"}
+                  : "Not provided"}
+              </p>
+            )}
+          </div>
+
+          {/* Role Field - READ ONLY */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm font-semibold">
+              <Briefcase className="text-muted-foreground h-5 w-5" />
+              <span>Role</span>
+            </Label>
+            <p className="pl-7 text-base">
+              {userData?.role ? ROLE_LABELS[userData.role] : "Not assigned"}
             </p>
-          )}
+          </div>
+
+          {/* Created At Field - READ ONLY */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm font-semibold">
+              <Calendar className="text-muted-foreground h-5 w-5" />
+              <span>Created On</span>
+            </Label>
+            <p className="pl-7 text-base">
+              {userData?.createdAt
+                ? formatISODate(userData.createdAt)
+                : "Not available"}
+            </p>
+          </div>
         </div>
 
-        {/* Role Field - READ ONLY */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-sm font-semibold">
-            <Briefcase className="text-muted-foreground h-5 w-5" />
-            <span>Role</span>
-          </Label>
-          <p className="pl-7 text-base">
-            {userData?.role ? ROLE_LABELS[userData.role] : "Not assigned"}
-          </p>
-        </div>
-
-        {/* Created At Field - READ ONLY */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2 text-sm font-semibold">
-            <Calendar className="text-muted-foreground h-5 w-5" />
-            <span>Created On</span>
-          </Label>
-          <p className="pl-7 text-base">
-            {userData?.createdAt
-              ? formatISODate(userData.createdAt)
-              : "Not available"}
-          </p>
-        </div>
+        {ConfirmationDialog}
       </div>
-
-      {ConfirmationDialog}
+      <div>
+        <NotificationSubscribeButton />
+      </div>
     </div>
   );
 }

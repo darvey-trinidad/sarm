@@ -20,6 +20,9 @@ export const env = createEnv({
     GOOGLE_APP_PASSWORD: z.string(),
 
     UPLOADTHING_TOKEN: z.string(),
+
+    VAPID_PRIVATE_KEY: z.string(),
+    VAPID_EMAIL: z.string().email().or(z.string().startsWith("mailto:")),
   },
 
   /**
@@ -31,6 +34,8 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_BETTER_AUTH_URL: z.string(),
     NEXT_PUBLIC_APP_URL: z.string(),
+
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string(),
   },
 
   /**
@@ -49,9 +54,13 @@ export const env = createEnv({
 
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
 
+    VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+    VAPID_EMAIL: process.env.VAPID_EMAIL,
+
     // Client
     NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

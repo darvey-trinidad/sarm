@@ -7,6 +7,7 @@ import { resourceRouter } from "@/server/api/routers/resource";
 import { facilityIssueRouter } from "@/server/api/routers/facility-issue";
 import { auth } from "@/lib/auth";
 import { statsRouter } from "./routers/stats";
+import { notificationsRouter } from "./routers/notifications";
 /**
  * This is the primary router for your server.
  *
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   venue: venueRouter,
   resource: resourceRouter,
   facilityIssue: facilityIssueRouter,
+  notifications: notificationsRouter,
   stats: statsRouter,
 });
 
