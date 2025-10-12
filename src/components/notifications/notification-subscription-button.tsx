@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { api } from '@/trpc/react';
-import { subscribeToPushNotifications } from '@/lib/push-notifications';
-import { Button } from '@/components/ui/button';
-import { Bell, BellOff, Loader2, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { api } from "@/trpc/react";
+import { subscribeToPushNotifications } from "@/lib/push-notifications";
+import { Button } from "@/components/ui/button";
+import { Bell, BellOff, Loader2, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function NotificationSubscribeButton() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -31,7 +31,7 @@ export function NotificationSubscribeButton() {
   }, []);
 
   const checkExistingSubscription = async () => {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       try {
         const registration = await navigator.serviceWorker.ready;
         const browserSubscription = await registration.pushManager.getSubscription();
@@ -46,7 +46,7 @@ export function NotificationSubscribeButton() {
           setIsSubscribed(false);
         }
       } catch (error) {
-        console.error('Error checking subscription:', error);
+        console.error("Error checking subscription:", error);
       }
     }
   };
@@ -68,22 +68,27 @@ export function NotificationSubscribeButton() {
 
       await subscribeMutation({
         endpoint: subscription.endpoint,
-        p256dh: arrayBufferToBase64(subscription.getKey('p256dh')!),
-        auth: arrayBufferToBase64(subscription.getKey('auth')!),
+        p256dh: arrayBufferToBase64(subscription.getKey("p256dh")!),
+        auth: arrayBufferToBase64(subscription.getKey("auth")!),
       });
 
       setCurrentEndpoint(subscription.endpoint);
       await refetchSubscription();
       setIsSubscribed(true);
-      setPermission('granted');
-      toast.success('Notifications enabled successfully!');
+      setPermission("granted");
+      toast.success("Notifications enabled successfully!");
     } catch (error) {
-      console.error('Failed to subscribe:', error);
+      console.error("Failed to subscribe:", error);
 
-      if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
-        toast.error('Notifications blocked. Please enable them in your browser settings.');
+      if (
+        typeof Notification !== "undefined" &&
+        Notification.permission === "denied"
+      ) {
+        toast.error(
+          "Notifications blocked. Please enable them in your browser settings.",
+        );
       } else {
-        toast.error('Failed to enable notifications. Please try again.');
+        toast.error("Failed to enable notifications. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -114,7 +119,7 @@ export function NotificationSubscribeButton() {
   }
 
   return (
-    <Button onClick={handleSubscribe} disabled={loading}>
+    <Button size="sm" onClick={handleSubscribe} disabled={loading}>
       {loading ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -132,7 +137,7 @@ export function NotificationSubscribeButton() {
 
 function arrayBufferToBase64(buffer: ArrayBuffer) {
   const bytes = new Uint8Array(buffer);
-  let binary = '';
+  let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]!);
   }
