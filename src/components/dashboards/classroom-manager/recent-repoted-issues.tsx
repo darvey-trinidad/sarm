@@ -22,6 +22,7 @@ import {
   getStatusColor,
 } from "./status-icon";
 import { formatISODate } from "@/lib/utils";
+import { NoUpcomingFacilityIssuesReports } from "../_components/no-data-mesage/dahsboard-nothing-found";
 export default function RecentRepotedIssues() {
   const { data: recentFacilityIssues, isLoading } =
     api.facilityIssue.getRecentFacilityIssueReports.useQuery();
@@ -35,7 +36,7 @@ export default function RecentRepotedIssues() {
           {isLoading ? (
             <CurrentScheduleSkeleton />
           ) : recentFacilityIssues?.length === 0 ? (
-            <div>No recent reported issues</div>
+            <NoUpcomingFacilityIssuesReports />
           ) : (
             recentFacilityIssues?.map((issue) => (
               <div key={issue.id} className="flex flex-col">

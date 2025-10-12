@@ -1,5 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { School, DoorClosed, CalendarX, PackageX, MapPinX } from "lucide-react";
+import {
+  School,
+  DoorClosed,
+  CalendarX,
+  PackageX,
+  MapPinX,
+  MessageSquareWarning,
+} from "lucide-react";
 export const NoAvailableClasses = () => {
   return (
     <Card className="border-none shadow-none">
@@ -124,4 +131,20 @@ export const UserNoResourceBorrowings = () => {
       </CardContent>
     </Card>
   );
+};
+
+export const NoUpcomingFacilityIssuesReports = () => {
+  <Card className="border-none shadow-none">
+    <CardContent className="flex items-center justify-center py-12">
+      <div className="text-center">
+        <MessageSquareWarning className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+        <h3 className="text-foreground text-lg font-semibold">
+          No Recent Facility Issue Reports
+        </h3>
+        <p className="text-muted-foreground">
+          There are no recent facility issue reports at the moment.
+        </p>
+      </div>
+    </CardContent>
+  </Card>;
 };
