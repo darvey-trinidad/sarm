@@ -3,6 +3,12 @@ import { createCaller } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
 import { NextRequest, NextResponse } from "next/server";
 
+// Define the request body type
+interface RespondToRoomRequestBody {
+  roomRequestId: string;
+  status: "accept" | "decline";
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Create the full tRPC context (includes headers, db, and session)
@@ -15,7 +21,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { roomRequestId, status } = await req.json();
+    // Type the request body
+    const body = await req.json() as RespondToRoomRequestBody;
+    const { roomRequestId, status } = body;
 
     console.log('Room Request ID:', roomRequestId);
     console.log('Status:', status);

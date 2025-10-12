@@ -31,12 +31,12 @@ export async function generateSchedulePDF({
     const originalStyles = new Map<
       HTMLElement | string,
       | {
-          height?: string;
-          overflow?: string;
-          maxHeight?: string;
-          width?: string;
-          minWidth?: string;
-        }
+        height?: string;
+        overflow?: string;
+        maxHeight?: string;
+        width?: string;
+        minWidth?: string;
+      }
       | string
     >();
 
@@ -45,7 +45,7 @@ export async function generateSchedulePDF({
     if (wasMobileView) {
       const viewportMeta = document.querySelector('meta[name="viewport"]');
       if (viewportMeta) {
-        originalViewport = viewportMeta.getAttribute("content") || "";
+        originalViewport = viewportMeta.getAttribute("content") ?? "";
         viewportMeta.setAttribute("content", "width=1200");
       }
     }
@@ -131,7 +131,7 @@ export async function generateSchedulePDF({
       ) {
         calendarRef.current.parentElement.style.width = styles as string;
       } else if (typeof element !== "string") {
-        const htmlElement = element as HTMLElement;
+        const htmlElement = element;
         const styleObj = styles as {
           height?: string;
           overflow?: string;

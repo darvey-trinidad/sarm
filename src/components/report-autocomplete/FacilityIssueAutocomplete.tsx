@@ -139,7 +139,7 @@ export const FacilityIssueAutocomplete = ({
             ) : null}
             {filteredOptions.length === 0 && inputValue ? (
               <CommandPrimitive.Empty className="rounded-sm px-2 py-3 text-center text-sm select-none">
-                Press Enter to use "{inputValue}"
+                Press Enter to use &quot;{inputValue}&quot;
               </CommandPrimitive.Empty>
             ) : null}
             {!inputValue ? (

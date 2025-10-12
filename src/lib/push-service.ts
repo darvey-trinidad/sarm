@@ -10,12 +10,23 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 );
 
+interface NotificationAction {
+  action: string;
+  title: string;
+  icon?: string;
+}
+
 interface SendNotificationParams {
   userId: string;
   title: string;
   body: string;
-  data?: Record<string, any>;
-  actions?: Array<{ action: string; title: string; icon?: string }>;
+  data?: Record<string, unknown>;
+  actions?: Array<NotificationAction>;
+}
+
+interface WebPushError extends Error {
+  statusCode?: number;
+  body?: string;
 }
 
 export async function sendPushNotification({
@@ -40,7 +51,7 @@ export async function sendPushNotification({
     badge: '/badge.png',
     data,
     actions,
-    tag: data.requestId || `notification-${Date.now()}`,
+    tag: data.requestId ?? `notification-${Date.now()}`,
   });
 
   // Send to all subscriptions
@@ -57,11 +68,12 @@ export async function sendPushNotification({
         payload
       );
       console.log('Notification sent successfully to:', subscription.endpoint);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error sending notification:', error);
 
       // If subscription is invalid, remove it
-      if (error.statusCode === 410 || error.statusCode === 404) {
+      const webPushError = error as WebPushError;
+      if (webPushError.statusCode === 410 || webPushError.statusCode === 404) {
         await db
           .delete(pushSubscriptions)
           .where(eq(pushSubscriptions.id, subscription.id));

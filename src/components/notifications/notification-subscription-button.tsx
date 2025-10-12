@@ -17,7 +17,7 @@ export function NotificationSubscribeButton() {
     // Check current permission status
     if (typeof Notification !== 'undefined') {
       setPermission(Notification.permission);
-      checkExistingSubscription();
+      void checkExistingSubscription();
     }
   }, []);
 

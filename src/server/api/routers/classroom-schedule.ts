@@ -181,7 +181,7 @@ export const classroomScheduleRouter = createTRPCRouter({
         const roomRequestRecord = await getRoomRequestById(roomRequestId);
         console.log("Room Request Record: ", roomRequestRecord);
 
-        sendPushNotification({
+        void sendPushNotification({
           userId: roomRequestRecord?.responderId ?? "",
           title: "Classroom Borrowing Request",
           body: `${roomRequestRecord?.requestorName} wants to borrow room ${roomRequestRecord?.classroomName} 
