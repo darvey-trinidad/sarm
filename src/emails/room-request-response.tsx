@@ -123,7 +123,7 @@ export const RoomRequestResponseEmail = ({
           <p style={{ margin: "4px 0", fontSize: "14px" }}>
             <strong>Date:</strong>{" "}
             {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()} (
-            {DAYS[date.getDay()]})
+            {DAYS[date.getDay() - 1]})
           </p>
           <p style={{ margin: "4px 0", fontSize: "14px" }}>
             <strong>Time:</strong> {startTimeStr} – {endTimeStr}

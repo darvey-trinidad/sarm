@@ -102,7 +102,7 @@ export const RequestRoomEmail = ({
             <strong>{classroomName}</strong> on{" "}
             <strong>
               {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()} (
-              {DAYS[date.getDay()]})
+              {DAYS[date.getDay() - 1]})
             </strong>{" "}
             from <strong>{startTimeStr}</strong> to{" "}
             <strong>{endTimeStr}</strong> for <strong>{subject} - {section}</strong>.
