@@ -30,21 +30,6 @@ import {
   Camera,
 } from "lucide-react";
 
-const getCategoryIcon = (category: string) => {
-  switch (category) {
-    case "electrical":
-      return <Zap className="h-4 w-4 text-yellow-600" />;
-    case "plumbing":
-      return <Droplets className="h-4 w-4 text-blue-600" />;
-    case "equipment":
-      return <Settings className="h-4 w-4 text-gray-600" />;
-    case "sanitation":
-      return <Wrench className="h-4 w-4 text-green-600" />;
-    default:
-      return <HelpCircle className="h-4 w-4 text-purple-600" />;
-  }
-};
-
 const getStatusIcon = (status: string) => {
   switch (status) {
     case "resolved":
@@ -62,6 +47,8 @@ const getStatusColor = (status: string) => {
       return "bg-green-100 text-green-800 border-green-200";
     case "ongoing":
       return "bg-orange-100 text-orange-800 border-orange-200";
+    case "duplicate":
+      return "bg-orange-100 text-yellow-800 border-yellow-200";
     default:
       return "bg-red-100 text-red-800 border-red-200";
   }
@@ -124,7 +111,6 @@ export default function ReportListUser() {
                           <Badge
                             className={`${getCategoryColor(report.category)} ml-2 flex items-center gap-1`}
                           >
-                            {getCategoryIcon(report.category)}
                             {report.category.charAt(0).toUpperCase() +
                               report.category.slice(1)}
                           </Badge>

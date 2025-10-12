@@ -1,11 +1,11 @@
 "use client";
 
-import CurrentAvailableRooms from "./_components/all-users/current-available-rooms";
+import RecentRepotedIssues from "./classroom-manager/recent-repoted-issues";
 
 export default function ClassroomManagerDashBoard() {
   return (
     <div className="space-y-4">
-      <CurrentAvailableRooms />
+      <RecentRepotedIssues />
     </div>
   );
 }
