@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 import { api } from "@/trpc/react";
 import { authClient } from "@/lib/auth-client";
-import { ROLE_LABELS } from "@/constants/roles";
+import { ROLE_LABELS, Roles } from "@/constants/roles";
 import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -48,7 +48,10 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDepartment, setEditedDepartment] = useState("");
-
+  const { data: getAllFacultyByDepartment } =
+    api.auth.getAllFacultyByDepartment.useQuery();
+  const { data: transferDepartmentHeadRole } =
+    api.auth.transferDepartmentHeadRole.useMutation();
   // Sync state when userData is loaded or updated
   useEffect(() => {
     if (userData) {
@@ -218,10 +221,15 @@ export default function UserProfile() {
 
           {/* Role Field - READ ONLY */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Briefcase className="text-muted-foreground h-5 w-5" />
-              <span>Role</span>
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 text-sm font-semibold">
+                <Briefcase className="text-muted-foreground h-5 w-5" />
+                <span>Role</span>
+              </Label>
+              {isEditing && session?.user.role === Roles.DepartmentHead && (
+                <span>change role</span> // place here to open the dialog
+              )}
+            </div>
             <p className="pl-7 text-base">
               {userData?.role ? ROLE_LABELS[userData.role] : "Not assigned"}
             </p>
