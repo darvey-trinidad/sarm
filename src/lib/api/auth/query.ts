@@ -27,7 +27,7 @@ export const getAllPeInstructors = async () => {
 export const getAllSchedulableFaculty = async (role: string, departmentOrOrganization: string) => {
   if (role === ADMIN_ROLE) return await getAllFaculty();
 
-  const faculty = await db.select().from(user).where(
+  return await db.select().from(user).where(
     and(
       inArray(user.role, [...TEACHING_PERSONNEL]),
       eq(user.isActive, true),
@@ -35,15 +35,16 @@ export const getAllSchedulableFaculty = async (role: string, departmentOrOrganiz
     )
   ).all();
 
-  const facilityManager = await db.select().from(user).where(
+}
+
+export const getAllFacultyByDepartment = async (departmentOrOrganization: string) => {
+  return await db.select().from(user).where(
     and(
-      eq(user.role, "facility_manager"),
+      inArray(user.role, [...TEACHING_PERSONNEL]),
       eq(user.isActive, true),
       eq(user.departmentOrOrganization, departmentOrOrganization)
     )
   ).all();
-
-  return [...faculty, ...facilityManager];
 }
 
 export const getAllUsers = async () => {

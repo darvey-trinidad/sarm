@@ -2,7 +2,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { signupSchema, getAllSchedulableFacultySchema, editUserProfileSchema } from "@/server/api-utils/validators/auth";
-import { getAllFaculty, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
+import { getAllFaculty, getAllFacultyByDepartment, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
 import { env } from "@/env";
 import { TRPCError } from "@trpc/server";
 import { editUserProfile, editUserRole, toggleUserIsActive } from "@/lib/api/auth/mutation";
@@ -57,6 +57,19 @@ export const authRouter = createTRPCRouter({
     .query(({ input }) => {
       const data = getAllSchedulableFaculty(input.role, input.departmentOrOrganization);
       return data;
+    }),
+  getAllFacultyByDepartment: protectedProcedure
+    .query(({ ctx }) => {
+      if (
+        ctx.session?.user.role !== Roles.DepartmentHead ||
+        !ctx.session?.user.departmentOrOrganization
+      ) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You must be a department head to view faculty by department",
+        });
+      }
+      return getAllFacultyByDepartment(ctx.session.user.departmentOrOrganization);
     }),
   getAllUsers: protectedProcedure.query(() => {
     return getAllUsers();
