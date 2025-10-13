@@ -29,7 +29,7 @@ import {
 import { formatISODate } from "@/lib/utils";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { NotificationSubscribeButton } from "@/components/notifications/notification-subscription-button";
-
+import { TransferDepartmentHeadModal } from "@/components/change-role/transfer-department-head-role";
 export default function UserProfile() {
   const { data: session, refetch: refetchSession } = authClient.useSession();
   const { data: userData, refetch: refetchUserData } =
@@ -49,10 +49,14 @@ export default function UserProfile() {
   const [editedName, setEditedName] = useState("");
   const [editedDepartment, setEditedDepartment] = useState("");
   const { data: getAllFacultyByDepartment } =
-    api.auth.getAllFacultyByDepartment.useQuery();
-  const { data: transferDepartmentHeadRole } =
+    api.auth.getAllFacultyByDepartment.useQuery(undefined, {
+      enabled: session?.user.role === Roles.DepartmentHead,
+    });
+  //change the role of the user
+  const { mutate: transferDepartmentHeadRole, isPending: isTransferring } =
     api.auth.transferDepartmentHeadRole.useMutation();
   // Sync state when userData is loaded or updated
+
   useEffect(() => {
     if (userData) {
       setEditedName(userData.name ?? "");
@@ -219,7 +223,7 @@ export default function UserProfile() {
             )}
           </div>
 
-          {/* Role Field - READ ONLY */}
+          {/* Role Field - EDITABLE ONLY FOR DEPARTMENT HEAD */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Label className="flex items-center gap-2 text-sm font-semibold">
@@ -227,7 +231,30 @@ export default function UserProfile() {
                 <span>Role</span>
               </Label>
               {isEditing && session?.user.role === Roles.DepartmentHead && (
-                <span>change role</span> // place here to open the dialog
+                <TransferDepartmentHeadModal
+                  facultyList={getAllFacultyByDepartment ?? []}
+                  onTransfer={async (newHeadId) => {
+                    await new Promise<void>((resolve) => {
+                      transferDepartmentHeadRole(
+                        { newDeptHeadUserId: newHeadId },
+                        {
+                          onSuccess: async () => {
+                            await refetchSession();
+                            await refetchUserData();
+                            resolve();
+                          },
+                          onError: (error) => {
+                            toast.error(
+                              error.message ?? "Failed to transfer role",
+                            );
+                            resolve();
+                          },
+                        },
+                      );
+                    });
+                  }}
+                  isTransferring={isTransferring}
+                />
               )}
             </div>
             <p className="pl-7 text-base">

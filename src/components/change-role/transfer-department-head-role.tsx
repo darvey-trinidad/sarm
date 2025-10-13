@@ -15,7 +15,13 @@ import { toast } from "sonner";
 import { UserRound, ArrowRightLeft } from "lucide-react";
 
 interface TransferDepartmentHeadModalProps {
-  facultyList: Array<{ id: string; name: string; email: string }>;
+  facultyList: Array<{
+    id: string;
+    name: string | null;
+    email: string;
+    role?: string;
+    departmentOrOrganization?: string | null;
+  }>;
   onTransfer: (newHeadId: string) => Promise<void>;
   isTransferring: boolean;
 }
@@ -29,11 +35,13 @@ export function TransferDepartmentHeadModal({
   const [selectedFaculty, setSelectedFaculty] = useState<Option | undefined>();
 
   // Convert faculty list to autocomplete options
-  const facultyOptions: Option[] = facultyList.map((faculty) => ({
-    value: faculty.id,
-    label: faculty.name,
-    email: faculty.email,
-  }));
+  const facultyOptions: Option[] = facultyList
+    .filter((faculty) => faculty.name) // Filter out null names
+    .map((faculty) => ({
+      value: faculty.id,
+      label: faculty.name!, // Safe to use ! because we filtered out nulls
+      email: faculty.email,
+    }));
 
   const handleTransfer = async () => {
     if (!selectedFaculty) {
@@ -66,13 +74,13 @@ export function TransferDepartmentHeadModal({
         <Button
           variant="link"
           size="sm"
-          className="h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
+          className="text-primary hover:text-primary/80 h-auto p-0 text-xs"
         >
           <ArrowRightLeft className="mr-1 h-3 w-3" />
           Transfer Role
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="gap-4 sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserRound className="h-5 w-5" />
@@ -86,7 +94,7 @@ export function TransferDepartmentHeadModal({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="mb-4 text-sm font-medium">
               Select New Department Head
             </label>
             <AutoComplete
