@@ -18,6 +18,7 @@ export default function ManageTabContent() {
         <TabsTrigger value="venue">Venue</TabsTrigger>
         <TabsTrigger value="buildings">Buildings</TabsTrigger>
         <TabsTrigger value="rooms">Classrooms</TabsTrigger>
+        <TabsTrigger value="room-schedule">Classroom Schedule</TabsTrigger>
       </TabsList>
 
       <div className="mt-1 w-full">
@@ -77,6 +78,18 @@ export default function ManageTabContent() {
             <div className="flex justify-end">
               <RoomFormButton />
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="room-schedule">
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Classroom Schedule</h2>
+              <p className="text-muted-foreground">
+                Reset classroom schedule for the semester
+              </p>
+            </div>
+
           </div>
         </TabsContent>
       </div>
