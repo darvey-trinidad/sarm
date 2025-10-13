@@ -50,9 +50,4 @@ export const columns: ColumnDef<Venue>[] = [
     accessorKey: "capacity",
     header: "Capacity",
   },
-  {
-    accessorKey: "usability",
-    header: "Usability",
-    cell: ({ row }) => getUsabilityBadge(row.original.usability),
-  },
 ];

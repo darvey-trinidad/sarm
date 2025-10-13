@@ -47,7 +47,6 @@ export default function VenueFormButton() {
       name: "",
       description: "",
       capacity: 0,
-      usability: "operational",
     },
   });
 
@@ -145,34 +144,6 @@ export default function VenueFormButton() {
                         onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="usability"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Usability</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a usability" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {USABILITY_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
