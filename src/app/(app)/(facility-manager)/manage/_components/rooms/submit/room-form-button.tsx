@@ -52,7 +52,6 @@ export default function RoomFormButton() {
       capacity: 0,
       floor: "first",
       type: "lecture",
-      usability: "operational",
     },
   });
 
@@ -222,34 +221,6 @@ export default function RoomFormButton() {
                         {CLASSROOM_TYPE_OPTIONS.map((type) => (
                           <SelectItem key={type.value} value={type.value}>
                             {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="usability"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Usability</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a usability" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {USABILITY_OPTIONS.map((usability) => (
-                          <SelectItem
-                            key={usability.value}
-                            value={usability.value}
-                          >
-                            {usability.label}
                           </SelectItem>
                         ))}
                       </SelectContent>

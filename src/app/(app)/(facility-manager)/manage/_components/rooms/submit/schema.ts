@@ -14,7 +14,4 @@ export const RoomSchema = z.object({
   type: z.enum(CLASSROOM_TYPE, {
     errorMap: () => ({ message: "Please select a valid type" }),
   }),
-  usability: z.enum(USABILITY, {
-    errorMap: () => ({ message: "Please select a valid usability" }),
-  }),
 });
