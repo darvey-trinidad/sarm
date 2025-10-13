@@ -15,8 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Trash2, CalendarMinus } from "lucide-react";
-import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 export default function ResetRoomSchedule() {
   const [confirmText, setConfirmText] = useState("");
@@ -26,13 +25,13 @@ export default function ResetRoomSchedule() {
     api.classroomSchedule.resetClassroomSchedules.useMutation({
       onSuccess: (data) => {
         if (data.success) {
-          toast.success("Classroom schedules reset successfully");
+          alert("Success: " + data.message);
           setIsOpen(false);
           setConfirmText("");
         }
       },
       onError: (error) => {
-        toast.error(error.message);
+        alert("Error: " + error.message);
       },
     });
 
@@ -52,28 +51,28 @@ export default function ResetRoomSchedule() {
           Reset All Schedules
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="gap-4 sm:max-w-[500px]">
+      <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <CalendarMinus className="h-5 w-5" />
-            Are you absolutely sure?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-4">
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
             This action cannot be undone. This will permanently delete all
             classroom schedules from the system.
-            <div className="mt-4 space-y-2">
-              <Label>
-                Type<span className="font-bold">delete schedule</span> to
-                confirm:
-              </Label>
-              <Input
-                id="confirm-text"
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-                placeholder="delete schedule"
-              />
-            </div>
           </AlertDialogDescription>
+          <div className="mt-4 space-y-2">
+            <Label
+              htmlFor="confirm-text"
+              className="text-foreground text-sm font-medium"
+            >
+              Type <span className="font-bold">delete schedule</span> to
+              confirm:
+            </Label>
+            <Input
+              id="confirm-text"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="delete schedule"
+            />
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
