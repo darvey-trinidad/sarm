@@ -22,24 +22,26 @@ interface TransferDepartmentHeadModalProps {
     role?: string;
     departmentOrOrganization?: string | null;
   }>;
+  currentUserId: string;
   onTransfer: (newHeadId: string) => Promise<void>;
   isTransferring: boolean;
 }
 
 export function TransferDepartmentHeadModal({
   facultyList,
+  currentUserId,
   onTransfer,
   isTransferring,
 }: TransferDepartmentHeadModalProps) {
   const [open, setOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState<Option | undefined>();
 
-  // Convert faculty list to autocomplete options
+  // Convert faculty list to autocomplete options, excluding current user
   const facultyOptions: Option[] = facultyList
-    .filter((faculty) => faculty.name) // Filter out null names
+    .filter((faculty) => faculty.name && faculty.id !== currentUserId) // Filter out null names and current user
     .map((faculty) => ({
       value: faculty.id,
-      label: faculty.name!, // Safe to use ! because we filtered out nulls
+      label: faculty.name!,
       email: faculty.email,
     }));
 
@@ -74,13 +76,13 @@ export function TransferDepartmentHeadModal({
         <Button
           variant="link"
           size="sm"
-          className="text-primary hover:text-primary/80 h-auto p-0 text-xs"
+          className="hover:text-primary/70 text-primary h-auto p-0 text-xs"
         >
           <ArrowRightLeft className="mr-1 h-3 w-3" />
           Transfer Role
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-4 sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserRound className="h-5 w-5" />
@@ -94,7 +96,7 @@ export function TransferDepartmentHeadModal({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <label className="mb-4 text-sm font-medium">
+            <label className="text-sm font-medium">
               Select New Department Head
             </label>
             <AutoComplete
@@ -111,9 +113,10 @@ export function TransferDepartmentHeadModal({
               </p>
             )}
           </div>
-          {facultyList.length === 0 && (
+          {facultyOptions.length === 0 && (
             <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-              No faculty members available in your department for role transfer.
+              No other faculty members available in your department for role
+              transfer.
             </div>
           )}
         </div>

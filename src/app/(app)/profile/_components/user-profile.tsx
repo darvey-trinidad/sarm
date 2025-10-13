@@ -233,6 +233,7 @@ export default function UserProfile() {
               {isEditing && session?.user.role === Roles.DepartmentHead && (
                 <TransferDepartmentHeadModal
                   facultyList={getAllFacultyByDepartment ?? []}
+                  currentUserId={session?.user.id ?? ""}
                   onTransfer={async (newHeadId) => {
                     await new Promise<void>((resolve) => {
                       transferDepartmentHeadRole(
