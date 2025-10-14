@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 import { api } from "@/trpc/react";
 import { authClient } from "@/lib/auth-client";
-import { ROLE_LABELS } from "@/constants/roles";
+import { ROLE_LABELS, Roles } from "@/constants/roles";
 import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,7 +29,7 @@ import {
 import { formatISODate } from "@/lib/utils";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { NotificationSubscribeButton } from "@/components/notifications/notification-subscription-button";
-
+import { TransferDepartmentHeadModal } from "@/components/change-role/transfer-department-head-role";
 export default function UserProfile() {
   const { data: session, refetch: refetchSession } = authClient.useSession();
   const { data: userData, refetch: refetchUserData } =
@@ -48,8 +48,15 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDepartment, setEditedDepartment] = useState("");
-
+  const { data: getAllFacultyByDepartment } =
+    api.auth.getAllFacultyByDepartment.useQuery(undefined, {
+      enabled: session?.user.role === Roles.DepartmentHead,
+    });
+  //change the role of the user
+  const { mutate: transferDepartmentHeadRole, isPending: isTransferring } =
+    api.auth.transferDepartmentHeadRole.useMutation();
   // Sync state when userData is loaded or updated
+
   useEffect(() => {
     if (userData) {
       setEditedName(userData.name ?? "");
@@ -163,7 +170,9 @@ export default function UserProfile() {
                 placeholder="Enter your full name"
               />
             ) : (
-              <p className="pl-7 text-base">{userData?.name ?? "Not provided"}</p>
+              <p className="pl-7 text-base">
+                {userData?.name ?? "Not provided"}
+              </p>
             )}
           </div>
 
@@ -173,7 +182,9 @@ export default function UserProfile() {
               <Mail className="text-muted-foreground h-5 w-5" />
               <span>Email Address</span>
             </Label>
-            <p className="pl-7 text-base">{userData?.email ?? "Not provided"}</p>
+            <p className="pl-7 text-base">
+              {userData?.email ?? "Not provided"}
+            </p>
           </div>
 
           {/* Department Field - EDITABLE */}
@@ -205,19 +216,48 @@ export default function UserProfile() {
               <p className="pl-7 text-base">
                 {userData?.departmentOrOrganization
                   ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
-                    (opt) => opt.value === userData.departmentOrOrganization,
-                  )?.label ?? userData.departmentOrOrganization)
+                      (opt) => opt.value === userData.departmentOrOrganization,
+                    )?.label ?? userData.departmentOrOrganization)
                   : "Not provided"}
               </p>
             )}
           </div>
 
-          {/* Role Field - READ ONLY */}
+          {/* Role Field - EDITABLE ONLY FOR DEPARTMENT HEAD */}
           <div className="space-y-3">
-            <Label className="flex items-center gap-2 text-sm font-semibold">
-              <Briefcase className="text-muted-foreground h-5 w-5" />
-              <span>Role</span>
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 text-sm font-semibold">
+                <Briefcase className="text-muted-foreground h-5 w-5" />
+                <span>Role</span>
+              </Label>
+              {isEditing && session?.user.role === Roles.DepartmentHead && (
+                <TransferDepartmentHeadModal
+                  facultyList={getAllFacultyByDepartment ?? []}
+                  currentUserId={session?.user.id ?? ""}
+                  onTransfer={async (newHeadId) => {
+                    await new Promise<void>((resolve) => {
+                      transferDepartmentHeadRole(
+                        { newDeptHeadUserId: newHeadId },
+                        {
+                          onSuccess: async () => {
+                            await refetchSession();
+                            await refetchUserData();
+                            resolve();
+                          },
+                          onError: (error) => {
+                            toast.error(
+                              error.message ?? "Failed to transfer role",
+                            );
+                            resolve();
+                          },
+                        },
+                      );
+                    });
+                  }}
+                  isTransferring={isTransferring}
+                />
+              )}
+            </div>
             <p className="pl-7 text-base">
               {userData?.role ? ROLE_LABELS[userData.role] : "Not assigned"}
             </p>
@@ -235,12 +275,12 @@ export default function UserProfile() {
                 : "Not available"}
             </p>
           </div>
+          <div className="flex justify-end space-y-3">
+            <NotificationSubscribeButton />
+          </div>
         </div>
 
         {ConfirmationDialog}
-      </div>
-      <div>
-        <NotificationSubscribeButton />
       </div>
     </div>
   );

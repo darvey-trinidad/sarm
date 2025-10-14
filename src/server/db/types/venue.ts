@@ -38,5 +38,6 @@ export type ReservationWithBorrowing = {
   status: string;
   createdAt: Date;
   fileUrl: string | null;
+  rejectionReason: string | null;
   borrowingTransaction: BorrowingTransaction;
 };

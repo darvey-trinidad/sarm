@@ -253,6 +253,15 @@ export default function ResourceReservationUser() {
                           <span>{resource.representativeBorrower}</span>
                         </div>
                       )}
+
+                      {resource.rejectionReason && (
+                        <div className="mt-3 flex items-center gap-2 text-sm  text-red-500">
+                          <h4>
+                            Rejection Reason:
+                          </h4>
+                          <span>{resource.rejectionReason}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

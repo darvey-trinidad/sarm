@@ -109,7 +109,7 @@ export const checkRoomAuthority = (dept: string, classroomType: ClassroomType) =
     case ClassroomTypeValues.Lecture:
       return true;
     case ClassroomTypeValues.ComputerLaboratory:
-      return dept === DeptOrOrgValues.ITDS;
+      return dept === DeptOrOrgValues.ITDS || dept === DeptOrOrgValues.BINDTECH;
     case ClassroomTypeValues.HMLaboratory:
       return dept === DeptOrOrgValues.HTM;
     case ClassroomTypeValues.BiologyLaboratory:

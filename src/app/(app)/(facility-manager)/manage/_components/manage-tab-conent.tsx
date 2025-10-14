@@ -9,6 +9,7 @@ import ResourceTable from "./resources/resource-list/resource-table";
 import ResourceFormButton from "./resources/submit/resource-form-button";
 import VenueTable from "./venue/venue-list/venue-table";
 import VenueFormButton from "./venue/submit/venue-form-button";
+import ResetRoomSchedule from "./classroom-schedule/reset-room-schedule";
 export default function ManageTabContent() {
   const [tab, setTab] = useState("resources");
   return (
@@ -18,6 +19,7 @@ export default function ManageTabContent() {
         <TabsTrigger value="venue">Venue</TabsTrigger>
         <TabsTrigger value="buildings">Buildings</TabsTrigger>
         <TabsTrigger value="rooms">Classrooms</TabsTrigger>
+        <TabsTrigger value="room-schedule">Classroom Schedule</TabsTrigger>
       </TabsList>
 
       <div className="mt-1 w-full">
@@ -77,6 +79,20 @@ export default function ManageTabContent() {
             <div className="flex justify-end">
               <RoomFormButton />
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="room-schedule">
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Classroom Schedule
+              </h2>
+              <p className="text-muted-foreground">
+                Reset classroom schedule for the semester
+              </p>
+            </div>
+            <ResetRoomSchedule />
           </div>
         </TabsContent>
       </div>

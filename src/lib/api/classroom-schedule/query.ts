@@ -592,6 +592,28 @@ export const getProfessorSchedulesForDate = async (
 /*
  *** Conflicts
  */
+export const getFacultyScheduleConflicts = async (
+  newSchedule: ClassroomScheduleWithoutId,
+  startTimes: TimeInt[],
+) => {
+  try {
+    return await db
+      .select()
+      .from(classroomSchedule)
+      .where(
+        and(
+          eq(classroomSchedule.day, newSchedule.day),
+          eq(classroomSchedule.facultyId, newSchedule.facultyId),
+          inArray(classroomSchedule.startTime, startTimes),
+        ),
+      );
+  } catch (error) {
+    console.log("Failed to get classroom schedule conflicts:", error);
+    throw new Error("Could not get classroom schedule conflicts");
+  }
+};
+
+
 export const getClassroomScheduleConflicts = async (
   newSchedule: ClassroomScheduleWithoutId,
   startTimes: TimeInt[],

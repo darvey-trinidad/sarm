@@ -33,6 +33,7 @@ export type BorrowingTransaction = {
   dateBorrowed: Date | null;
   dateReturned: Date | null;
   fileUrl: string | null;
+  rejectionReason: string | null;
   venueReservationId: string | null;
   venueReservationStatus: string | null;
   borrowedItems: BorrowedItems[];

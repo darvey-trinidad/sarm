@@ -2,7 +2,7 @@ import { db, eq, and, or } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId, RoomRequest } from "@/server/db/types/classroom-schedule";
 import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot, splitTimeToHourlyTimeslotSchedule } from "@/lib/helper/classroom-schedule";
-import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts } from "@/lib/api/classroom-schedule/query";
+import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts, getFacultyScheduleConflicts } from "@/lib/api/classroom-schedule/query";
 import type { TimeInt } from "@/constants/timeslot";
 import { TRPCError } from "@trpc/server";
 import type { CancelClassroomBorrowingInput, DeleteClassroomScheduleSchemaType } from "@/server/api-utils/validators/classroom-schedule";
@@ -18,9 +18,18 @@ export const createClassroomSchedule = async (data: ClassroomScheduleWithoutId) 
 
     if (conflictSchedules.length > 0) {
       throw new TRPCError({
-        code: "CONFLICT", // or "BAD_REQUEST", whichever fits best
+        code: "CONFLICT",
         message: "Classroom schedule conflict detected",
         cause: conflictSchedules,
+      });
+    }
+
+    const facultyScheduleConflict = await getFacultyScheduleConflicts(data, startTimes);
+    if (facultyScheduleConflict.length > 0) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "Faculty already has a schedule at this time",
+        cause: facultyScheduleConflict,
       });
     }
 

@@ -119,7 +119,6 @@ export const getRecentFacilityIssueReports = async () => {
       .leftJoin(classroom, eq(classroom.id, facilityIssueReport.classroomId))
       .where(eq(facilityIssueReport.status, ReportStatusValues.Reported))
       .orderBy(desc(facilityIssueReport.dateReported))
-      .limit(5)
       .all();
   } catch (error) {
     console.error(error);

@@ -1,3 +1,4 @@
+import type { Roles } from "@/constants/roles";
 import { db, eq } from "@/server/db";
 import { user } from "@/server/db/schema/auth";
 import type { UpdateUser } from "@/server/db/types/auth";
@@ -30,5 +31,13 @@ export const editUserProfile = async (id: string, data: UpdateUser) => {
       code: "INTERNAL_SERVER_ERROR",
       message: "Could not update user",
     });
+  }
+};
+
+export const editUserRole = async (id: string, role: Roles) => {
+  try {
+    return await db.update(user).set({ role }).where(eq(user.id, id)).returning().get();
+  } catch (error) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update user role" });
   }
 };

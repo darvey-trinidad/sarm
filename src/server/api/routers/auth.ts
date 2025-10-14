@@ -2,12 +2,13 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { signupSchema, getAllSchedulableFacultySchema, editUserProfileSchema } from "@/server/api-utils/validators/auth";
-import { getAllFaculty, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
+import { getAllFaculty, getAllFacultyByDepartment, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
 import { env } from "@/env";
 import { TRPCError } from "@trpc/server";
-import { editUserProfile, toggleUserIsActive } from "@/lib/api/auth/mutation";
+import { editUserProfile, editUserRole, toggleUserIsActive } from "@/lib/api/auth/mutation";
 import { notifyAccountActivated } from "@/emails/notify-account-activation";
 import { tr } from "date-fns/locale";
+import { Roles } from "@/constants/roles";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(signupSchema).mutation(({ input }) => {
@@ -56,6 +57,19 @@ export const authRouter = createTRPCRouter({
     .query(({ input }) => {
       const data = getAllSchedulableFaculty(input.role, input.departmentOrOrganization);
       return data;
+    }),
+  getAllFacultyByDepartment: protectedProcedure
+    .query(({ ctx }) => {
+      if (
+        ctx.session?.user.role !== Roles.DepartmentHead ||
+        !ctx.session?.user.departmentOrOrganization
+      ) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You must be a department head to view faculty by department",
+        });
+      }
+      return getAllFacultyByDepartment(ctx.session.user.departmentOrOrganization);
     }),
   getAllUsers: protectedProcedure.query(() => {
     return getAllUsers();
@@ -132,6 +146,43 @@ export const authRouter = createTRPCRouter({
           code: "BAD_REQUEST",
           message: "Invalid or expired reset token. Please request a new password reset.",
         });
+      }
+    }),
+
+  transferDepartmentHeadRole: protectedProcedure
+    .input(z.object({ newDeptHeadUserId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        if (!ctx.session) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "You must be logged in to change user role",
+          });
+        }
+
+        const newDeptHead = await editUserRole(input.newDeptHeadUserId, Roles.DepartmentHead);
+        if (!newDeptHead) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to change user role",
+          });
+        }
+
+        const oldDeptHead = await editUserRole(ctx.session.user.id, Roles.Faculty);
+        if (!oldDeptHead) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to change user role",
+          });
+        }
+
+        return {
+          success: true,
+          message: "Role transfered successfully"
+        }
+      } catch (error) {
+        console.log(error);
+        throw error;
       }
     }),
 });

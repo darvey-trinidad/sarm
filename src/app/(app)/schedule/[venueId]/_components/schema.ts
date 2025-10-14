@@ -9,7 +9,7 @@ export const VenueSchema = z.object({
     .string()
     .min(1, { message: "Please enter purpose for reservation" }),
   status: z.enum(RESERVATION_STATUS),
-  representativeBorrower: z.string(),
+  representativeBorrower: z.string().optional(),
   borrowItems: z
     .array(
       z.object({
@@ -17,7 +17,7 @@ export const VenueSchema = z.object({
         quantity: z.coerce.number(),
       }),
     )
-    .min(1),
+    .optional(),
   fileUrl: z
     .string({ required_error: "Please upload a file" })
     .min(1, { message: "Please upload a file" }),

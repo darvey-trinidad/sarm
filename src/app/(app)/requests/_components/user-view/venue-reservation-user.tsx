@@ -228,6 +228,14 @@ export default function VenueReservationUser() {
                     )}
                   </div>
                 </div>
+                {reservation.rejectionReason && (
+                  <div className="my-3 flex items-center gap-2 text-sm  text-red-500">
+                    <h4>
+                      Rejection Reason:
+                    </h4>
+                    <span>{reservation.rejectionReason}</span>
+                  </div>
+                )}
                 <div className="text-muted-foreground border-border border-t pt-3 text-xs">
                   Submitted on {formatISODate(reservation.createdAt)} (
                   {formatLocalTime(reservation.createdAt)})

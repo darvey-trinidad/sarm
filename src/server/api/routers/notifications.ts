@@ -15,18 +15,16 @@ export const notificationsRouter = createTRPCRouter({
       auth: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      // Check if already subscribed
-      // const existing = await ctx.db.query.pushSubscriptions.findFirst({
-      //   where: eq(pushSubscriptions.endpoint, input.endpoint),
-      // });
-
-      const existing = await db.select().from(pushSubscriptions).where(eq(pushSubscriptions.endpoint, input.endpoint)).get();
+      const existing = await db
+        .select()
+        .from(pushSubscriptions)
+        .where(eq(pushSubscriptions.endpoint, input.endpoint))
+        .get();
 
       if (existing) {
         return { success: true, subscriptionId: existing.id };
       }
 
-      // Create new subscription
       const subscriptionId = generateUUID();
 
       await db.insert(pushSubscriptions).values({
@@ -39,5 +37,20 @@ export const notificationsRouter = createTRPCRouter({
       });
 
       return { success: true, subscriptionId };
+    }),
+
+  // Check if THIS specific browser/device subscription exists
+  checkSubscription: protectedProcedure
+    .input(z.object({
+      endpoint: z.string(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const subscription = await db
+        .select()
+        .from(pushSubscriptions)
+        .where(eq(pushSubscriptions.endpoint, input.endpoint))
+        .get();
+
+      return !!subscription;
     }),
 });
