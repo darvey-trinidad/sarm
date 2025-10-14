@@ -103,6 +103,39 @@ export default function PlottingFormDialog({
 
   const utils = api.useUtils();
 
+  const handleCreate = async (data: z.infer<typeof PlottingSchema>) => {
+    setIsSubmitting(true);
+    createClassroomSchedule(
+      {
+        subject: data.courseCode,
+        section: data.section,
+        classroomId: selectedItem?.classroomId ?? "",
+        facultyId: data.proffesor,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        day: selectedItem?.day ?? 0,
+      },
+      {
+        onSuccess: () => {
+          void utils.classroomSchedule.getWeeklyInitialClassroomSchedule.invalidate(
+            {
+              classroomId: selectedItem?.classroomId ?? "",
+            },
+          );
+          toast.success("Classroom schedule created successfully");
+          form.reset();
+          setIsSubmitting(false);
+          onOpenChange(false);
+        },
+        onError: (err) => {
+          console.log(err);
+          toast.error(err.message ?? "Failed to create schedule");
+          setIsSubmitting(false);
+        },
+      },
+    );
+  };
+
   const handleDelete = (data: z.infer<typeof PlottingSchema>) => {
     setIsSubmitting(true);
     deleteClassroomSchedule(
@@ -184,58 +217,28 @@ export default function PlottingFormDialog({
     );
   };
 
-  const handleSubmit = (data: z.infer<typeof PlottingSchema>) => {
-    if (isExistingSchedule && isEditing) {
-      showConfirmation({
-        title: "Confirm Edit Schedule",
-        description:
-          "Are you sure you want to edit this classroom schedule? The old schedule will be deleted and replaced with the new one.",
-        confirmText: "Confirm Edit",
-        cancelText: "Cancel",
-        variant: "warning",
-        onConfirm: () => handleEditSchedule(data),
-      });
-    } else if (isExistingSchedule && !isEditing) {
-      showConfirmation({
-        title: "Delete Schedule",
-        description: "Are you sure you want to delete this classroom schedule?",
-        confirmText: "Delete",
-        cancelText: "Cancel",
-        variant: "warning",
-        onConfirm: () => handleDelete(data),
-      });
-    } else {
-      showConfirmation({
-        title: "Confirm Schedule Creation",
-        description: "Are you sure you want to create this classroom schedule?",
-        confirmText: "Create",
-        cancelText: "Cancel",
-        variant: "success",
-        onConfirm: () => handleSubmit(data),
-      });
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {isExistingSchedule
-              ? isEditing
-                ? "Edit Classroom Schedule"
-                : "View Classroom Schedule"
-              : "Create Classroom Schedule"}
-          </DialogTitle>
-          <DialogDescription>
-            {isExistingSchedule
-              ? isEditing
-                ? "Modify the schedule details. The old schedule will be replaced."
-                : "View schedule information"
-              : "Input course details and schedule information for the entire school year"}
-          </DialogDescription>
-          {isExistingSchedule && !isEditing && (
-            <div className="flex justify-end">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <DialogTitle>
+                {isExistingSchedule
+                  ? isEditing
+                    ? "Edit Classroom Schedule"
+                    : "View Classroom Schedule"
+                  : "Create Classroom Schedule"}
+              </DialogTitle>
+              <DialogDescription>
+                {isExistingSchedule
+                  ? isEditing
+                    ? "Modify the schedule details. The old schedule will be replaced."
+                    : "View schedule information"
+                  : "Input course details and schedule information for the entire school year"}
+              </DialogDescription>
+            </div>
+            {isExistingSchedule && !isEditing && (
               <Button
                 type="button"
                 variant="ghost"
@@ -243,15 +246,47 @@ export default function PlottingFormDialog({
                 disabled={isSubmitting}
               >
                 <Pencil className="h-4 w-4" />
-                Edit Schedule
+                Edit
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </DialogHeader>
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={form.handleSubmit((data) => {
+              if (isExistingSchedule && isEditing) {
+                showConfirmation({
+                  title: "Confirm Edit Schedule",
+                  description:
+                    "Are you sure you want to edit this classroom schedule? The old schedule will be deleted and replaced with the new one.",
+                  confirmText: "Confirm Edit",
+                  cancelText: "Cancel",
+                  variant: "warning",
+                  onConfirm: () => handleEditSchedule(data),
+                });
+              } else if (isExistingSchedule && !isEditing) {
+                showConfirmation({
+                  title: "Delete Schedule",
+                  description:
+                    "Are you sure you want to delete this classroom schedule?",
+                  confirmText: "Delete",
+                  cancelText: "Cancel",
+                  variant: "warning",
+                  onConfirm: () => handleDelete(data),
+                });
+              } else {
+                showConfirmation({
+                  title: "Confirm Schedule Creation",
+                  description:
+                    "Are you sure you want to create this classroom schedule?",
+                  confirmText: "Create",
+                  cancelText: "Cancel",
+                  variant: "success",
+                  onConfirm: () => handleCreate(data),
+                });
+              }
+            })}
             className="space-y-4 md:space-y-6"
           >
             <FormField
@@ -413,7 +448,7 @@ export default function PlottingFormDialog({
                   disabled={isSubmitting}
                 >
                   <X className="mr-2 h-4 w-4" />
-                  Cancel Edit
+                  Cancel
                 </Button>
               )}
 
