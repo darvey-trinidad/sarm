@@ -171,7 +171,7 @@ export default function UserProfile() {
               />
             ) : (
               <p className="pl-7 text-base">
-                {userData?.name ?? "Not provided"}
+                {userData?.name ?? "Loading..."}
               </p>
             )}
           </div>
@@ -183,7 +183,7 @@ export default function UserProfile() {
               <span>Email Address</span>
             </Label>
             <p className="pl-7 text-base">
-              {userData?.email ?? "Not provided"}
+              {userData?.email ?? "Loading..."}
             </p>
           </div>
 
@@ -216,9 +216,9 @@ export default function UserProfile() {
               <p className="pl-7 text-base">
                 {userData?.departmentOrOrganization
                   ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
-                      (opt) => opt.value === userData.departmentOrOrganization,
-                    )?.label ?? userData.departmentOrOrganization)
-                  : "Not provided"}
+                    (opt) => opt.value === userData.departmentOrOrganization,
+                  )?.label ?? userData.departmentOrOrganization)
+                  : "Loading..."}
               </p>
             )}
           </div>
@@ -240,7 +240,7 @@ export default function UserProfile() {
                         { newDeptHeadUserId: newHeadId },
                         {
                           onSuccess: async () => {
-                            await refetchSession();
+                            void refetchSession();
                             await refetchUserData();
                             resolve();
                           },
