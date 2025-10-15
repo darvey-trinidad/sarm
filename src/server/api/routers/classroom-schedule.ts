@@ -111,6 +111,7 @@ export const classroomScheduleRouter = createTRPCRouter({
         input.startDate,
         input.endDate,
       ).then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      console.log(res);
       return res;
     }),
   getWeeklyInitialClassroomSchedule: protectedProcedure

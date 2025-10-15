@@ -8,7 +8,8 @@ import {
   Users,
   Blocks,
   Search,
-  Files
+  Files,
+  BookOpen
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +36,7 @@ import {
   USERS_ROLES,
   MANAGE_ROLES,
   isRole,
+  MY_CLASSES_ROLES,
 } from "@/constants/roles";
 
 const items = [
@@ -49,6 +51,12 @@ const items = [
     href: "/schedule",
     icon: CalendarRange,
     roles: ROLES,
+  },
+  {
+    title: "My Classes",
+    href: "/my-classes",
+    icon: BookOpen,
+    roles: MY_CLASSES_ROLES,
   },
   {
     title: "Find Room",

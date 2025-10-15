@@ -56,6 +56,12 @@ export const PLOTTING_ROLES: Roles[] = [
   Roles.DepartmentHead,
 ];
 
+export const MY_CLASSES_ROLES: Roles[] = [
+  Roles.Faculty,
+  Roles.DepartmentHead,
+  Roles.PEInstructor,
+]
+
 export const USERS_ROLES: Roles[] = [Roles.FacilityManager];
 
 export const MANAGE_ROLES: Roles[] = [Roles.FacilityManager];

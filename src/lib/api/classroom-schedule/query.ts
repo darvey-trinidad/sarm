@@ -1350,9 +1350,13 @@ export const getWeeklyFacultySchedule = async (
           // If there's a vacancy on that classroom/date/time, the faculty does NOT have initial schedule that day
           const { startTime, endTime, reason, ...rest } = vacancy;
           results.push({
+            id: null,
+            classroomId: "",
+            classroomName: "",
+            buildingId: "",
+            buildingName: "",
             startTime: toTimeInt(startTime),
             endTime: toTimeInt(endTime),
-            ...rest,
             facultyId,
             facultyName: initialSchedule[0]?.facultyName ?? null,
             subject: null,
@@ -1384,7 +1388,7 @@ export const getWeeklyFacultySchedule = async (
             date: new Date(current),
             startTime: time,
             endTime: toTimeInt(time + TIME_INTERVAL),
-            source: SCHEDULE_SOURCE.Unoccupied,
+            source: SCHEDULE_SOURCE.Vacancy,
           });
         }
       });
