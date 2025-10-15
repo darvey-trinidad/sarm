@@ -52,8 +52,8 @@ export default function BuildingFormButton() {
         setOpen(false);
         setIsSubmitting(false);
       },
-      onError: () => {
-        toast.error("Failed to create building");
+      onError: (error) => {
+        toast.error(error.message ?? "Failed to create building");
         setIsSubmitting(false);
       },
     });

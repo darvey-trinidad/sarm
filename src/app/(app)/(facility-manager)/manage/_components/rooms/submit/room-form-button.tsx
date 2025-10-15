@@ -68,8 +68,8 @@ export default function RoomFormButton() {
         setOpen(false);
         setIsSubmitting(false);
       },
-      onError: () => {
-        toast.error("Failed to create classroom");
+      onError: (error) => {
+        toast.error(error.message ?? "Failed to create classroom");
         setIsSubmitting(false);
       },
     });
