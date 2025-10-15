@@ -61,8 +61,8 @@ export default function VenueFormButton() {
         setOpen(false);
         setIsSubmitting(false);
       },
-      onError: () => {
-        toast.error("Failed to create venue");
+      onError: (error) => {
+        toast.error(error.message ?? "Failed to create venue");
         setIsSubmitting(false);
       },
     });

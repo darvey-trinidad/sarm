@@ -7,7 +7,30 @@ import { ReservationStatus } from "@/constants/reservation-status";
 
 export const createVenue = async (data: Venue) => {
   try {
+    const existingVenue = await db.select().from(venue).all();
+
+    if (existingVenue.some((v) => v.name.replace(" ", "").toLowerCase() === data.name.replace(" ", "").toLowerCase())) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "Venue name already exists",
+      });
+    }
+
     return await db.insert(venue).values(data).returning().get();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const editVenue = async (id: string, data: {
+  name?: string | undefined;
+  description?: string | undefined;
+  capacity?: number | undefined;
+  usability?: "operational" | "non-operational" | undefined;
+}) => {
+  try {
+    return await db.update(venue).set(data).where(eq(venue.id, id)).returning().get();
   } catch (error) {
     console.error(error);
     throw error;

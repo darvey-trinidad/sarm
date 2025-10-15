@@ -14,6 +14,14 @@ export const createVenueSchema = z.object({
   usability: z.enum(USABILITY).optional(),
 });
 
+export const editVenueSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  capacity: z.number().optional(),
+  usability: z.enum(USABILITY).optional(),
+})
+
 export const createVenueReservationSchema = z.object({
   venueId: z.string(),
   reserverId: z.string(),
