@@ -14,6 +14,22 @@ export const createResource = async (data: NewResource) => {
   }
 };
 
+export const editResource = async (id: string, data: {
+  name?: string | undefined;
+  category?: "electrical" | "electronics" | "audio" | "visual" | "furniture" | "event_materials" | "office_supply" | "cleaning_equipment" | "laboratory_equipment" | undefined;
+  description?: string | null | undefined;
+  stock?: number | undefined;
+}) => {
+  try {
+    return await db.update(resource).set(data).where(eq(resource.id, id)).returning().get();
+  } catch (error) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Could not update resource",
+    })
+  }
+}
+
 export const addResourceQuantity = async (id: string, quantity: number) => {
   try {
     const current = await db.select().from(resource).where(eq(resource.id, id)).get();

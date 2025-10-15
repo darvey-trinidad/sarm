@@ -6,6 +6,7 @@ import {
   createResourceBorrowing,
   createBorrowingTransaction,
   editBorrowingTransaction,
+  editResource,
 } from "@/lib/api/resource/mutation";
 import {
   createResourceSchema,
@@ -14,6 +15,7 @@ import {
   createBorrowingTransactionSchema,
   editBorrowingTransactionSchema,
   getAllBorrowingTransactionsSchema,
+  editResourceSchema,
 } from "@/server/api-utils/validators/resource";
 import {
   getAllAvailableResources,
@@ -32,6 +34,12 @@ export const resourceRouter = createTRPCRouter({
     .input(createResourceSchema)
     .mutation(({ input }) => {
       return createResource({ id: generateUUID(), ...input });
+    }),
+  editResource: protectedProcedure
+    .input(editResourceSchema)
+    .mutation(({ input }) => {
+      const { id, ...data } = input;
+      return editResource(id, data);
     }),
   addResourceQuantity: protectedProcedure
     .input(addResourceQuantitySchema)

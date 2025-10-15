@@ -11,6 +11,14 @@ export const createResourceSchema = z.object({
   stock: z.number().optional(),
 });
 
+export const editResourceSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  category: z.enum(RESOURCE_CATEGORY).optional(),
+  description: z.string().optional(),
+  stock: z.number().optional(),
+});
+
 export const addResourceQuantitySchema = z.object({
   id: z.string(),
   quantity: z.number(),
