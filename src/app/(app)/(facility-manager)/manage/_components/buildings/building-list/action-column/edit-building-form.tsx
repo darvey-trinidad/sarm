@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
-import { venueSchema } from "./venue-schema";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 
 import {
@@ -28,55 +27,51 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { buildingSchema } from "./schema";
 
-interface Venue {
+type BuildingFormValues = z.infer<typeof buildingSchema>;
+
+interface Building {
   id: string;
   name: string;
   description: string | null;
-  capacity: number | null;
-  usability: "operational" | "non-operational";
 }
 
-type VenueFormValues = z.infer<typeof venueSchema>;
-
-export default function VenueEditForm({ venue }: { venue: Venue }) {
+export default function BuildingEditForm({ building }: { building: Building }) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const utils = api.useUtils();
 
-  const form = useForm<VenueFormValues>({
-    resolver: zodResolver(venueSchema),
+  const form = useForm<BuildingFormValues>({
+    resolver: zodResolver(buildingSchema),
     defaultValues: {
-      name: venue.name,
-      description: venue.description ?? "",
-      capacity: venue.capacity ?? undefined,
+      name: building.name,
+      description: building.description ?? "",
     },
   });
 
-  const { mutate: editVenue } = api.venue.editVenue.useMutation({
+  const { mutate: editBuilding } = api.classroom.editBuilding.useMutation({
     onSuccess: () => {
-      toast.success("Venue updated successfully");
-      void utils.venue.getAllVenues.invalidate();
+      toast.success("Building updated successfully");
+      void utils.classroom.getAllBuildings.invalidate();
       setOpen(false);
       form.reset();
       setIsSubmitting(false);
     },
     onError: (error) => {
-      toast.error(error.message ?? "Failed to update venue");
+      toast.error(error.message ?? "Failed to update building");
       setIsSubmitting(false);
     },
   });
 
-  const handleSubmit = (data: VenueFormValues) => {
+  const handleSubmit = (data: BuildingFormValues) => {
     setIsSubmitting(true);
-    editVenue({
-      id: venue.id,
+    editBuilding({
+      id: building.id,
       ...data,
       description: data.description ?? undefined,
-      capacity: data.capacity ?? undefined,
     });
   };
 
@@ -84,14 +79,14 @@ export default function VenueEditForm({ venue }: { venue: Venue }) {
     <div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost">Edit Venue</Button>
+          <Button variant="ghost">Edit Building</Button>
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Venue</DialogTitle>
+            <DialogTitle>Edit Building</DialogTitle>
             <DialogDescription>
-              Update the information for <strong>{venue.name}</strong>.
+              Update the information for <strong>{building.name}</strong>.
             </DialogDescription>
           </DialogHeader>
 
@@ -100,8 +95,8 @@ export default function VenueEditForm({ venue }: { venue: Venue }) {
               className="space-y-4"
               onSubmit={form.handleSubmit((data) =>
                 showConfirmation({
-                  title: "Update Venue",
-                  description: `Are you sure you want to update ${venue.name}?`,
+                  title: "Update Building",
+                  description: `Are you sure you want to update ${building.name}?`,
                   confirmText: "Update",
                   variant: "warning",
                   onConfirm: () => handleSubmit(data),
@@ -113,9 +108,9 @@ export default function VenueEditForm({ venue }: { venue: Venue }) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Venue Name</FormLabel>
+                    <FormLabel>Building Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter venue name" {...field} />
+                      <Input placeholder="Enter building name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,29 +124,9 @@ export default function VenueEditForm({ venue }: { venue: Venue }) {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Enter venue description"
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="capacity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Capacity</FormLabel>
-                    <FormControl>
                       <Input
-                        type="number"
-                        placeholder="Enter capacity"
+                        placeholder="Enter building description"
                         {...field}
-                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormMessage />
