@@ -3,6 +3,9 @@
 import { createSortableHeader } from "@/components/table/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
+import { createActionColumn } from "@/components/table/action-column";
+import { Pencil } from "lucide-react";
+import VenueEditForm from "../action-column/edit-venue-form";
 
 const getUsabilityBadge = (usability: string | null) => {
   switch (usability) {
@@ -50,4 +53,11 @@ export const columns: ColumnDef<Venue>[] = [
     accessorKey: "capacity",
     header: "Capacity",
   },
+  createActionColumn<Venue>([
+    {
+      label: "Edit Venue",
+      icon: <Pencil className="h-4 w-4" />,
+      render: (venue) => <VenueEditForm venue={venue} />,
+    },
+  ]),
 ];

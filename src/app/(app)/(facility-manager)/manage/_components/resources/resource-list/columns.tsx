@@ -2,8 +2,9 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { createSortableHeader } from "@/components/table/data-table";
 import { createActionColumn } from "@/components/table/action-column";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import ResourceQuantityForm from "../action-column/resource-quantity-form";
+import ResourceEditForm from "../action-column/edit-resource-form";
 import { RESOURCE_CATEGORY } from "@/constants/resource-category";
 import type { ReactNode } from "react";
 
@@ -59,8 +60,12 @@ export const columns: ColumnDef<Resource>[] = [
   },
   createActionColumn<Resource>([
     {
+      label: "Edit Resource",
+      render: (resource) => <ResourceEditForm resource={resource} />,
+    },
+    {
       label: "Edit Quantity",
-      icon: <Plus className="h-4 w-4" />,
+
       render: (resource) => (
         <ResourceQuantityForm
           resourceId={resource.id}
