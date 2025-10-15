@@ -1197,3 +1197,205 @@ export async function getRoomRequestStatsPerClassroomType() {
     }))
     .sort((a, b) => b.requests - a.requests); // Optional: sort descending
 }
+
+
+/*
+** Faculty Schedule
+*/
+
+export const getWeeklyFacultySchedule = async (
+  facultyId: string,
+  startDate: Date, // Monday (date)
+  endDate: Date,   // Saturday (date)
+): Promise<FinalClassroomSchedule[]> => {
+  try {
+    // 1) fetch initial weekly schedules (weekday-based) and borrowings (date-based) in parallel
+    const [initialSchedule, borrowings] = await Promise.all([
+      db
+        .select({
+          id: classroomSchedule.id,
+          classroomId: classroomSchedule.classroomId,
+          classroomName: classroom.name,
+          buildingId: classroom.buildingId,
+          buildingName: building.name,
+          facultyId: classroomSchedule.facultyId,
+          facultyName: user.name,
+          day: classroomSchedule.day, // weekday number
+          startTime: classroomSchedule.startTime,
+          endTime: classroomSchedule.endTime,
+          subject: classroomSchedule.subject,
+          section: classroomSchedule.section,
+        })
+        .from(classroomSchedule)
+        .leftJoin(user, eq(classroomSchedule.facultyId, user.id))
+        .innerJoin(classroom, eq(classroomSchedule.classroomId, classroom.id))
+        .innerJoin(building, eq(classroom.buildingId, building.id))
+        .where(
+          and(
+            eq(classroomSchedule.facultyId, facultyId),
+            gte(classroomSchedule.day, startDate.getDay()),
+            lte(classroomSchedule.day, endDate.getDay()),
+          ),
+        )
+        .orderBy(classroomSchedule.day, classroomSchedule.startTime),
+
+      db
+        .select({
+          id: classroomBorrowing.id,
+          classroomId: classroomBorrowing.classroomId,
+          classroomName: classroom.name,
+          buildingId: classroom.buildingId,
+          buildingName: building.name,
+          facultyId: classroomBorrowing.facultyId,
+          facultyName: user.name,
+          date: classroomBorrowing.date,
+          startTime: classroomBorrowing.startTime,
+          endTime: classroomBorrowing.endTime,
+          subject: classroomBorrowing.subject,
+          section: classroomBorrowing.section,
+        })
+        .from(classroomBorrowing)
+        .leftJoin(user, eq(classroomBorrowing.facultyId, user.id))
+        .innerJoin(classroom, eq(classroomBorrowing.classroomId, classroom.id))
+        .innerJoin(building, eq(classroom.buildingId, building.id))
+        .where(
+          and(
+            eq(classroomBorrowing.facultyId, facultyId),
+            gte(classroomBorrowing.date, startDate),
+            lte(classroomBorrowing.date, endDate),
+          ),
+        )
+        .orderBy(classroomBorrowing.date, classroomBorrowing.startTime),
+    ]);
+
+    // 2) build classroomId list from initialSchedule so we fetch relevant vacancies only
+    const classroomIds = Array.from(new Set(initialSchedule.map((s) => s.classroomId).filter(Boolean)));
+
+    let vacancies: Array<{
+      id: string;
+      classroomId: string;
+      classroomName: string;
+      buildingId: string;
+      buildingName: string;
+      date: Date;
+      startTime: number;
+      endTime: number;
+      reason: string | null;
+    }> = [];
+
+    if (classroomIds.length > 0) {
+      vacancies = await db
+        .select({
+          id: classroomVacancy.id,
+          classroomId: classroomVacancy.classroomId,
+          classroomName: classroom.name,
+          buildingId: classroom.buildingId,
+          buildingName: building.name,
+          date: classroomVacancy.date,
+          startTime: classroomVacancy.startTime,
+          endTime: classroomVacancy.endTime,
+          reason: classroomVacancy.reason,
+        })
+        .from(classroomVacancy)
+        .innerJoin(classroom, eq(classroomVacancy.classroomId, classroom.id))
+        .innerJoin(building, eq(classroom.buildingId, building.id))
+        .where(
+          and(
+            inArray(classroomVacancy.classroomId, classroomIds),
+            gte(classroomVacancy.date, startDate),
+            lte(classroomVacancy.date, endDate),
+          ),
+        )
+        .orderBy(classroomVacancy.date, classroomVacancy.startTime);
+    }
+
+    // 3) build the merged schedule for each date/time slot in the week
+    const results: FinalClassroomSchedule[] = [];
+    let current = new Date(startDate);
+
+    while (current <= endDate) {
+      const day = current.getDay();
+
+      TIME_ENTRIES.slice(0, -1).forEach(([time]) => {
+        // initial: weekly recurring schedule (matches by weekday)
+        const initial = initialSchedule.find((s) => s.startTime === time && s.day === day);
+
+        // borrowing: date-specific (faculty borrowing another room OR their own)
+        const borrowing = borrowings.find(
+          (b) => b.startTime === time && b.date.toDateString() === current.toDateString(),
+        );
+
+        // vacancy: date-specific vacancy for the classroom where the initial schedule sits
+        // NOTE: vacancy is checked against the classroomId of the initial schedule (if any)
+        const vacancy = initial
+          ? vacancies.find(
+            (v) =>
+              v.startTime === time &&
+              v.classroomId === initial.classroomId &&
+              v.date.toDateString() === current.toDateString(),
+          )
+          : undefined;
+
+        // Priority: Borrowing > Vacancy (removes initial) > InitialSchedule > Unoccupied
+        if (borrowing) {
+          const { startTime, endTime, ...rest } = borrowing;
+          results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
+            ...rest,
+            date: new Date(current),
+            source: SCHEDULE_SOURCE.Borrowing,
+          });
+        } else if (vacancy) {
+          // If there's a vacancy on that classroom/date/time, the faculty does NOT have initial schedule that day
+          const { startTime, endTime, reason, ...rest } = vacancy;
+          results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
+            ...rest,
+            facultyId,
+            facultyName: initialSchedule[0]?.facultyName || null,
+            subject: null,
+            section: null,
+            date: new Date(current),
+            source: SCHEDULE_SOURCE.Vacancy,
+          });
+        } else if (initial) {
+          const { day: _, startTime, endTime, ...rest } = initial;
+          results.push({
+            startTime: toTimeInt(startTime),
+            endTime: toTimeInt(endTime),
+            ...rest,
+            date: new Date(current),
+            source: SCHEDULE_SOURCE.InitialSchedule,
+          });
+        } else {
+          // Unoccupied slot for the faculty
+          results.push({
+            id: null,
+            classroomId: "",
+            classroomName: "",
+            buildingId: "",
+            buildingName: "",
+            facultyId,
+            facultyName: initialSchedule[0]?.facultyName || null,
+            subject: null,
+            section: null,
+            date: new Date(current),
+            startTime: time,
+            endTime: toTimeInt(time + TIME_INTERVAL),
+            source: SCHEDULE_SOURCE.Unoccupied,
+          });
+        }
+      });
+
+      current.setDate(current.getDate() + 1);
+    }
+
+    return results;
+  } catch (error) {
+    console.log("Failed to get weekly faculty schedule:", error);
+    throw new Error("Could not get weekly faculty schedule");
+  }
+};
+

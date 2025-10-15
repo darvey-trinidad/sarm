@@ -21,6 +21,7 @@ import {
   getCurrentlyAvailableClassroomsSchema,
   getProfessorSchedulesForDateSchema,
   deleteClassroomScheduleSchema,
+  getWeeklyFacultyScheduleSchema,
 } from "@/server/api-utils/validators/classroom-schedule";
 import {
   getAvailableClassrooms,
@@ -32,6 +33,7 @@ import {
   getRoomRequestStatsPerClassroomType,
   getRoomRequestStatsPerDepartment,
   getWeeklyClassroomSchedule,
+  getWeeklyFacultySchedule,
   getWeeklyInitialClassroomSchedule,
 } from "@/lib/api/classroom-schedule/query";
 import {
@@ -96,6 +98,16 @@ export const classroomScheduleRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const res = await getWeeklyClassroomSchedule(
         input.classroomId,
+        input.startDate,
+        input.endDate,
+      ).then((timeslots) => mergeAdjacentTimeslots(timeslots));
+      return res;
+    }),
+  getWeeklyFacultySchedule: protectedProcedure
+    .input(getWeeklyFacultyScheduleSchema)
+    .query(async ({ input }) => {
+      const res = await getWeeklyFacultySchedule(
+        input.facultyId,
         input.startDate,
         input.endDate,
       ).then((timeslots) => mergeAdjacentTimeslots(timeslots));

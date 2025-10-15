@@ -69,6 +69,12 @@ export const getWeeklyClassroomScheduleSchema = z.object({
   endDate: requiredDateSchema(),
 });
 
+export const getWeeklyFacultyScheduleSchema = z.object({
+  facultyId: z.string(),
+  startDate: requiredDateSchema(),
+  endDate: requiredDateSchema(),
+})
+
 export const getAvailableClassroomsSchema = z.object({
   date: requiredDateSchema(),
   startTime: timeIntSchema,
