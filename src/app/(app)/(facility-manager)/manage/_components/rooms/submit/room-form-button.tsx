@@ -44,6 +44,7 @@ export default function RoomFormButton() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const [open, setOpen] = useState(false);
+  const utils = api.useUtils();
   const form = useForm<z.infer<typeof RoomSchema>>({
     resolver: zodResolver(RoomSchema),
     defaultValues: {
@@ -67,6 +68,7 @@ export default function RoomFormButton() {
         form.reset();
         setOpen(false);
         setIsSubmitting(false);
+        void utils.classroom.getAllClassrooms.invalidate();
       },
       onError: (error) => {
         toast.error(error.message ?? "Failed to create classroom");

@@ -41,6 +41,7 @@ export default function ResourceFormButton() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+  const utils = api.useUtils();
 
   const form = useForm<z.infer<typeof ResourceSchema>>({
     resolver: zodResolver(ResourceSchema),
@@ -62,6 +63,7 @@ export default function ResourceFormButton() {
         form.reset();
         setOpen(false);
         setIsSubmitting(false);
+        void utils.resource.getAllResources.invalidate();
       },
       onError: () => {
         toast.error("Failed to create resource");

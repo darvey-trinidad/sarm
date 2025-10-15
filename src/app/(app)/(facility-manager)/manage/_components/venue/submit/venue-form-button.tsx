@@ -40,6 +40,7 @@ export default function VenueFormButton() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [Open, setOpen] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+  const utils = api.useUtils();
 
   const form = useForm<z.infer<typeof VenueSchema>>({
     resolver: zodResolver(VenueSchema),
@@ -60,6 +61,7 @@ export default function VenueFormButton() {
         form.reset();
         setOpen(false);
         setIsSubmitting(false);
+        void utils.venue.getAllVenues.invalidate();
       },
       onError: (error) => {
         toast.error(error.message ?? "Failed to create venue");

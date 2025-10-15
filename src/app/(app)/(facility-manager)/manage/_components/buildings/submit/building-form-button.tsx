@@ -33,6 +33,7 @@ export default function BuildingFormButton() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
   const [open, setOpen] = useState(false);
+  const utils = api.useUtils();
   const form = useForm<z.infer<typeof BuildingSchema>>({
     resolver: zodResolver(BuildingSchema),
     defaultValues: {
@@ -51,6 +52,7 @@ export default function BuildingFormButton() {
         form.reset();
         setOpen(false);
         setIsSubmitting(false);
+        void utils.classroom.getAllBuildings.invalidate();
       },
       onError: (error) => {
         toast.error(error.message ?? "Failed to create building");
