@@ -84,7 +84,7 @@ export default function ResourceEditForm({ resource }: ResourceEditFormProps) {
       {
         id: resource.id,
         name: data.name,
-        description: data.description || undefined,
+        description: data.description ?? undefined,
         category: data.category,
       },
       {

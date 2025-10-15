@@ -1354,7 +1354,7 @@ export const getWeeklyFacultySchedule = async (
             endTime: toTimeInt(endTime),
             ...rest,
             facultyId,
-            facultyName: initialSchedule[0]?.facultyName || null,
+            facultyName: initialSchedule[0]?.facultyName ?? null,
             subject: null,
             section: null,
             date: new Date(current),
@@ -1378,7 +1378,7 @@ export const getWeeklyFacultySchedule = async (
             buildingId: "",
             buildingName: "",
             facultyId,
-            facultyName: initialSchedule[0]?.facultyName || null,
+            facultyName: initialSchedule[0]?.facultyName ?? null,
             subject: null,
             section: null,
             date: new Date(current),
@@ -1389,7 +1389,7 @@ export const getWeeklyFacultySchedule = async (
         }
       });
 
-      current.setDate(current.getDate() + 1);
+      current = new Date(current.getTime() + 24 * 60 * 60 * 1000); // Add 1 day
     }
 
     return results;
