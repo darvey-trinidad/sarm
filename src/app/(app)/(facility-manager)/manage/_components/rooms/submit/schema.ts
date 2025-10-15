@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { FLOORS } from "@/constants/floors";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
-import { USABILITY } from "@/constants/usability";
+
 export const RoomSchema = z.object({
   name: z.string().min(1, { message: "Please enter a name" }),
   buildingId: z.string().min(1, { message: "Please select a building" }),

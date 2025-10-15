@@ -1,6 +1,7 @@
 "use client";
 import { type ColumnDef } from "@tanstack/react-table";
 import { createSortableHeader } from "@/components/table/data-table";
+import { createActionColumn } from "@/components/table/action-column";
 import { Badge } from "@/components/ui/badge";
 import type { ReactNode } from "react";
 import {
@@ -8,6 +9,8 @@ import {
   ClassroomTypeValues,
   type ClassroomType,
 } from "@/constants/classroom-type";
+import ClassroomEditForm from "../action-column/edit-room-form";
+import { type FloorType } from "@/constants/floors";
 
 const getUsabilityBadge = (usability: string | null) => {
   switch (usability) {
@@ -63,7 +66,7 @@ interface Classroom {
   buildingId: string;
   buildingName: string | null;
   capacity: number;
-  floor: string;
+  floor: FloorType;
   type: ClassroomType;
   usability: "operational" | "non-operational";
 }
@@ -97,4 +100,10 @@ export const columns: ColumnDef<Classroom>[] = [
       return <div className="pl-3">{getTypeBadge(type)}</div>;
     },
   },
+  createActionColumn<Classroom>([
+    {
+      label: "Edit Classroom",
+      render: (classroom) => <ClassroomEditForm classroom={classroom} />,
+    },
+  ]),
 ];

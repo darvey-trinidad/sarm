@@ -7,6 +7,8 @@ export const FLOORS = [
   "fifth",
 ] as const;
 
+export type FloorType = (typeof FLOORS)[number];
+
 //make dropdown option
 export const FLOORS_OPTIONS = FLOORS.map((floor) => ({
   value: floor,
