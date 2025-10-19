@@ -1,4 +1,4 @@
-import { db, eq, and, or } from "@/server/db";
+import { db, eq, and, or, inArray } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId, RoomRequest } from "@/server/db/types/classroom-schedule";
 import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot, splitTimeToHourlyTimeslotSchedule } from "@/lib/helper/classroom-schedule";
@@ -6,7 +6,7 @@ import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassro
 import type { TimeInt } from "@/constants/timeslot";
 import { TRPCError } from "@trpc/server";
 import type { CancelClassroomBorrowingInput, DeleteClassroomScheduleSchemaType } from "@/server/api-utils/validators/classroom-schedule";
-import { type RoomRequestStatusType } from "@/constants/room-request-status";
+import { RoomRequestStatus, type RoomRequestStatusType } from "@/constants/room-request-status";
 
 export const createClassroomSchedule = async (data: ClassroomScheduleWithoutId) => {
   try {
@@ -158,6 +158,24 @@ export const updateRoomRequestStatus = async (id: string, status: RoomRequestSta
   } catch (err) {
     console.error("Failed to update room request status:", err);
     throw new Error("Could not update room request status");
+  }
+}
+
+export const declineRoomRequestsBatched = async (roomRequestIds: string[]) => {
+  try {
+    if (roomRequestIds.length === 0) return;
+
+    return await db
+      .update(roomRequests)
+      .set({ status: RoomRequestStatus.Declined })
+      .where(inArray(roomRequests.id, roomRequestIds))
+      .run();
+  } catch (error) {
+    console.log("Failed to decline room requests:", error);
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Could not decline room requests",
+    });
   }
 }
 

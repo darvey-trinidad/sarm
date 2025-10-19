@@ -8,6 +8,7 @@ import {
   updateRoomRequestStatus,
   resetClassroomSchedules,
   deleteClassroomSchedule,
+  declineRoomRequestsBatched,
 } from "@/lib/api/classroom-schedule/mutation";
 import {
   createClassroomScheduleSchema,
@@ -25,6 +26,7 @@ import {
 } from "@/server/api-utils/validators/classroom-schedule";
 import {
   getAvailableClassrooms,
+  getConflictingRoomRequests,
   getCurrentlyAvailableClassrooms,
   getProfessorSchedulesForDate,
   getRoomRequestById,
@@ -52,6 +54,7 @@ import { notifyRoomRequestor } from "@/emails/notify-room-requestor";
 import { Roles } from "@/constants/roles";
 import { sendPushNotification } from "@/lib/push-service";
 import { TIME_MAP, type TimeInt } from "@/constants/timeslot";
+import { notifyConflictingRoomRequestor } from "@/emails/notify-room-requestors";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -272,6 +275,20 @@ export const classroomScheduleRouter = createTRPCRouter({
           return { error: "Room Request not found", status: 404 };
         }
 
+        await updateRoomRequestStatus(input.roomRequestId, input.status);
+
+        await sendPushNotification({
+          userId: roomRequestRecord.requestorId,
+          title: `Room Request ${input.status}`,
+          body: `${roomRequestRecord.responderName} ${input.status} your request for room ${roomRequestRecord.classroomName}`,
+          data: {
+            requestId: roomRequestRecord.id,
+            type: 'borrow_response',
+          },
+        });
+
+        await notifyRoomRequestor(input.roomRequestId);
+
         if (input.status === RoomRequestStatus.Accepted) {
           await createClassroomVacancy({
             classroomId: roomRequestRecord.classroomId,
@@ -288,20 +305,17 @@ export const classroomScheduleRouter = createTRPCRouter({
             subject: roomRequestRecord.subject,
             section: roomRequestRecord.section,
           });
+
+          const conflicts = await getConflictingRoomRequests(roomRequestRecord.id);
+
+          if (conflicts.length > 0) {
+            await declineRoomRequestsBatched(conflicts.map((conflict) => conflict.id));
+
+            conflicts.forEach(async (conflict) => {
+              await notifyConflictingRoomRequestor(conflict);
+            })
+          }
         }
-        await updateRoomRequestStatus(input.roomRequestId, input.status);
-
-        await sendPushNotification({
-          userId: roomRequestRecord.requestorId,
-          title: `Room Request ${input.status}`,
-          body: `${roomRequestRecord.responderName} ${input.status} your request for room ${roomRequestRecord.classroomName}`,
-          data: {
-            requestId: roomRequestRecord.id,
-            type: 'borrow_response',
-          },
-        });
-
-        await notifyRoomRequestor(input.roomRequestId);
 
         return { message: "Room Request Responded", status: 200 };
       } catch (error) {
@@ -311,6 +325,10 @@ export const classroomScheduleRouter = createTRPCRouter({
           message: "Could not respond to room request",
         });
       }
+    }),
+  getConflictingRoomRequests: protectedProcedure
+    .query(async () => {
+      return getConflictingRoomRequests("28c3e3e1-5327-4efd-8af8-867354df9b8a");
     }),
   getRoomRequestById: protectedProcedure
     .input(z.object({ roomRequestId: z.string() }))

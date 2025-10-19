@@ -1,4 +1,4 @@
-import { db, and, eq, inArray, gte, lte, asc, sql, count } from "@/server/db";
+import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
 import {
   classroomSchedule,
@@ -24,6 +24,7 @@ import { alias } from "drizzle-orm/sqlite-core";
 import type { ClassroomType } from "@/constants/classroom-type";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import type { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
+import { request } from "http";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (
@@ -205,6 +206,55 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
     throw new Error("Could not get room request");
   }
 };
+
+export const getConflictingRoomRequests = async (roomRequestId: string) => {
+  try {
+    const requestor = alias(user, "requestor");
+    const responder = alias(user, "responder");
+    const currentRoomRequest = await getRoomRequestById(roomRequestId);
+
+    if (!currentRoomRequest) {
+      throw new Error("Room request not found");
+    }
+
+    return db
+      .select({
+        id: roomRequests.id,
+        classroomId: roomRequests.classroomId,
+        classroomName: classroom.name,
+        date: roomRequests.date,
+        startTime: roomRequests.startTime,
+        endTime: roomRequests.endTime,
+        subject: roomRequests.subject,
+        section: roomRequests.section,
+        requestorId: requestor.id,
+        requestorName: requestor.name,
+        requestorEmail: requestor.email,
+        responderId: responder.id,
+        responderName: responder.name,
+        status: roomRequests.status,
+        createdAt: roomRequests.createdAt,
+      })
+      .from(roomRequests)
+      .where(
+        and(
+          ne(roomRequests.id, roomRequestId),
+          eq(roomRequests.classroomId, currentRoomRequest.classroomId),
+          eq(roomRequests.date, currentRoomRequest.date),
+          eq(roomRequests.status, RoomRequestStatus.Pending),
+          lt(roomRequests.startTime, currentRoomRequest.endTime),
+          gt(roomRequests.endTime, currentRoomRequest.startTime),
+        )
+      )
+      .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .innerJoin(responder, eq(roomRequests.responderId, responder.id))
+      .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
+      .all();
+  } catch (error) {
+    console.log("Failed to get conflicting room request:", error);
+    throw new Error("Could not get conflicting room request");
+  }
+}
 
 /**
  * Get classroom schedule for a week
