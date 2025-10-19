@@ -326,10 +326,6 @@ export const classroomScheduleRouter = createTRPCRouter({
         });
       }
     }),
-  getConflictingRoomRequests: protectedProcedure
-    .query(async () => {
-      return getConflictingRoomRequests("28c3e3e1-5327-4efd-8af8-867354df9b8a");
-    }),
   getRoomRequestById: protectedProcedure
     .input(z.object({ roomRequestId: z.string() }))
     .query(async ({ input }) => {
