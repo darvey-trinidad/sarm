@@ -19,7 +19,7 @@ import {
   getStatusColorRoomRequest,
   getStatusIconRoomRequest,
 } from "../user-view/request-status";
-import { formatISODate, toTimeInt } from "@/lib/utils";
+import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import NoRoomRequest from "@/components/loading-state/no-room-request";
@@ -171,7 +171,8 @@ export default function UserRoomRequest() {
                     </div>
                   </div>
                   <div className="text-muted-foreground border-border flex border-t pt-3 text-xs">
-                    Submitted on {formatISODate(classroomRequest.createdAt)}
+                    Submitted on {formatISODate(classroomRequest.createdAt)} (
+                    {formatLocalTime(classroomRequest.createdAt)})
                   </div>
                 </CardContent>
               </Card>

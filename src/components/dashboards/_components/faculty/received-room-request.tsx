@@ -1,7 +1,7 @@
 "use client";
 import { api } from "@/trpc/react";
 import { authClient } from "@/lib/auth-client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DoorOpen,
   Clock,
@@ -11,7 +11,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { ReceivedRoomSkeleton } from "../skeletons/received-room-skeleton";
-import { formatISODate, toTimeInt } from "@/lib/utils";
+import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -100,6 +100,9 @@ export default function ReceivedRoomRequest() {
                         )}
                       </div>
                     </CardContent>
+                    <div className="text-muted-foreground border-border flex border-t mt-2 pt-3 text-xs">
+                      Submitted: {formatISODate(request.createdAt)} ({formatLocalTime(request.createdAt)})
+                    </div>
                   </div>
                   <Button
                     size="sm"

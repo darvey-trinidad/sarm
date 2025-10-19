@@ -23,7 +23,7 @@ export function newDate(date: Date): Date {
 }
 
 export function formatLocalTime(date: Date): string {
-  return date.toLocaleString("en-US", {
+  return date.toLocaleString("en-PH", {
     hour: "2-digit",
     minute: "2-digit",
   });
