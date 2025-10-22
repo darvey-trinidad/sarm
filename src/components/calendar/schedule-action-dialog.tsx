@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -79,6 +78,7 @@ export default function ScheduleActionDialog({
     endTime: toTimeInt(selectedItem?.endTime),
     subject: "",
     section: "",
+    details: "",
   });
 
   if (!selectedItem) return null;
@@ -211,6 +211,7 @@ export default function ScheduleActionDialog({
         endTime: toTimeInt(selectedItem?.endTime),
         subject: "",
         section: "",
+        details: "",
       });
     } catch (error) {
       console.error("Error claiming slot:", error);
@@ -248,6 +249,7 @@ export default function ScheduleActionDialog({
         endTime: toTimeInt(selectedItem?.endTime),
         subject: "",
         section: "",
+        details: "",
       });
     } catch (error) {
       console.error("Error requesting to borrow:", error);
@@ -519,7 +521,16 @@ export default function ScheduleActionDialog({
                 {/*Details*/}
                 <div className="space-y-2">
                   <Label htmlFor="details">Additional Details</Label>
-                  <Input placeholder="e.g., Lending to sir John Doe " />
+                  <Input
+                    placeholder="e.g., Lending to sir John Doe "
+                    value={borrowingData.details ?? ""}
+                    onChange={(e) =>
+                      setBorrowingData({
+                        ...borrowingData,
+                        details: e.target.value,
+                      })
+                    }
+                  />
                 </div>
                 {/* Validation Messages */}
                 {borrowingData.startTime >= borrowingData.endTime && (

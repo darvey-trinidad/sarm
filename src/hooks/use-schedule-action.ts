@@ -17,6 +17,7 @@ interface BorrowingData {
   endTime: TimeInt; // Using your TimeInt type instead of minutes
   subject: string | null;
   section: string | null;
+  details: string | null;
 }
 
 interface UseScheduleActionsProps {
@@ -136,6 +137,7 @@ export function useScheduleActions({
           facultyId: session?.user.id ?? "",
           subject: data.subject,
           section: data.section,
+          details: data.details,
         },
         {
           onSuccess: () => {
