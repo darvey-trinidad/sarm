@@ -53,6 +53,7 @@ export const createClassroomBorrowingSchema = z.object({
   endTime: timeIntSchema,
   subject: z.string().optional().nullable(),
   section: z.string().optional().nullable(),
+  details: z.string().optional().nullable(),
 });
 
 /*
