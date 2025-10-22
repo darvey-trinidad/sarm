@@ -333,6 +333,7 @@ export const getWeeklyClassroomSchedule = async (
           endTime: classroomBorrowing.endTime,
           subject: classroomBorrowing.subject,
           section: classroomBorrowing.section,
+          details: classroomBorrowing.details,
         })
         .from(classroomBorrowing)
         .leftJoin(user, eq(classroomBorrowing.facultyId, user.id))
@@ -387,6 +388,7 @@ export const getWeeklyClassroomSchedule = async (
             facultyName: null,
             subject: null,
             section: null,
+            details: null,
             source: SCHEDULE_SOURCE.Vacancy,
           });
         } else if (initial) {
@@ -396,6 +398,7 @@ export const getWeeklyClassroomSchedule = async (
             endTime: toTimeInt(endTime),
             ...rest,
             date: new Date(current),
+            details: null,
             source: SCHEDULE_SOURCE.InitialSchedule,
           });
         } else {
@@ -412,6 +415,7 @@ export const getWeeklyClassroomSchedule = async (
             date: new Date(current), // clone to avoid mutation issues
             startTime: time,
             endTime: toTimeInt(time + TIME_INTERVAL),
+            details: null,
             source: SCHEDULE_SOURCE.Unoccupied,
           });
         }
@@ -535,6 +539,7 @@ export const getProfessorSchedulesForDate = async (
         endTime: classroomBorrowing.endTime,
         subject: classroomBorrowing.subject,
         section: classroomBorrowing.section,
+        details: classroomBorrowing.details,
       })
       .from(classroomBorrowing)
       .leftJoin(user, eq(classroomBorrowing.facultyId, user.id))
@@ -596,6 +601,7 @@ export const getProfessorSchedulesForDate = async (
         date: new Date(date), // clone
         startTime: toTimeInt(b.startTime),
         endTime: toTimeInt(b.endTime),
+        details: b.details,
         source: "Borrowing",
       });
     }
@@ -625,6 +631,7 @@ export const getProfessorSchedulesForDate = async (
         date: new Date(date),
         startTime: toTimeInt(s.startTime),
         endTime: toTimeInt(s.endTime),
+        details: null,
         source: "Initial Schedule",
       });
     }
@@ -1303,6 +1310,7 @@ export const getWeeklyFacultySchedule = async (
           endTime: classroomBorrowing.endTime,
           subject: classroomBorrowing.subject,
           section: classroomBorrowing.section,
+          details: classroomBorrowing.details,
         })
         .from(classroomBorrowing)
         .leftJoin(user, eq(classroomBorrowing.facultyId, user.id))
@@ -1412,6 +1420,7 @@ export const getWeeklyFacultySchedule = async (
             subject: null,
             section: null,
             date: new Date(current),
+            details: null,
             source: SCHEDULE_SOURCE.Vacancy,
           });
         } else if (initial) {
@@ -1421,6 +1430,7 @@ export const getWeeklyFacultySchedule = async (
             endTime: toTimeInt(endTime),
             ...rest,
             date: new Date(current),
+            details: null,
             source: SCHEDULE_SOURCE.InitialSchedule,
           });
         } else {
@@ -1438,6 +1448,7 @@ export const getWeeklyFacultySchedule = async (
             date: new Date(current),
             startTime: time,
             endTime: toTimeInt(time + TIME_INTERVAL),
+            details: null,
             source: SCHEDULE_SOURCE.Vacancy,
           });
         }

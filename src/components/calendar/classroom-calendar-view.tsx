@@ -338,6 +338,13 @@ export default function ClassroomCalendarView({
                         Faculty: {schedule.facultyName}
                       </div>
                     )}
+                    {
+                      schedule.details && (
+                        <div className="text-muted-foreground text-xs mt-1 break-words line-clamp-3">
+                          {schedule.details}
+                        </div>
+                      )
+                    }
                   </div>
                 ))}
 

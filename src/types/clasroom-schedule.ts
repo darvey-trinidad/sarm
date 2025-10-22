@@ -12,6 +12,7 @@ export interface FinalClassroomSchedule {
   facultyName: string | null;
   subject: string | null;
   section: string | null;
+  details: string | null;
   date: Date;
   startTime: TimeInt;
   endTime: TimeInt;
