@@ -40,6 +40,7 @@ export const classroomBorrowing = sqliteTable("classroom_borrowing", {
   endTime: integer('end_time').notNull(),
   subject: text('subject'),
   section: text('section'),
+  details: text('details'),
 }, (table) => ({
   classroomDateIdx: index("borrowing_classroom_date_idx").on(table.classroomId, table.date),
   facultyDateIdx: index("borrowing_faculty_date_idx").on(table.facultyId, table.date),

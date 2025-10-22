@@ -21,6 +21,7 @@ export const venueReservation = sqliteTable("venue_reservation", {
   reserverId: text('reserver_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 
   date: integer('date', { mode: 'timestamp' }).notNull(),
+  endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   startTime: integer('start_time').notNull(),
   endTime: integer('end_time').notNull(),
   purpose: text('purpose').notNull(),
