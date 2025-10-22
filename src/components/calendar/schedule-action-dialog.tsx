@@ -471,10 +471,10 @@ export default function ScheduleActionDialog({
               >
                 {loading
                   ? isBorrowMode
-                    ? "Giving Room..."
+                    ? "Lending Room..."
                     : "Marking as Vacant..."
                   : isBorrowMode
-                    ? "Give Room"
+                    ? "Lend Room"
                     : "Mark as Vacant"}
               </Button>
             </div>
