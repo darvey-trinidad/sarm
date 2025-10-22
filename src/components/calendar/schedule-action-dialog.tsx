@@ -26,6 +26,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
+  Info,
 } from "lucide-react";
 import { type FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
@@ -273,7 +274,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                  selectedItem.subject
+                selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>
@@ -300,6 +301,13 @@ export default function ScheduleActionDialog({
               <div className="flex items-center gap-2 text-sm">
                 <User className="text-muted-foreground h-3 w-3" />
                 <span>Faculty: {selectedItem.facultyName}</span>
+              </div>
+            )}
+
+            {selectedItem.details && (
+              <div className="flex items-center gap-2 text-sm">
+                <Info className="text-muted-foreground h-3 w-3" />
+                <span>{selectedItem.details}</span>
               </div>
             )}
           </div>
@@ -508,6 +516,11 @@ export default function ScheduleActionDialog({
                   </div>
                 </div>
 
+                {/*Details*/}
+                <div className="space-y-2">
+                  <Label htmlFor="details">Additional Details</Label>
+                  <Input placeholder="e.g., Lending to sir John Doe " />
+                </div>
                 {/* Validation Messages */}
                 {borrowingData.startTime >= borrowingData.endTime && (
                   <div className="rounded bg-red-50 p-2 text-sm text-red-600">
