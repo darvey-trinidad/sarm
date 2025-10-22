@@ -22,7 +22,7 @@ import {
   CalendarIcon,
   Clock,
   User,
-  AlertTriangle,
+  EllipsisVertical,
   CheckCircle,
   XCircle,
   Info,
@@ -34,6 +34,7 @@ import { type BetterAuthSession } from "@/lib/auth-client";
 import { type BorrowingData } from "@/hooks/use-schedule-action";
 import { toTimeInt } from "@/lib/utils";
 import { Roles } from "@/constants/roles";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
@@ -70,6 +71,7 @@ export default function ScheduleActionDialog({
   onRequestToBorrow,
 }: ScheduleActionDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [isBorrowMode, setIsBorrowMode] = useState(false);
   const [borrowingData, setBorrowingData] = useState<BorrowingData>({
     classroomId: selectedItem?.classroomId ?? "",
     facultyId: currentUser?.id ?? "",
@@ -318,11 +320,63 @@ export default function ScheduleActionDialog({
 
           {/* Actions */}
           {canMarkVacant && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
-                Mark Class as Vacant
+            <div className="space-y-4">
+              <div className="item-center flex gap-3">
+                <span className="text-sm font-medium">Mode :</span>
+                <RadioGroup
+                  value={isBorrowMode ? "lend" : "vacant"}
+                  onValueChange={(value) => setIsBorrowMode(value === "lend")}
+                  className="flex items-center gap-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="vacant" id="vacant" />
+                    <Label htmlFor="vacant">Vacate</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="lend" id="lend" />
+                    <Label htmlFor="lend">Lend</Label>
+                  </div>
+                </RadioGroup>
               </div>
+
+              {/* Subject and Section */}
+              {isBorrowMode && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">
+                      Subject <span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="subject"
+                      placeholder="e.g., IT401"
+                      value={borrowingData.subject ?? ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          facultyId: currentUser?.id ?? "guest",
+                          subject: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section">
+                      Section <span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="section"
+                      placeholder="e.g., BSIT 4D"
+                      value={borrowingData.section ?? ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          section: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Time Selection */}
               <div className="grid grid-cols-2 gap-3">
@@ -384,6 +438,25 @@ export default function ScheduleActionDialog({
                 </div>
               </div>
 
+              {/* Details when giving up room */}
+              {isBorrowMode && (
+                <div className="space-y-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="details">Additional Details</Label>
+                    <Input
+                      placeholder="e.g., Lending to sir John Doe "
+                      value={borrowingData.details ?? ""}
+                      onChange={(e) =>
+                        setBorrowingData({
+                          ...borrowingData,
+                          details: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Validation Messages */}
               {borrowingData.startTime >= borrowingData.endTime && (
                 <div className="rounded bg-red-50 p-2 text-sm text-red-600">
@@ -392,11 +465,17 @@ export default function ScheduleActionDialog({
               )}
 
               <Button
-                onClick={handleMarkVacant}
+                onClick={isBorrowMode ? handleClaimSlot : handleMarkVacant}
                 disabled={loading}
                 className="w-full"
               >
-                {loading ? "Marking as Vacant..." : "Mark as Vacant"}
+                {loading
+                  ? isBorrowMode
+                    ? "Giving Room..."
+                    : "Marking as Vacant..."
+                  : isBorrowMode
+                    ? "Give Room"
+                    : "Mark as Vacant"}
               </Button>
             </div>
           )}
