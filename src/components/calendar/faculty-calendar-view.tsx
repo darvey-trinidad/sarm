@@ -3,21 +3,19 @@
 import { useState, useEffect } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Filter, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { api } from "@/trpc/react";
 import { TIME_ENTRIES, TIME_MAP } from "@/constants/timeslot";
-import { checkRoomAuthority, newDate } from "@/lib/utils";
+import { newDate } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import ScheduleActionDialog from "./schedule-action-dialog";
 import { useScheduleActions } from "@/hooks/use-schedule-action";
 import { getScheduleColor } from "@/constants/schedule-colors";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
-import { CLASSROOM_TYPE_LABELS, type ClassroomType } from "@/constants/classroom-type";
 import Link from "next/link";
 import { Roles } from "@/constants/roles";
-import { DeptOrOrgValues } from "@/constants/dept-org";
 import { PageRoutes } from "@/constants/page-routes";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
@@ -51,13 +49,16 @@ export default function FacultyCalendarView() {
     isLoading,
     isError,
     refetch,
-  } = api.classroomSchedule.getWeeklyFacultySchedule.useQuery({
-    facultyId: session?.user.id ?? "",
-    startDate: newDate(weekStart),
-    endDate: newDate(weekEnd),
-  }, {
-    enabled: !!session?.user.id
-  });
+  } = api.classroomSchedule.getWeeklyFacultySchedule.useQuery(
+    {
+      facultyId: session?.user.id ?? "",
+      startDate: newDate(weekStart),
+      endDate: newDate(weekEnd),
+    },
+    {
+      enabled: !!session?.user.id,
+    },
+  );
 
   useEffect(() => {
     if (scheduleData) setSchedules(scheduleData);
@@ -125,7 +126,11 @@ export default function FacultyCalendarView() {
   };
 
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
-    if (schedule.source !== SCHEDULE_SOURCE.InitialSchedule && schedule.source !== SCHEDULE_SOURCE.Borrowing) return
+    if (
+      schedule.source !== SCHEDULE_SOURCE.InitialSchedule &&
+      schedule.source !== SCHEDULE_SOURCE.Borrowing
+    )
+      return;
 
     const now = new Date();
     const dateToday = new Date(
@@ -143,15 +148,17 @@ export default function FacultyCalendarView() {
       schedDate < dateToday ||
       (schedDate.getTime() === dateToday.getTime() &&
         schedule.endTime <
-        now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+          now.getHours() * 100 + (now.getMinutes() * 100) / 60);
 
     if (schedIsPast) return;
 
-    if (session?.user.role !== Roles.FacilityManager &&
+    if (
+      session?.user.role !== Roles.FacilityManager &&
       session?.user.role !== Roles.DepartmentHead &&
       session?.user.role !== Roles.Faculty &&
       session?.user.role !== Roles.PEInstructor
-    ) return
+    )
+      return;
 
     setSelectedItem(schedule);
     setIsDialogOpen(true);
@@ -185,9 +192,7 @@ export default function FacultyCalendarView() {
           </Link>
 
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              My Classes
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">My Classes</h1>
             <p className="text-muted-foreground">
               View your classes or mark them as vacant here
             </p>
@@ -252,8 +257,9 @@ export default function FacultyCalendarView() {
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
-                        }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
+                        isMobile ? "w-[280px] flex-shrink-2" : ""
+                      }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -314,7 +320,8 @@ export default function FacultyCalendarView() {
                       </div>
                     )}
                     <div className="truncate text-xs font-medium">
-                      {schedule.source === "Initial Schedule" || schedule.source === "Borrowing"
+                      {schedule.source === "Initial Schedule" ||
+                      schedule.source === "Borrowing"
                         ? `${schedule.subject} - ${schedule.section}`
                         : "Free Time"}
                     </div>
