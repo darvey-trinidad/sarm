@@ -12,31 +12,31 @@ export const getScheduleTypeInfo = (source: string): ScheduleTypeInfo => {
   switch (source) {
     case SCHEDULE_SOURCE.InitialSchedule:
       return {
-        icon: <CalendarIcon className="h-4 w-4" />,
+        icon: <CalendarIcon className="text-primary h-4 w-4" />,
         label: "Scheduled Class",
-        color: "bg-green-100 text-green-800",
+        color: "bg-blue-100 text-blue-800",
       };
     case SCHEDULE_SOURCE.Vacancy:
       return {
-        icon: <CheckCircle className="h-4 w-4" />,
+        icon: <CheckCircle className="text-primary h-4 w-4" />,
         label: "Available (Vacant)",
-        color: "bg-orange-100 text-orange-800",
+        color: "bg-green-100 text-green-800",
       };
     case SCHEDULE_SOURCE.Borrowing:
       return {
-        icon: <User className="h-4 w-4" />,
+        icon: <User className="text-primary h-4 w-4" />,
         label: "Borrowed",
-        color: "bg-blue-100 text-blue-800",
+        color: "bg-orange-100 text-orange-800",
       };
     case SCHEDULE_SOURCE.Unoccupied:
       return {
-        icon: <Clock className="h-4 w-4" />,
+        icon: <Clock className="text-primary h-4 w-4" />,
         label: "Unoccupied",
         color: "bg-gray-100 text-gray-800",
       };
     default:
       return {
-        icon: <Clock className="h-4 w-4" />,
+        icon: <Clock className="text-primary h-4 w-4" />,
         label: "Unknown",
         color: "bg-gray-100 text-gray-800",
       };

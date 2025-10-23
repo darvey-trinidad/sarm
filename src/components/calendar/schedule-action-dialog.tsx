@@ -444,11 +444,6 @@ export default function ScheduleActionDialog({
 
           {canClaim && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                Borrow Room for Class
-              </div>
-
               <div className="rounded-md border border-blue-200 bg-blue-50 p-3">
                 <p className="text-sm text-blue-800">
                   <strong>Available Time:</strong>{" "}
