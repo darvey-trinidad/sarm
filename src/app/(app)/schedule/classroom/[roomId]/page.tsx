@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import BreadcrumbLayout from "@/components/breadcrumb/page-breadcrumb";
 import ClassroomCalendarView from "@/components/calendar/classroom-calendar-view";
 import { getClassroomWithBuilding } from "@/lib/api/classroom/query";
+import { LogbookScheduleButton } from "@/components/classroom-schedule-pdf/logbook-schedule-button";
 type PageProps = {
   params: Promise<{
     roomId: string;
@@ -26,14 +24,15 @@ export default async function RoomSchedule({ params }: PageProps) {
         subPage="Classroom"
         parentPage="Schedule"
       />
-
-      <div className="items-center justify-between gap-4"></div>
       <ClassroomCalendarView
         classroomId={roomId}
         buildingName={classroom?.buildingName ?? ""}
         classroomName={classroom?.classroomName ?? ""}
         classRoomType={classroom?.classroomType ?? "lecture"}
       />
+      <div className="flex justify-end">
+        <LogbookScheduleButton classroomId={roomId} />
+      </div>
     </div>
   );
 }

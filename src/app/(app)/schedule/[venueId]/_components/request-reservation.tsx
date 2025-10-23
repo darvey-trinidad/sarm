@@ -46,10 +46,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { TIME_OPTIONS } from "@/constants/timeslot";
-import {
-  RESERVATION_STATUS,
-  ReservationStatus,
-} from "@/constants/reservation-status";
+import { RESERVATION_STATUS } from "@/constants/reservation-status";
 import { authClient } from "@/lib/auth-client";
 import { newDate } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
