@@ -1,13 +1,28 @@
 import type { TimeInt } from "@/constants/timeslot";
 import { generateUUID } from "@/lib/utils";
-import type { CreateClassroomScheduleInput, CreateClassroomVacancyInput, CreateClassroomBorrowingInput, CancelClassroomBorrowingInput, DeleteClassroomScheduleSchemaType } from "@/server/api-utils/validators/classroom-schedule";
-import type { FinalClassroomSchedule, InitialClassroomSchedule } from "@/types/clasroom-schedule";
+import type {
+  CreateClassroomScheduleInput,
+  CreateClassroomVacancyInput,
+  CreateClassroomBorrowingInput,
+  CancelClassroomBorrowingInput,
+  DeleteClassroomScheduleSchemaType,
+} from "@/server/api-utils/validators/classroom-schedule";
+import type {
+  FinalClassroomSchedule,
+  InitialClassroomSchedule,
+} from "@/types/clasroom-schedule";
 import { TIME_INTERVAL } from "@/constants/timeslot";
 
-export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInput) {
+export function splitScheduleToHourlyTimeslot(
+  input: CreateClassroomScheduleInput,
+) {
   const chunks = [];
 
-  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
+  for (
+    let time = input.startTime;
+    time < input.endTime;
+    time += TIME_INTERVAL
+  ) {
     chunks.push({
       id: generateUUID(),
       classroomId: input.classroomId,
@@ -22,10 +37,16 @@ export function splitScheduleToHourlyTimeslot(input: CreateClassroomScheduleInpu
   return chunks;
 }
 
-export function splitVacancyToHourlyTimeslot(input: CreateClassroomVacancyInput) {
+export function splitVacancyToHourlyTimeslot(
+  input: CreateClassroomVacancyInput,
+) {
   const chunks = [];
 
-  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
+  for (
+    let time = input.startTime;
+    time < input.endTime;
+    time += TIME_INTERVAL
+  ) {
     chunks.push({
       id: generateUUID(),
       classroomId: input.classroomId,
@@ -38,53 +59,69 @@ export function splitVacancyToHourlyTimeslot(input: CreateClassroomVacancyInput)
   return chunks;
 }
 
-export const splitBorrowingToHourlyTimeslot = (input: CreateClassroomBorrowingInput) => {
+export const splitBorrowingToHourlyTimeslot = (
+  input: CreateClassroomBorrowingInput,
+) => {
   const chunks = [];
 
-  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
+  for (
+    let time = input.startTime;
+    time < input.endTime;
+    time += TIME_INTERVAL
+  ) {
     chunks.push({
       id: generateUUID(),
+      ...input,
+      startTime: time,
+      endTime: time + TIME_INTERVAL,
+    });
+  }
+  return chunks;
+};
+
+export const splitTimeToHourlyTimeslot = (
+  input: CancelClassroomBorrowingInput,
+) => {
+  const chunks: CancelClassroomBorrowingInput[] = [];
+
+  for (
+    let time = input.startTime;
+    time < input.endTime;
+    time += TIME_INTERVAL
+  ) {
+    chunks.push({
       classroomId: input.classroomId,
-      facultyId: input.facultyId,
       date: input.date,
       startTime: time,
       endTime: time + TIME_INTERVAL,
-      subject: input.subject,
-      section: input.section,
     });
   }
   return chunks;
-}
+};
 
-export const splitTimeToHourlyTimeslot = (input: CancelClassroomBorrowingInput) => {
-  const chunks: CancelClassroomBorrowingInput[] = [];
-
-  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
-    chunks.push({
-      classroomId: input.classroomId,
-      date: input.date,
-      startTime: time,
-      endTime: time + TIME_INTERVAL
-    });
-  }
-  return chunks;
-}
-
-export const splitTimeToHourlyTimeslotSchedule = (input: DeleteClassroomScheduleSchemaType) => {
+export const splitTimeToHourlyTimeslotSchedule = (
+  input: DeleteClassroomScheduleSchemaType,
+) => {
   const chunks: DeleteClassroomScheduleSchemaType[] = [];
 
-  for (let time = input.startTime; time < input.endTime; time += TIME_INTERVAL) {
+  for (
+    let time = input.startTime;
+    time < input.endTime;
+    time += TIME_INTERVAL
+  ) {
     chunks.push({
       classroomId: input.classroomId,
       day: input.day,
       startTime: time,
-      endTime: time + TIME_INTERVAL
+      endTime: time + TIME_INTERVAL,
     });
   }
   return chunks;
-}
+};
 
-export function mergeAdjacentTimeslots(slots: FinalClassroomSchedule[]): FinalClassroomSchedule[] {
+export function mergeAdjacentTimeslots(
+  slots: FinalClassroomSchedule[],
+): FinalClassroomSchedule[] {
   if (slots.length === 0) return [];
 
   const merged: FinalClassroomSchedule[] = [];
@@ -115,7 +152,9 @@ export function mergeAdjacentTimeslots(slots: FinalClassroomSchedule[]): FinalCl
   return merged;
 }
 
-export const mergeAdjacentInitialSchedules = (schedules: InitialClassroomSchedule[]) => {
+export const mergeAdjacentInitialSchedules = (
+  schedules: InitialClassroomSchedule[],
+) => {
   if (schedules.length === 0) return [];
 
   const merged: InitialClassroomSchedule[] = [];
@@ -143,4 +182,4 @@ export const mergeAdjacentInitialSchedules = (schedules: InitialClassroomSchedul
 
   merged.push(current);
   return merged;
-}
+};
