@@ -18,15 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  CalendarIcon,
-  Clock,
-  User,
-  EllipsisVertical,
-  CheckCircle,
-  XCircle,
-  Info,
-} from "lucide-react";
+import { CalendarIcon, Clock, User, XCircle, Info } from "lucide-react";
 import { type FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { TIME_OPTIONS, TIME_MAP, type TimeInt } from "@/constants/timeslot";
