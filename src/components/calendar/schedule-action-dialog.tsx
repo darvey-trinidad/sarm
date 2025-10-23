@@ -27,7 +27,7 @@ import { type BorrowingData } from "@/hooks/use-schedule-action";
 import { toTimeInt } from "@/lib/utils";
 import { Roles } from "@/constants/roles";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { getScheduleTypeInfo } from "./dialog-components/schedule-type-info";
+import { getScheduleTypeInfo } from "./_components/schedule-type-info";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
