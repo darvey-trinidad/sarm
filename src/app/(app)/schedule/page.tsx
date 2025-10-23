@@ -7,11 +7,6 @@ export const metadata: Metadata = {
   title: "Schedule",
 };
 
-type Venue = {
-  id: string;
-  name: string;
-};
-
 export default async function Page() {
   const session = await auth.api.getSession({
     headers: await headers(),
