@@ -35,6 +35,7 @@ import { type BorrowingData } from "@/hooks/use-schedule-action";
 import { toTimeInt } from "@/lib/utils";
 import { Roles } from "@/constants/roles";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { getScheduleTypeInfo } from "./dialog-components/schedule-type-info";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
@@ -108,11 +109,6 @@ export default function ScheduleActionDialog({
   const canCancel = isBorrowedByUser;
   const canRequestToBorrow = isOthersSchedule;
 
-  // Helper functions
-  const formatTime = (timeInt: TimeInt) => {
-    return TIME_MAP[timeInt] || `${timeInt}`;
-  };
-
   const getAvailableStartTimes = () => {
     const selectedStartTime = toTimeInt(selectedItem.startTime);
     const selectedEndTime = toTimeInt(selectedItem.endTime);
@@ -132,41 +128,6 @@ export default function ScheduleActionDialog({
         option.value > borrowingData.startTime &&
         option.value <= selectedEndTime,
     );
-  };
-
-  const getScheduleTypeInfo = () => {
-    switch (selectedItem.source) {
-      case SCHEDULE_SOURCE.InitialSchedule:
-        return {
-          icon: <CalendarIcon className="h-4 w-4" />,
-          label: "Scheduled Class",
-          color: "bg-green-100 text-green-800",
-        };
-      case SCHEDULE_SOURCE.Vacancy:
-        return {
-          icon: <CheckCircle className="h-4 w-4" />,
-          label: "Available (Vacant)",
-          color: "bg-orange-100 text-orange-800",
-        };
-      case SCHEDULE_SOURCE.Borrowing:
-        return {
-          icon: <User className="h-4 w-4" />,
-          label: "Borrowed",
-          color: "bg-blue-100 text-blue-800",
-        };
-      case SCHEDULE_SOURCE.Unoccupied:
-        return {
-          icon: <Clock className="h-4 w-4" />,
-          label: "Unoccupied",
-          color: "bg-gray-100 text-gray-800",
-        };
-      default:
-        return {
-          icon: <Clock className="h-4 w-4" />,
-          label: "Unknown",
-          color: "bg-gray-100 text-gray-800",
-        };
-    }
   };
 
   const handleMarkVacant = async () => {
@@ -260,7 +221,8 @@ export default function ScheduleActionDialog({
     }
   };
 
-  const scheduleTypeInfo = getScheduleTypeInfo();
+  const source = selectedItem.source;
+  const scheduleTypeInfo = getScheduleTypeInfo(source);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -289,28 +251,28 @@ export default function ScheduleActionDialog({
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <Clock className="text-muted-foreground h-3 w-3" />
+                <Clock className="text-muted-foreground h-4 w-4" />
                 <span>
-                  {formatTime(toTimeInt(selectedItem.startTime))} -{" "}
-                  {formatTime(toTimeInt(selectedItem.endTime))}
+                  {TIME_MAP[toTimeInt(selectedItem.startTime)]} -{" "}
+                  {TIME_MAP[toTimeInt(selectedItem.endTime)]}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CalendarIcon className="text-muted-foreground h-3 w-3" />
+                <CalendarIcon className="text-muted-foreground h-4 w-4" />
                 <span>{selectedItem.date.toLocaleDateString()}</span>
               </div>
             </div>
 
             {selectedItem.facultyName && (
               <div className="flex items-center gap-2 text-sm">
-                <User className="text-muted-foreground h-3 w-3" />
+                <User className="text-muted-foreground h-4 w-4" />
                 <span>Faculty: {selectedItem.facultyName}</span>
               </div>
             )}
 
             {selectedItem.details && (
               <div className="flex items-center gap-2 text-sm">
-                <Info className="text-muted-foreground h-3 w-3" />
+                <Info className="text-muted-foreground h-4 w-4" />
                 <span>{selectedItem.details}</span>
               </div>
             )}
@@ -490,8 +452,8 @@ export default function ScheduleActionDialog({
               <div className="rounded-md border border-blue-200 bg-blue-50 p-3">
                 <p className="text-sm text-blue-800">
                   <strong>Available Time:</strong>{" "}
-                  {formatTime(toTimeInt(selectedItem.startTime))} -{" "}
-                  {formatTime(toTimeInt(selectedItem.endTime))}
+                  {TIME_MAP[toTimeInt(selectedItem.startTime)]} -{" "}
+                  {TIME_MAP[toTimeInt(selectedItem.endTime)]}
                 </p>
                 <p className="mt-1 text-xs text-blue-600">
                   You can borrow any portion of this time slot. The remaining
