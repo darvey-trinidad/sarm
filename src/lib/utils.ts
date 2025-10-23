@@ -42,13 +42,12 @@ export function formatDate(dateString: string): string {
   });
 }
 
-// export function isTimeInt(value: number): value is TimeInt {
-//   return TIME_ENTRIES.map(([key]) => key).includes(value as TimeInt);
-// }
-
-// export function toTimeInt(value: number | undefined, fallback: TimeInt = 700): TimeInt {
-//   return value !== undefined && isTimeInt(value) ? value : fallback;
-// }
+export function getAllTimeDateRange() {
+  return {
+    startDate: new Date(-8640000000000000),
+    endDate: new Date(8640000000000000),
+  };
+}
 
 export function isTimeInt(value: number): value is TimeInt {
   return TIME_KEY_SET.has(value);
@@ -123,3 +122,4 @@ export const checkRoomAuthority = (dept: string, classroomType: ClassroomType) =
       return false;
   }
 };
+
