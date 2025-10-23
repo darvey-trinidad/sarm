@@ -8,7 +8,7 @@ import { TRPCError } from "@trpc/server";
 import { editUserProfile, editUserRole, toggleUserIsActive } from "@/lib/api/auth/mutation";
 import { notifyAccountActivated } from "@/emails/notify-account-activation";
 import { tr } from "date-fns/locale";
-import { Roles } from "@/constants/roles";
+import { ROLES, Roles } from "@/constants/roles";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure.input(signupSchema).mutation(({ input }) => {
@@ -185,4 +185,64 @@ export const authRouter = createTRPCRouter({
         throw error;
       }
     }),
+
+  transferFacilityManagerRole: protectedProcedure
+    .input(z.object({ newFacilityManagerUserId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        if (!ctx.session) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "You must be logged in to change user role",
+          });
+        }
+
+        const newFacilityManager = await editUserRole(input.newFacilityManagerUserId, Roles.FacilityManager);
+        if (!newFacilityManager) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to change user role",
+          });
+        }
+
+        const oldFacilityManager = await editUserRole(ctx.session.user.id, Roles.Faculty);
+        if (!oldFacilityManager) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to change user role",
+          });
+        }
+
+        return {
+          success: true,
+          message: "Role transfered successfully"
+        }
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    }),
+
+  editUserRole: protectedProcedure
+    .input(z.object({ userId: z.string(), role: z.enum(ROLES) }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await editUserRole(input.userId, input.role);
+
+        if (!result) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Failed to change user role",
+          });
+        }
+
+        return {
+          success: true,
+          message: "Role changed successfully"
+        }
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    })
 });

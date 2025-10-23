@@ -6,9 +6,11 @@ import { styles } from './styles';
 import { formatDate } from './utils';
 import type { FinalClassroomSchedule } from '@/types/clasroom-schedule';
 
+type ClassroomLogsDocumentProps = {
+  classroomLogs: FinalClassroomSchedule[];
+};
 
-export const ClassroomLogsDocument = (classroomLogs: FinalClassroomSchedule[]) => {
-
+export const ClassroomLogsDocument = ({ classroomLogs }: ClassroomLogsDocumentProps) => {
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
@@ -19,17 +21,17 @@ export const ClassroomLogsDocument = (classroomLogs: FinalClassroomSchedule[]) =
           {/* Table Header */}
           <View style={styles.headerRow}>
             <Text style={[styles.header, { flex: 2 }]}>Faculty</Text>
-            <Text style={[styles.header, { flex: 1.5 }]}>Date</Text>
-            <Text style={[styles.header, { flex: 1.5 }]}>Time</Text>
+            <Text style={[styles.header, { flex: 1 }]}>Date</Text>
+            <Text style={[styles.header, { flex: 2 }]}>Time</Text>
             <Text style={[styles.header, { flex: 1 }]}>Section</Text>
             <Text style={[styles.header, { flex: 1 }]}>Subject</Text>
-            <Text style={[styles.header, { flex: 2 }]}>Details</Text>
+            <Text style={[styles.header, { flex: 2 }]}>Additional Details</Text>
           </View>
 
           {/* Table Rows */}
           {classroomLogs.map((classroomLog, index) => (
             <View
-              key={classroomLog.id}
+              key={`${classroomLog.id}${index}`}
               style={[
                 styles.row,
                 ...(index % 2 === 1 ? [styles.rowAlt] : []),
@@ -39,15 +41,13 @@ export const ClassroomLogsDocument = (classroomLogs: FinalClassroomSchedule[]) =
                 {classroomLog.facultyName}
               </Text>
 
-              <View style={[styles.cell, { flex: 1.5 }]}>
-                <Text>{formatDate(classroomLog.date)}</Text>
-              </View>
+              <Text style={[styles.cell, { flex: 1 }]}>
+                {formatDate(classroomLog.date)}
+              </Text>
 
-              <View style={[styles.cell, { flex: 1.5 }]}>
-                <Text style={{ fontSize: 8, color: '#555' }}>
-                  {TIME_MAP[toTimeInt(classroomLog.startTime)]} - {TIME_MAP[toTimeInt(classroomLog.endTime)]}
-                </Text>
-              </View>
+              <Text style={[styles.cell, { flex: 2 }]}>
+                {TIME_MAP[toTimeInt(classroomLog.startTime)]} - {TIME_MAP[toTimeInt(classroomLog.endTime)]}
+              </Text>
 
               <Text style={[styles.cell, { flex: 1 }]}>
                 {classroomLog.section}
@@ -57,7 +57,7 @@ export const ClassroomLogsDocument = (classroomLogs: FinalClassroomSchedule[]) =
                 {classroomLog.subject}
               </Text>
 
-              <Text style={[styles.cell, { flex: 2 }]}>
+              <Text style={[styles.cell, { flex: 2 }, { fontSize: 8, color: '#555' }]}>
                 {classroomLog.details}
               </Text>
 
