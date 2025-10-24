@@ -29,3 +29,7 @@ export type FacilityIssueReportRequest = {
 export type FacilityIssueReportError = {
   error: string;
 };
+
+export type GenericReportError = {
+  error: string;
+};

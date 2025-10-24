@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { Calendar, Download } from 'lucide-react';
+import type { GenericReportError } from '@/types/api';
 
 export default function ClassroomLogsReportPage() {
   const [startDate, setStartDate] = useState<string>('');
@@ -42,8 +43,8 @@ export default function ClassroomLogsReportPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate report');
+        const errorData = await response.json() as GenericReportError;
+        throw new Error(errorData.error ?? 'Failed to generate report');
       }
 
       // Get PDF blob

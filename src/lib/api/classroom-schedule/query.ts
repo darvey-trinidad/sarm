@@ -446,7 +446,7 @@ export const getWeeklyClassroomSchedule = async (
         }
       });
 
-      current.setDate(current.getDate() + 1);
+      current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
     }
 
     return results;
@@ -543,7 +543,7 @@ export const getAllClassroomLogs = async (
         }
       });
 
-      current.setDate(current.getDate() + 1);
+      current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
     }
 
     return results

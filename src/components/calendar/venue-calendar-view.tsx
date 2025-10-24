@@ -255,7 +255,7 @@ export default function VenueCalendarView({
               {!isLoading &&
                 reservations?.map((schedule) => (
                   <div
-                    key={`${schedule.venueReservationId}-${schedule.date}`}
+                    key={`${schedule.venueReservationId}-${schedule.date.toString()}`}
                     className="absolute cursor-pointer rounded-md border-l-4 p-2 transition-all hover:z-20 hover:shadow-md"
                     style={getReservationStyle(schedule)}
                   >
