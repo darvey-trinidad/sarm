@@ -32,6 +32,7 @@ export type ReservationWithBorrowing = {
   reserverId: string;
   reserverName: string | null;
   date: Date;
+  endDate: Date;
   startTime: number;
   endTime: number;
   purpose: string;

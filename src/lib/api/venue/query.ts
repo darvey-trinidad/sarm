@@ -3,6 +3,7 @@ import { venue, venueReservation } from "@/server/db/schema/venue";
 import { user } from "@/server/db/schema/auth";
 import { ReservationStatus } from "@/constants/reservation-status";
 import { borrowingTransaction, resource, resourceBorrowing } from "@/server/db/schema/resource";
+import { addDays, isBefore, startOfDay } from "date-fns";
 
 import type { VenueReservationWithoutId, ReservationWithBorrowing } from "@/server/db/types/venue";
 
@@ -42,6 +43,7 @@ export async function getAllVenueReservations({
       reserverName: user.name,
 
       date: venueReservation.date,
+      endDate: venueReservation.endDate,
       startTime: venueReservation.startTime,
       endTime: venueReservation.endTime,
       purpose: venueReservation.purpose,
@@ -84,6 +86,7 @@ export async function getAllVenueReservations({
         reserverId: row.reserverId ?? "",
         reserverName: row.reserverName,
         date: row.date,
+        endDate: row.endDate,
         startTime: row.startTime,
         endTime: row.endTime,
         purpose: row.purpose,
@@ -116,8 +119,82 @@ export async function getAllVenueReservations({
     }, {}),
   );
 
+  console.log(result);
   return result;
 }
+
+export async function getAllVenueReservationsForCalendarView({
+  status,
+  venueId,
+  startDate,
+  endDate,
+}: {
+  status?: ReservationStatus;
+  venueId?: string;
+  startDate?: Date;   // filter reservations on/after this date
+  endDate?: Date;     // filter reservations on/before this date
+}) {
+  // --- Build conditions dynamically ---
+  const conditions = [];
+  if (status) conditions.push(eq(venueReservation.status, status));
+  if (venueId) conditions.push(eq(venueReservation.venueId, venueId));
+  if (startDate) conditions.push(gte(venueReservation.date, startDate));
+  if (endDate) conditions.push(lte(venueReservation.date, endDate));
+
+  const records = await db
+    .select({
+      venueReservationId: venueReservation.id,
+      venueId: venue.id,
+      venueName: venue.name,
+      reserverId: user.id,
+      reserverName: user.name,
+
+      date: venueReservation.date,
+      endDate: venueReservation.endDate,
+      startTime: venueReservation.startTime,
+      endTime: venueReservation.endTime,
+      purpose: venueReservation.purpose,
+      status: venueReservation.status,
+      createdAt: venueReservation.createdAt,
+      fileUrl: venueReservation.fileUrl,
+      rejectionReason: venueReservation.rejectionReason,
+    })
+    .from(venueReservation)
+    .innerJoin(venue, eq(venueReservation.venueId, venue.id))
+    .innerJoin(user, eq(venueReservation.reserverId, user.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(venueReservation.createdAt));
+
+  console.log("BEFORE SORTING:", records);
+
+  const expanded = [];
+
+  for (const record of records) {
+    const start = record.date;
+    const end = record.endDate;
+
+    let current = start;
+    while (!isBefore(end, current)) {
+      expanded.push({
+        ...record,
+        date: current, // assign the specific day
+      });
+      current = addDays(current, 1);
+    }
+  }
+
+  // Now you can sort by date + start time again
+  expanded.sort((a, b) =>
+    a.date.getTime() !== b.date.getTime()
+      ? a.date.getTime() - b.date.getTime()
+      : a.startTime - b.startTime
+  );
+
+  console.log("AFTER SORTING:", expanded);
+
+  return expanded;
+}
+
 
 export const getAllVenueReservationsByUserId = async (userId: string) => {
   try {
@@ -130,6 +207,7 @@ export const getAllVenueReservationsByUserId = async (userId: string) => {
         reserverName: user.name,
 
         date: venueReservation.date,
+        endDate: venueReservation.endDate,
         startTime: venueReservation.startTime,
         endTime: venueReservation.endTime,
         purpose: venueReservation.purpose,
@@ -172,6 +250,7 @@ export const getAllVenueReservationsByUserId = async (userId: string) => {
           reserverId: row.reserverId ?? "",
           reserverName: row.reserverName,
           date: row.date,
+          endDate: row.endDate,
           startTime: row.startTime,
           endTime: row.endTime,
           purpose: row.purpose,

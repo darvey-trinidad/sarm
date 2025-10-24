@@ -26,6 +26,7 @@ export const createVenueReservationSchema = z.object({
   venueId: z.string(),
   reserverId: z.string(),
   date: requiredDateSchema(),
+  endDate: requiredDateSchema(),
   startTime: z.number(),
   endTime: z.number(),
   purpose: z.string(),

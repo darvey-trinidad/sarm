@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation, editVenue, editVenueReservation } from "@/lib/api/venue/mutation";
-import { getAllUpcomingVenueReservations, getAllVenueReservationsByUserId, getAllVenues, getVenueReservationPastMonthsStats } from "@/lib/api/venue/query";
+import { getAllUpcomingVenueReservations, getAllVenueReservationsByUserId, getAllVenueReservationsForCalendarView, getAllVenues, getVenueReservationPastMonthsStats } from "@/lib/api/venue/query";
 import { createVenueSchema, createVenueReservationSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema, editVenueReservationAndBorrowingStatusSchema, editVenueReservationStatusSchema, editVenueSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
@@ -94,6 +94,11 @@ export const venueRouter = createTRPCRouter({
     .input(getAllVenueReservationsSchema)
     .query(async ({ input }) => {
       return await getAllVenueReservations(input);
+    }),
+  getAllVenueReservationsForCalendarView: protectedProcedure
+    .input(getAllVenueReservationsSchema)
+    .query(async ({ input }) => {
+      return await getAllVenueReservationsForCalendarView(input);
     }),
   getAllVenueReservationsByUserId: protectedProcedure
     .input(z.object({ userId: z.string() }))

@@ -42,7 +42,7 @@ export default function VenueCalendarView({
     data: reservations,
     isLoading,
     isError,
-  } = api.venue.getAllVenueReservations.useQuery({
+  } = api.venue.getAllVenueReservationsForCalendarView.useQuery({
     venueId,
     status: ReservationStatus.Approved,
     startDate: newDate(weekStart),
@@ -204,9 +204,8 @@ export default function VenueCalendarView({
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
+                        }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -256,7 +255,7 @@ export default function VenueCalendarView({
               {!isLoading &&
                 reservations?.map((schedule) => (
                   <div
-                    key={schedule.venueReservationId}
+                    key={`${schedule.venueReservationId}-${schedule.date}`}
                     className="absolute cursor-pointer rounded-md border-l-4 p-2 transition-all hover:z-20 hover:shadow-md"
                     style={getReservationStyle(schedule)}
                   >
