@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation, editVenue, editVenueReservation } from "@/lib/api/venue/mutation";
-import { getAllUpcomingVenueReservations, getAllVenueReservationsByUserId, getAllVenueReservationsForCalendarView, getAllVenues, getVenueReservationPastMonthsStats } from "@/lib/api/venue/query";
+import { checkVenueReservationConflicts, getAllUpcomingVenueReservations, getAllVenueReservationsByUserId, getAllVenueReservationsForCalendarView, getAllVenues, getVenueReservationPastMonthsStats } from "@/lib/api/venue/query";
 import { createVenueSchema, createVenueReservationSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema, editVenueReservationAndBorrowingStatusSchema, editVenueReservationStatusSchema, editVenueSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
@@ -46,6 +46,20 @@ export const venueRouter = createTRPCRouter({
         message: "Venue reservation created successfully",
         data: venueReservation
       }
+    }),
+  checkVenueReservationConflicts: protectedProcedure
+    .query(async () => {
+      return checkVenueReservationConflicts({
+        status: "pending",
+        date: new Date("2025-10-28"),
+        venueId: "13ac785a-9376-41ff-ba84-84d3acab75ed",
+        reserverId: "f3TDwXzVWtjYCZ25qEwcbCb4ioGkZ0dQ",
+        endDate: new Date("2025-10-29"),
+        startTime: 1300,
+        endTime: 1600,
+        purpose: "fake purpose",
+        fileUrl: "fake url",
+      });
     }),
   createVenueReservationWithBorrowing: protectedProcedure
     .input(createVenueReservationWithBorrowingSchema)

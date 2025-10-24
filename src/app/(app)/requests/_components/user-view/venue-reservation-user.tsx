@@ -159,7 +159,10 @@ export default function VenueReservationUser() {
 
                         <div className="flex items-center gap-1">
                           <CalendarIcon className="h-4 w-4" />
-                          <span>{formatISODate(reservation.date)}</span>
+                          <span>
+                            {formatISODate(reservation.date)}
+                            {reservation.date.getTime() !== reservation.endDate.getTime() ? ` - ${formatISODate(reservation.endDate)}` : ""}
+                          </span>
                         </div>
 
                         <div className="flex items-center gap-1">

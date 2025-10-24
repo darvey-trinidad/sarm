@@ -1,4 +1,4 @@
-import { db, eq, and, desc, asc, gte, lte, or, count } from "@/server/db";
+import { db, eq, and, desc, asc, gte, lte, or, count, lt, gt } from "@/server/db";
 import { venue, venueReservation } from "@/server/db/schema/venue";
 import { user } from "@/server/db/schema/auth";
 import { ReservationStatus } from "@/constants/reservation-status";
@@ -350,24 +350,31 @@ export const getReservedVenueReservationsByDate = async (venueId: string, date: 
 
 export const checkVenueReservationConflicts = async (newReservation: VenueReservationWithoutId) => {
   try {
-    const currentReservations = await getReservedVenueReservationsByDate(newReservation.venueId, newReservation.date);
+    const conflicts = await db
+      .select()
+      .from(venueReservation)
+      .where(
+        and(
+          eq(venueReservation.venueId, newReservation.venueId),
+          eq(venueReservation.status, ReservationStatus.Approved),
 
-    if (currentReservations.length === 0) {
-      return [];
-    }
+          // Date ranges overlap
+          lte(venueReservation.date, newReservation.endDate),
+          gte(venueReservation.endDate, newReservation.date),
 
-    return currentReservations.filter((reservation) => {
-      return (
-        reservation.startTime < newReservation.endTime &&
-        newReservation.startTime < reservation.endTime
-      );
-    });
+          // Time ranges overlap
+          lt(venueReservation.startTime, newReservation.endTime),
+          gt(venueReservation.endTime, newReservation.startTime)
+        )
+      )
+      .all();
 
+    return conflicts;
   } catch (error) {
     console.error(error);
     throw error;
   }
-}
+};
 
 export type ChartRow = { month: string } & Record<string, number>;
 
