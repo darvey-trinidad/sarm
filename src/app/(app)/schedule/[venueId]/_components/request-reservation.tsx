@@ -72,6 +72,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
     resolver: zodResolver(VenueSchema),
     defaultValues: {
       date: newDate(new Date()),
+      endDate: newDate(new Date()),
       startTime: 700,
       endTime: 2000,
       purpose: "",
@@ -171,6 +172,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
           venueId: venueId,
           reserverId: session?.user.id ?? "",
           date: newDate(data.date),
+          endDate: newDate(data.endDate),
           startTime: data.startTime,
           endTime: data.endTime,
           purpose: data.purpose,
@@ -235,6 +237,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             >
               <ScrollArea className="h-75">
                 <div className="space-y-4">
+
                   {/* Date */}
                   <FormField
                     control={form.control}
@@ -242,7 +245,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>
-                          Date<p className="text-destructive">*</p>
+                          Start Date<p className="text-destructive">*</p>
                         </FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -288,6 +291,61 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       </FormItem>
                     )}
                   />
+
+                  {/*End Date*/}
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>
+                          End Date<p className="text-destructive">*</p>
+                        </FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground",
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+
+                          <PopoverContent
+                            className="pointer-events-auto z-50 w-auto p-0"
+                            align="start"
+                            forceMount
+                          >
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              captionLayout="dropdown"
+                              disabled={(date) => {
+                                const today = new Date();
+                                const normalizedDate = new Date(date);
+                                normalizedDate.setHours(0, 0, 0, 0);
+                                today.setHours(0, 0, 0, 0);
+                                return normalizedDate <= today;
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Start Time */}
