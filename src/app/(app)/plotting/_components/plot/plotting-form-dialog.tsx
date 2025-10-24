@@ -309,9 +309,9 @@ export default function PlottingFormDialog({
                         options={
                           faculty
                             ? faculty.map((f) => ({
-                                value: f.id,
-                                label: f.name ?? "",
-                              }))
+                              value: f.id,
+                              label: f.name ?? "",
+                            }))
                             : []
                         }
                         emptyMessage="No professor found"
@@ -342,9 +342,6 @@ export default function PlottingFormDialog({
                         disabled={isExistingSchedule && !isEditing}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Enter the official course code
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

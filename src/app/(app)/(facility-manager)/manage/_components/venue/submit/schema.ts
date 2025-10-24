@@ -7,5 +7,5 @@ export const VenueSchema = z.object({
   }),
   capacity: z.coerce
     .number({ invalid_type_error: "Capacity must be a number" })
-    .min(1, { message: "Please enter a capacity" }),
+    .min(1, { message: "Capacity must be greater than 0" }),
 });

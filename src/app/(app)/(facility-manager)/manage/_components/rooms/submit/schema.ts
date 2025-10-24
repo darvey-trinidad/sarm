@@ -7,7 +7,7 @@ export const RoomSchema = z.object({
   buildingId: z.string().min(1, { message: "Please select a building" }),
   capacity: z.coerce
     .number({ invalid_type_error: "Capacity must be a number" })
-    .min(1, { message: "Please enter a capacity" }),
+    .min(1, { message: "Capacity must be greater than 0" }),
   floor: z.enum(FLOORS, {
     errorMap: () => ({ message: "Please select a valid floor" }),
   }),
