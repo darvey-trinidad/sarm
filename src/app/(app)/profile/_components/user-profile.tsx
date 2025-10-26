@@ -48,14 +48,20 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDepartment, setEditedDepartment] = useState("");
+  //per department
   const { data: getAllFacultyByDepartment } =
     api.auth.getAllFacultyByDepartment.useQuery(undefined, {
       enabled: session?.user.role === Roles.DepartmentHead,
     });
   //change the role of the user
-  const { mutate: transferDepartmentHeadRole, isPending: isTransferring } =
-    api.auth.transferDepartmentHeadRole.useMutation();
-  // Sync state when userData is loaded or updated
+  const {
+    mutate: transferDepartmentHeadRole,
+    isPending: isTransferringDepartmentHead,
+  } = api.auth.transferDepartmentHeadRole.useMutation();
+  const {
+    mutate: transferFacilityManagerRole,
+    isPending: isTransferringFacilityManager,
+  } = api.auth.transferFacilityManagerRole.useMutation();
 
   useEffect(() => {
     if (userData) {
@@ -170,9 +176,7 @@ export default function UserProfile() {
                 placeholder="Enter your full name"
               />
             ) : (
-              <p className="pl-7 text-base">
-                {userData?.name ?? "Loading..."}
-              </p>
+              <p className="pl-7 text-base">{userData?.name ?? "Loading..."}</p>
             )}
           </div>
 
@@ -182,9 +186,7 @@ export default function UserProfile() {
               <Mail className="text-muted-foreground h-5 w-5" />
               <span>Email Address</span>
             </Label>
-            <p className="pl-7 text-base">
-              {userData?.email ?? "Loading..."}
-            </p>
+            <p className="pl-7 text-base">{userData?.email ?? "Loading..."}</p>
           </div>
 
           {/* Department Field - EDITABLE */}
@@ -216,8 +218,8 @@ export default function UserProfile() {
               <p className="pl-7 text-base">
                 {userData?.departmentOrOrganization
                   ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
-                    (opt) => opt.value === userData.departmentOrOrganization,
-                  )?.label ?? userData.departmentOrOrganization)
+                      (opt) => opt.value === userData.departmentOrOrganization,
+                    )?.label ?? userData.departmentOrOrganization)
                   : "Loading..."}
               </p>
             )}
@@ -230,7 +232,7 @@ export default function UserProfile() {
                 <Briefcase className="text-muted-foreground h-5 w-5" />
                 <span>Role</span>
               </Label>
-              {isEditing && session?.user.role === Roles.DepartmentHead && (
+              {session?.user.role === Roles.DepartmentHead && (
                 <TransferDepartmentHeadModal
                   facultyList={getAllFacultyByDepartment ?? []}
                   currentUserId={session?.user.id ?? ""}
@@ -254,7 +256,7 @@ export default function UserProfile() {
                       );
                     });
                   }}
-                  isTransferring={isTransferring}
+                  isTransferring={isTransferringDepartmentHead}
                 />
               )}
             </div>
