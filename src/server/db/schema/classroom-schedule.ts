@@ -2,6 +2,7 @@ import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { classroom } from "@/server/db/schema/classroom";
 import { user } from "@/server/db/schema/auth";
 import { ROOM_REQUEST_STATUS, DEFAULT_ROOM_REQUEST_STATUS } from "@/constants/room-request-status";
+import { DEPARTMENTS } from "@/constants/dept-org";
 
 export const classroomSchedule = sqliteTable("classroom_schedule", {
   id: text('id').primaryKey(),
@@ -58,6 +59,8 @@ export const roomRequests = sqliteTable("room_requests", {
 
   requesterId: text("requester_id").references(() => user.id).notNull(), // the prof with no room
   responderId: text("responder_id").references(() => user.id).notNull(), // who needs to respond (the current room owner)
+
+  departmentRequestedTo: text("department_requested_to", { enum: DEPARTMENTS }), // department the room belongs to, if requester is from different dept
 
   status: text("status", { enum: ROOM_REQUEST_STATUS }).$defaultFn(() => DEFAULT_ROOM_REQUEST_STATUS).notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),

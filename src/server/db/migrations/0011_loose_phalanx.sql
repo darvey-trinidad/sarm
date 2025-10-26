@@ -1,0 +1,1 @@
+ALTER TABLE `room_requests` ADD `department_requested_to` text;
