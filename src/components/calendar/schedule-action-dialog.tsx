@@ -720,6 +720,21 @@ export default function ScheduleActionDialog({
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="details">Details</Label>
+                  <Input
+                    id="details"
+                    placeholder="e.g., BSIT 4D"
+                    value={borrowingData.details ?? ""}
+                    onChange={(e) =>
+                      setBorrowingData({
+                        ...borrowingData,
+                        details: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
                 {/* Validation Messages */}
                 {borrowingData.startTime >= borrowingData.endTime && (
                   <div className="rounded bg-red-50 p-2 text-sm text-red-600">
