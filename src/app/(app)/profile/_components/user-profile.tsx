@@ -30,6 +30,7 @@ import { formatISODate } from "@/lib/utils";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { NotificationSubscribeButton } from "@/components/notifications/notification-subscription-button";
 import { TransferDepartmentHeadModal } from "@/components/change-role/transfer-department-head-role";
+import { TransferFacilityManagerModal } from "@/components/change-role/tranfer-facilitymanager-role";
 export default function UserProfile() {
   const { data: session, refetch: refetchSession } = authClient.useSession();
   const { data: userData, refetch: refetchUserData } =
@@ -53,6 +54,8 @@ export default function UserProfile() {
     api.auth.getAllFacultyByDepartment.useQuery(undefined, {
       enabled: session?.user.role === Roles.DepartmentHead,
     });
+  //all faculty
+  const { data: getAllFaculty } = api.auth.getAllFaculty.useQuery();
   //change the role of the user
   const {
     mutate: transferDepartmentHeadRole,
@@ -257,6 +260,33 @@ export default function UserProfile() {
                     });
                   }}
                   isTransferring={isTransferringDepartmentHead}
+                />
+              )}
+              {session?.user.role === Roles.FacilityManager && (
+                <TransferFacilityManagerModal
+                  facultyList={getAllFaculty ?? []}
+                  currentUserId={session?.user.id ?? ""}
+                  onTransfer={async (newManagerId) => {
+                    await new Promise<void>((resolve) => {
+                      transferFacilityManagerRole(
+                        { newFacilityManagerUserId: newManagerId },
+                        {
+                          onSuccess: async () => {
+                            void refetchSession();
+                            await refetchUserData();
+                            resolve();
+                          },
+                          onError: (error) => {
+                            toast.error(
+                              error.message ?? "Failed to transfer role",
+                            );
+                            resolve();
+                          },
+                        },
+                      );
+                    });
+                  }}
+                  isTransferring={isTransferringFacilityManager}
                 />
               )}
             </div>
