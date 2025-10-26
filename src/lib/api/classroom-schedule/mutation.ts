@@ -1,7 +1,7 @@
 import { db, eq, and, or, inArray } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId, RoomRequest } from "@/server/db/types/classroom-schedule";
-import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot, splitTimeToHourlyTimeslotSchedule } from "@/lib/helper/classroom-schedule";
+import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot, splitTimeToHourlyTimeslotSchedule, mergeAdjacentClassroomBorrowings } from "@/lib/helper/classroom-schedule";
 import { getClassroomScheduleConflicts, getClassroomVacancyConflicts, getClassroomBorrowingConflicts, getFacultyScheduleConflicts } from "@/lib/api/classroom-schedule/query";
 import type { TimeInt } from "@/constants/timeslot";
 import { TRPCError } from "@trpc/server";
@@ -137,6 +137,39 @@ export const deleteClassroomBorrowing = async (records: CancelClassroomBorrowing
   } catch (err) {
     console.error("Failed to delete classroom borrowing:", err);
     throw new Error("Could not delete classroom borrowing");
+  }
+}
+
+export const returnClassroomBorrowing = async (date: Date, facultyId: string, startTime: number, endTime: number) => {
+  try {
+    const borrowingsOnDate = await db
+      .select()
+      .from(classroomBorrowing)
+      .where(
+        and(
+          eq(classroomBorrowing.date, date),
+          eq(classroomBorrowing.facultyId, facultyId),
+        ))
+      .all();
+
+    if (borrowingsOnDate.length === 0) return;
+
+    const mergedBorrowingsOnDate = mergeAdjacentClassroomBorrowings(borrowingsOnDate);
+
+    const overlappingBorrowings = mergedBorrowingsOnDate.filter((borrowing) =>
+      borrowing.startTime < endTime && borrowing.endTime > startTime
+    )
+
+    if (overlappingBorrowings.length === 0) return;
+
+    overlappingBorrowings.forEach(async (borrowing) => {
+      deleteClassroomBorrowing({ classroomId: borrowing.classroomId, date: borrowing.date, startTime: borrowing.startTime, endTime: borrowing.endTime });
+      console.log("Deleted classroom borrowing: ", borrowing);
+    })
+
+  } catch (error) {
+    console.error("Failed to return classroom borrowing to original classroom owner:", error);
+    throw new Error("Could not return classroom borrowing to original classroom owner");
   }
 }
 

@@ -8,6 +8,7 @@ import type {
   DeleteClassroomScheduleSchemaType,
 } from "@/server/api-utils/validators/classroom-schedule";
 import type {
+  ClassroomBorrowingSchedule,
   FinalClassroomSchedule,
   InitialClassroomSchedule,
 } from "@/types/clasroom-schedule";
@@ -183,3 +184,35 @@ export const mergeAdjacentInitialSchedules = (
   merged.push(current);
   return merged;
 };
+
+export const mergeAdjacentClassroomBorrowings = (
+  schedules: ClassroomBorrowingSchedule[]
+) => {
+  if (schedules.length === 0) return [];
+
+  const merged: ClassroomBorrowingSchedule[] = [];
+  let current = schedules[0]!;
+
+  for (let i = 1; i < schedules.length; i++) {
+    const next = schedules[i]!;
+
+    const isAdjacent =
+      current.endTime === next.startTime &&
+      current.classroomId === next.classroomId &&
+      current.facultyId === next.facultyId &&
+      current.subject === next.subject &&
+      current.section === next.section;
+
+    if (isAdjacent) {
+      // Extend the current block
+      current.endTime = next.endTime;
+    } else {
+      // Push current block and start a new one
+      merged.push(current);
+      current = { ...next };
+    }
+  }
+
+  merged.push(current);
+  return merged;
+}

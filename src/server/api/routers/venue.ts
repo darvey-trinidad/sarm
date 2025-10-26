@@ -13,6 +13,7 @@ import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 import { notifyFmReservation } from "@/emails/notify-fm-reservation";
 import { notifyFmBorrowing } from "@/emails/notify-fm-borrowing";
 import z from "zod";
+import { returnClassroomBorrowing } from "@/lib/api/classroom-schedule/mutation";
 
 export const venueRouter = createTRPCRouter({
   createVenue: protectedProcedure
@@ -130,6 +131,10 @@ export const venueRouter = createTRPCRouter({
   getVenueReservationPastMonthsStats: protectedProcedure.query(async () => {
     return await getVenueReservationPastMonthsStats();
   }),
+  returnClassroomBorrowing: protectedProcedure
+    .query(async () => {
+      return await returnClassroomBorrowing(new Date("2025-10-31"), "f3TDwXzVWtjYCZ25qEwcbCb4ioGkZ0dQ", 700, 1200);
+    }),
   editVenueReservationStatus: protectedProcedure
     .input(editVenueReservationStatusSchema)
     .mutation(async ({ input }) => {
@@ -137,6 +142,11 @@ export const venueRouter = createTRPCRouter({
         const editVenueReservationRes = await editVenueReservation(input.id, { status: input.status, rejectionReason: input.rejectionReason });
 
         if (!editVenueReservationRes) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation status" });
+
+        if (input.status.toLocaleLowerCase() === ReservationStatus.Rejected.toLocaleLowerCase()
+          || input.status.toLocaleLowerCase() === ReservationStatus.Canceled.toLocaleLowerCase()) {
+
+        }
 
         if (input.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase())
           await notifyPeInstructors(input.id);
