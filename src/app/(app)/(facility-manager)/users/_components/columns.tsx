@@ -15,9 +15,10 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/trpc/react";
 import { useState } from "react";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 
 const getUserRoleLabel = (role: string): string => {
-  const roleOption = ROLES_OPTIONS.find(r => r.value === role);
+  const roleOption = ROLES_OPTIONS.find((r) => r.value === role);
   return roleOption?.label ?? role;
 };
 
@@ -90,7 +91,7 @@ const editStateListeners: Set<(state: EditState | null) => void> = new Set();
 
 const setEditState = (state: EditState | null) => {
   currentEditState = state;
-  editStateListeners.forEach(listener => listener(state));
+  editStateListeners.forEach((listener) => listener(state));
 };
 
 const useEditState = () => {
@@ -103,6 +104,96 @@ const useEditState = () => {
 
   return state;
 };
+
+// Action cell component to use hooks properly
+function ActionsCell({ user }: { user: User }) {
+  const utils = api.useUtils();
+  const editState = useEditState();
+  const isEditing = editState?.userId === user.id;
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+
+  const { mutate: editMutation, isPending } = api.auth.editUser.useMutation({
+    onSuccess: async () => {
+      await utils.auth.getAllUsers.invalidate();
+      setEditState(null);
+    },
+  });
+
+  const handleEdit = () => {
+    setEditState({
+      userId: user.id,
+      role: user.role,
+      departmentOrOrganization: user.departmentOrOrganization ?? "",
+      isActive: user.isActive,
+    });
+  };
+
+  const handleSave = () => {
+    if (!editState) return;
+
+    showConfirmation({
+      title: "Save Changes",
+      description: `Are you sure you want to update ${user.name ?? user.email}'s information?`,
+      confirmText: "Save Changes",
+      cancelText: "Cancel",
+      variant: "success",
+      onConfirm: () => {
+        editMutation({
+          id: user.id,
+          role: editState.role,
+          departmentOrOrganization:
+            editState.departmentOrOrganization ?? undefined,
+          isActive: editState.isActive,
+        });
+      },
+    });
+  };
+
+  const handleCancel = () => {
+    setEditState(null);
+  };
+
+  if (isEditing) {
+    return (
+      <>
+        <div className="flex gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleSave}
+            disabled={isPending}
+          >
+            {isPending ? (
+              "Saving..."
+            ) : (
+              <>
+                <Save className="mr-1 h-4 w-4" />
+                Save
+              </>
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCancel}
+            disabled={isPending}
+          >
+            <X className="mr-1 h-4 w-4" />
+            Cancel
+          </Button>
+        </div>
+        {ConfirmationDialog}
+      </>
+    );
+  }
+
+  return (
+    <Button variant="outline" size="sm" onClick={handleEdit}>
+      <Pencil className="mr-1 h-4 w-4" />
+      Edit
+    </Button>
+  );
+}
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -127,7 +218,9 @@ export const columns: ColumnDef<User>[] = [
         return (
           <Select
             value={editState.role}
-            onValueChange={(val) => setEditState({ ...editState, role: val as Roles })}
+            onValueChange={(val) =>
+              setEditState({ ...editState, role: val as Roles })
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue />
@@ -157,7 +250,9 @@ export const columns: ColumnDef<User>[] = [
         return (
           <Select
             value={editState.departmentOrOrganization}
-            onValueChange={(val) => setEditState({ ...editState, departmentOrOrganization: val })}
+            onValueChange={(val) =>
+              setEditState({ ...editState, departmentOrOrganization: val })
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select dept/org" />
@@ -174,7 +269,11 @@ export const columns: ColumnDef<User>[] = [
       }
 
       const val: string | null = row.getValue("departmentOrOrganization");
-      return val ? <div className="pl-3">{val.toUpperCase()}</div> : <div className="pl-3 text-muted-foreground">N/A</div>;
+      return val ? (
+        <div className="pl-3">{val.toUpperCase()}</div>
+      ) : (
+        <div className="text-muted-foreground pl-3">N/A</div>
+      );
     },
   },
   {
@@ -209,7 +308,9 @@ export const columns: ColumnDef<User>[] = [
         return (
           <Select
             value={editState.isActive ? "active" : "inactive"}
-            onValueChange={(val) => setEditState({ ...editState, isActive: val === "active" })}
+            onValueChange={(val) =>
+              setEditState({ ...editState, isActive: val === "active" })
+            }
           >
             <SelectTrigger className="w-[130px]">
               <SelectValue />
@@ -238,81 +339,6 @@ export const columns: ColumnDef<User>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const user = row.original;
-      const utils = api.useUtils();
-      const editState = useEditState();
-      const isEditing = editState?.userId === user.id;
-
-      const { mutate: editMutation, isPending } =
-        api.auth.editUser.useMutation({
-          onSuccess: async () => {
-            await utils.auth.getAllUsers.invalidate();
-            setEditState(null);
-          },
-        });
-
-      const handleEdit = () => {
-        setEditState({
-          userId: user.id,
-          role: user.role,
-          departmentOrOrganization: user.departmentOrOrganization ?? "",
-          isActive: user.isActive,
-        });
-      };
-
-      const handleSave = () => {
-        if (!editState) return;
-
-        editMutation({
-          id: user.id,
-          role: editState.role,
-          departmentOrOrganization: editState.departmentOrOrganization ?? undefined,
-          isActive: editState.isActive,
-        });
-      };
-
-      const handleCancel = () => {
-        setEditState(null);
-      };
-
-      if (isEditing) {
-        return (
-          <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleSave}
-              disabled={isPending}
-            >
-              {isPending ? (
-                "Saving..."
-              ) : (
-                <>
-                  <Save className="mr-1 h-4 w-4" />
-                  Save
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCancel}
-              disabled={isPending}
-            >
-              <X className="mr-1 h-4 w-4" />
-              Cancel
-            </Button>
-          </div>
-        );
-      }
-
-      return (
-        <Button variant="outline" size="sm" onClick={handleEdit}>
-          <Pencil className="mr-1 h-4 w-4" />
-          Edit
-        </Button>
-      );
-    },
+    cell: ({ row }) => <ActionsCell user={row.original} />,
   },
 ];
