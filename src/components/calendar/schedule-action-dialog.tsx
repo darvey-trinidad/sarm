@@ -721,10 +721,10 @@ export default function ScheduleActionDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="details">Details</Label>
+                  <Label htmlFor="details">Additional Details</Label>
                   <Input
                     id="details"
-                    placeholder="e.g., BSIT 4D"
+                    placeholder="e.g., Lending to Sir. John Doe"
                     value={borrowingData.details ?? ""}
                     onChange={(e) =>
                       setBorrowingData({
