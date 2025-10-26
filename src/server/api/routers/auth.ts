@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
-import { signupSchema, getAllSchedulableFacultySchema, editUserProfileSchema } from "@/server/api-utils/validators/auth";
+import { signupSchema, getAllSchedulableFacultySchema, editUserProfileSchema, editUserSchema } from "@/server/api-utils/validators/auth";
 import { getAllFaculty, getAllFacultyByDepartment, getAllPeInstructors, getAllSchedulableFaculty, getAllUsers, getUserById } from "@/lib/api/auth/query";
 import { env } from "@/env";
 import { TRPCError } from "@trpc/server";
@@ -77,8 +77,20 @@ export const authRouter = createTRPCRouter({
   getAllPeInstructors: protectedProcedure.query(() => {
     return getAllPeInstructors();
   }),
+  // user edits own profille
   editUserProfile: protectedProcedure
     .input(editUserProfileSchema)
+    .mutation(({ input }) => {
+      try {
+        const { id, ...data } = input;
+        return editUserProfile(id, data);
+      } catch (error) {
+        throw error;
+      }
+    }),
+  // admin edits user info
+  editUser: protectedProcedure
+    .input(editUserSchema)
     .mutation(({ input }) => {
       try {
         const { id, ...data } = input;

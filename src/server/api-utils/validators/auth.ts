@@ -15,6 +15,13 @@ export const editUserProfileSchema = z.object({
   departmentOrOrganization: z.string().optional(),
 })
 
+export const editUserSchema = z.object({
+  id: z.string(),
+  role: z.enum(ROLES).optional(),
+  departmentOrOrganization: z.string().optional(),
+  isActive: z.boolean().optional()
+})
+
 export const getAllSchedulableFacultySchema = z.object({ role: z.string(), departmentOrOrganization: z.string() })
 
 export type SignupInput = z.infer<typeof signupSchema>;
