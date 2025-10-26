@@ -1,14 +1,24 @@
-"use clients";
+"use client";
 import { createSortableHeader } from "@/components/table/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
-import { UserCheck, UserX } from "lucide-react";
+import { UserCheck, UserX, Pencil, Save, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ROLE_LABELS } from "@/constants/roles";
+import { Roles, ROLES_OPTIONS } from "@/constants/roles";
+import { DEPARTMENT_OR_ORGANIZATION_OPTIONS } from "@/constants/dept-org";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { api } from "@/trpc/react";
+import { useState } from "react";
 
-const getUserRole = (role: string): string => {
-  return ROLE_LABELS[role] ?? "";
+const getUserRoleLabel = (role: string): string => {
+  const roleOption = ROLES_OPTIONS.find(r => r.value === role);
+  return roleOption?.label ?? role;
 };
 
 const getStatusBadge = (isActive: boolean) => {
@@ -44,7 +54,6 @@ const formatTimestamp = (timestamp: Date): string => {
   });
 };
 
-// Utility function to format timestamp to relative time
 const formatRelativeTime = (timestamp: Date): string => {
   const now = new Date().getTime();
   const diffInMs = now - timestamp.getTime();
@@ -62,10 +71,38 @@ interface User {
   id: string;
   name: string | null;
   email: string;
-  role: string;
+  role: Roles;
   departmentOrOrganization: string | null;
   isActive: boolean;
+  createdAt: Date;
 }
+
+interface EditState {
+  userId: string;
+  role: Roles;
+  departmentOrOrganization: string;
+  isActive: boolean;
+}
+
+// Shared state for editing
+let currentEditState: EditState | null = null;
+const editStateListeners: Set<(state: EditState | null) => void> = new Set();
+
+const setEditState = (state: EditState | null) => {
+  currentEditState = state;
+  editStateListeners.forEach(listener => listener(state));
+};
+
+const useEditState = () => {
+  const [state, setState] = useState<EditState | null>(currentEditState);
+
+  useState(() => {
+    editStateListeners.add(setState);
+    return () => editStateListeners.delete(setState);
+  });
+
+  return state;
+};
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -82,16 +119,62 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "role",
     header: createSortableHeader("Role"),
-    cell: ({ row }) => (
-      <div className="pl-3">{getUserRole(row.getValue("role"))}</div>
-    ),
+    cell: ({ row }) => {
+      const editState = useEditState();
+      const isEditing = editState?.userId === row.original.id;
+
+      if (isEditing) {
+        return (
+          <Select
+            value={editState.role}
+            onValueChange={(val) => setEditState({ ...editState, role: val as Roles })}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ROLES_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
+
+      return <div className="pl-3">{getUserRoleLabel(row.original.role)}</div>;
+    },
   },
   {
     accessorKey: "departmentOrOrganization",
     header: createSortableHeader("Department/Organization"),
     cell: ({ row }) => {
-      const val: string = row.getValue("departmentOrOrganization");
-      return val ? <div className="pl-3">{val.toUpperCase()}</div> : "N/A";
+      const editState = useEditState();
+      const isEditing = editState?.userId === row.original.id;
+
+      if (isEditing) {
+        return (
+          <Select
+            value={editState.departmentOrOrganization}
+            onValueChange={(val) => setEditState({ ...editState, departmentOrOrganization: val })}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select dept/org" />
+            </SelectTrigger>
+            <SelectContent>
+              {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
+
+      const val: string | null = row.getValue("departmentOrOrganization");
+      return val ? <div className="pl-3">{val.toUpperCase()}</div> : <div className="pl-3 text-muted-foreground">N/A</div>;
     },
   },
   {
@@ -110,7 +193,6 @@ export const columns: ColumnDef<User>[] = [
       );
     },
     sortingFn: (rowA, rowB) => {
-      // Sort by timestamp (newest first)
       const timestampA: Date = rowA.getValue("createdAt");
       const timestampB: Date = rowB.getValue("createdAt");
       return timestampB.getTime() - timestampA.getTime();
@@ -119,7 +201,39 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "isActive",
     header: "Status",
-    cell: ({ row }) => getStatusBadge(row.original.isActive),
+    cell: ({ row }) => {
+      const editState = useEditState();
+      const isEditing = editState?.userId === row.original.id;
+
+      if (isEditing) {
+        return (
+          <Select
+            value={editState.isActive ? "active" : "inactive"}
+            onValueChange={(val) => setEditState({ ...editState, isActive: val === "active" })}
+          >
+            <SelectTrigger className="w-[130px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">
+                <div className="flex items-center">
+                  <UserCheck className="mr-2 h-4 w-4 text-green-600" />
+                  Active
+                </div>
+              </SelectItem>
+              <SelectItem value="inactive">
+                <div className="flex items-center">
+                  <UserX className="mr-2 h-4 w-4 text-red-600" />
+                  Inactive
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      }
+
+      return getStatusBadge(row.original.isActive);
+    },
   },
   {
     id: "actions",
@@ -127,35 +241,76 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const user = row.original;
       const utils = api.useUtils();
+      const editState = useEditState();
+      const isEditing = editState?.userId === user.id;
 
-      // useMutation hook
-      const { mutate: toggleMutation, isPending } =
-        api.auth.toggleUserIsActive.useMutation({
+      const { mutate: editMutation, isPending } =
+        api.auth.editUser.useMutation({
           onSuccess: async () => {
-            // refresh users after update
             await utils.auth.getAllUsers.invalidate();
+            setEditState(null);
           },
         });
 
-      const handleToggleStatus = () => {
-        toggleMutation({
-          id: user.id,
-          isActive: !user.isActive, // flip current value
+      const handleEdit = () => {
+        setEditState({
+          userId: user.id,
+          role: user.role,
+          departmentOrOrganization: user.departmentOrOrganization ?? "",
+          isActive: user.isActive,
         });
       };
 
+      const handleSave = () => {
+        if (!editState) return;
+
+        editMutation({
+          id: user.id,
+          role: editState.role,
+          departmentOrOrganization: editState.departmentOrOrganization ?? undefined,
+          isActive: editState.isActive,
+        });
+      };
+
+      const handleCancel = () => {
+        setEditState(null);
+      };
+
+      if (isEditing) {
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleSave}
+              disabled={isPending}
+            >
+              {isPending ? (
+                "Saving..."
+              ) : (
+                <>
+                  <Save className="mr-1 h-4 w-4" />
+                  Save
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+              disabled={isPending}
+            >
+              <X className="mr-1 h-4 w-4" />
+              Cancel
+            </Button>
+          </div>
+        );
+      }
+
       return (
-        <Button
-          variant={user.isActive ? "destructive" : "default"}
-          size="sm"
-          onClick={handleToggleStatus}
-          disabled={isPending}
-        >
-          {isPending
-            ? "Updating..."
-            : user.isActive
-              ? "Deactivate"
-              : "Activate"}
+        <Button variant="outline" size="sm" onClick={handleEdit}>
+          <Pencil className="mr-1 h-4 w-4" />
+          Edit
         </Button>
       );
     },
