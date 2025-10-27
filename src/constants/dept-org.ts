@@ -49,4 +49,6 @@ export const DeptOrOrgValues = {
   LAUREL_PUBLICATION: DEPARTMENT_OR_ORGANIZATION[10],
 }
 
+export type Department = typeof DEPARTMENTS[number];
+
 export type DepartmentOrOrganization = typeof DEPARTMENT_OR_ORGANIZATION[number];

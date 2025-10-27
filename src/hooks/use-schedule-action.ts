@@ -8,6 +8,8 @@ import { api } from "@/trpc/react";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import type { Department } from "@/constants/dept-org";
+import { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
 
 interface BorrowingData {
   classroomId: string;
@@ -59,9 +61,13 @@ export function useScheduleActions({
   const requestToBorrow = async (
     schedule: FinalClassroomSchedule,
     data: BorrowingData,
+    departmentRequestedTo?: Department | null,
   ) => {
     setLoading(true);
     try {
+      console.log("schedule", schedule);
+      console.log("data", data);
+      console.log("departmentRequestedTo:::", departmentRequestedTo);
       await createRoomRequest(
         {
           classroomId: schedule.classroomId,
@@ -71,6 +77,7 @@ export function useScheduleActions({
 
           requesterId: session?.user.id ?? "",
           responderId: schedule.facultyId ?? "",
+          departmentRequestedTo: departmentRequestedTo ?? null,
 
           subject: data.subject ?? "",
           section: data.section ?? "",

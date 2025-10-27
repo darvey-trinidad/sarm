@@ -203,21 +203,23 @@ export const classroomScheduleRouter = createTRPCRouter({
         const roomRequestRecord = await getRoomRequestById(roomRequestId);
         console.log("Room Request Record: ", roomRequestRecord);
 
-        void sendPushNotification({
-          userId: roomRequestRecord?.responderId ?? "",
-          title: "Classroom Borrowing Request",
-          body: `${roomRequestRecord?.requestorName} wants to borrow room ${roomRequestRecord?.classroomName} 
+        if (!input.departmentRequestedTo) {
+          void sendPushNotification({
+            userId: roomRequestRecord?.responderId ?? "",
+            title: "Classroom Borrowing Request",
+            body: `${roomRequestRecord?.requestorName} wants to borrow room ${roomRequestRecord?.classroomName} 
           on ${formatDate(roomRequestRecord?.date.toISOString() ?? "")} 
           (${TIME_MAP[roomRequestRecord?.startTime as TimeInt]}-${TIME_MAP[roomRequestRecord?.endTime as TimeInt]})`,
-          data: {
-            requestId: roomRequestRecord?.id,
-            type: 'borrow_request',
-          },
-          actions: [
-            { action: 'accept', title: 'Accept' },
-            { action: 'decline', title: 'Decline' },
-          ],
-        })
+            data: {
+              requestId: roomRequestRecord?.id,
+              type: 'borrow_request',
+            },
+            actions: [
+              { action: 'accept', title: 'Accept' },
+              { action: 'decline', title: 'Decline' },
+            ],
+          })
+        }
 
         const transporter = nodemailer.createTransport({
           service: "gmail",

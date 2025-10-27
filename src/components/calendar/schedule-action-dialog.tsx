@@ -28,6 +28,7 @@ import { toTimeInt } from "@/lib/utils";
 import { Roles } from "@/constants/roles";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getScheduleTypeInfo } from "./_components/schedule-type-info";
+import type { Department } from "@/constants/dept-org";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
@@ -35,6 +36,7 @@ interface ScheduleActionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedItem: FinalClassroomSchedule | null;
+  departmentRequestedTo?: Department | null;
   currentUser: UserSession;
   onMarkVacant: (
     schedule: FinalClassroomSchedule,
@@ -51,12 +53,14 @@ interface ScheduleActionDialogProps {
   onRequestToBorrow: (
     schedule: FinalClassroomSchedule,
     data: BorrowingData,
+    departmentRequestedTo?: Department | null,
   ) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
   onOpenChange,
   selectedItem,
+  departmentRequestedTo,
   currentUser,
   onMarkVacant,
   onClaimSlot,
@@ -194,7 +198,7 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onRequestToBorrow(selectedItem, borrowingData);
+      await onRequestToBorrow(selectedItem, borrowingData, departmentRequestedTo);
       onOpenChange(false);
       setBorrowingData({
         classroomId: selectedItem?.classroomId ?? "",
@@ -232,7 +236,7 @@ export default function ScheduleActionDialog({
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">
                 {selectedItem.source === SCHEDULE_SOURCE.InitialSchedule &&
-                selectedItem.subject
+                  selectedItem.subject
                   ? `${selectedItem.subject} - ${selectedItem.section}`
                   : selectedItem.source}
               </h3>

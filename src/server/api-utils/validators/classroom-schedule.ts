@@ -3,6 +3,7 @@ import { timeIntSchema } from "@/constants/timeslot";
 import { requiredDateSchema } from "@/server/api-utils/validators/date";
 import { ROOM_REQUEST_STATUS } from "@/constants/room-request-status";
 import { CLASSROOM_TYPE } from "@/constants/classroom-type";
+import { DEPARTMENTS } from "@/constants/dept-org";
 
 export const createClassroomScheduleSchema = z
   .object({
@@ -121,6 +122,8 @@ export const createRoomRequestSchema = z.object({
   endTime: timeIntSchema,
   subject: z.string(),
   section: z.string(),
+  departmentRequestedTo: z.enum(DEPARTMENTS).nullable().optional(),
+  fileUrl: z.string().nullable().optional(),
 
   requesterId: z.string(),
   responderId: z.string(),
