@@ -14,7 +14,10 @@ import {
   CalendarCheck,
   MapPin,
   Calendar,
+  AlertCircle,
+  User,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,6 +94,12 @@ export default function ReceivedRoomRequest() {
                           <CardTitle className="text-md">
                             {request.requestorName}
                           </CardTitle>
+                          <Badge
+                            className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"
+                          >
+                            <AlertCircle className="h-4 w-4 text-yellow-600" />
+                            <span>From other department</span>
+                          </Badge>
                         </div>
 
                         <Button
@@ -108,7 +117,7 @@ export default function ReceivedRoomRequest() {
                     </CardHeader>
 
                     {/* Content Section */}
-                    <CardContent className="p-0">
+                    <CardContent className="p-0 space-y-1">
                       <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5 text-gray-400" />
@@ -132,6 +141,22 @@ export default function ReceivedRoomRequest() {
                           </div>
                         )}
                       </div>
+                      <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                        <div className="flex items-center gap-1.5">
+                          <User className="h-3.5 w-3.5 text-gray-400" />
+                          <span>Requested by: {request.requestorName}</span>
+                        </div>
+                      </div>
+                      {
+                        !!request.departmentRequestedTo && (
+                          <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                            <div className="flex items-center gap-1.5">
+                              <User className="h-3.5 w-3.5 text-gray-400" />
+                              <span>Requested to: {request.responderName}</span>
+                            </div>
+                          </div>
+                        )
+                      }
                     </CardContent>
                     <div className="text-muted-foreground border-border flex border-t mt-2 pt-3 text-xs">
                       Submitted: {formatISODate(request.createdAt)} ({formatLocalTime(request.createdAt)})

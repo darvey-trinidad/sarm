@@ -23,8 +23,6 @@ import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
 import type { ClassroomType } from "@/constants/classroom-type";
 import { RoomRequestStatus } from "@/constants/room-request-status";
-import type { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
-import { request } from "http";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (
@@ -133,6 +131,9 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
     );
 
+    const requestor = alias(user, "requestor");
+    const responder = alias(user, "responder");
+
     return await db
       .select({
         id: roomRequests.id,
@@ -143,11 +144,14 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
         endTime: roomRequests.endTime,
         subject: roomRequests.subject,
         section: roomRequests.section,
-        requestorId: user.id,
-        requestorName: user.name,
+        requestorId: requestor.id,
+        requestorName: requestor.name,
+        responderId: responder.id,
+        responderName: responder.name,
         departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
+        fileUrl: roomRequests.fileUrl,
       })
       .from(roomRequests)
       .where(
@@ -157,7 +161,8 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
           gte(roomRequests.date, midnightPH),
         ),
       )
-      .innerJoin(user, eq(roomRequests.requesterId, user.id))
+      .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
       .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
       .all();
@@ -177,6 +182,9 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
 
     console.log(midnightPH);
 
+    const requestor = alias(user, "requestor");
+    const responder = alias(user, "responder");
+
     return await db
       .select({
         id: roomRequests.id,
@@ -187,11 +195,14 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
         endTime: roomRequests.endTime,
         subject: roomRequests.subject,
         section: roomRequests.section,
-        requestorId: user.id,
-        requestorName: user.name,
+        requestorId: requestor.id,
+        requestorName: requestor.name,
+        responderId: responder.id,
+        responderName: responder.name,
         departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
+        fileUrl: roomRequests.fileUrl,
       })
       .from(roomRequests)
       .where(
@@ -200,7 +211,8 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
           gte(roomRequests.date, midnightPH),
         ),
       )
-      .innerJoin(user, eq(roomRequests.requesterId, user.id))
+      .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
       .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
       .all();

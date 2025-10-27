@@ -10,6 +10,7 @@ import {
   XCircle,
   BookOpenText,
   Users,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,6 +141,12 @@ export default function UserRoomRequest() {
                               {""}-{""}{" "}
                               {TIME_MAP[toTimeInt(classroomRequest.endTime)]}
                             </span>
+                          </div>
+                        </div>
+                        <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                          <div className="flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-gray-400" />
+                            <span>Requested to: {classroomRequest.responderName}</span>
                           </div>
                         </div>
                       </div>
