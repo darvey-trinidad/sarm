@@ -122,6 +122,7 @@ export const createRoomRequestSchema = z.object({
   endTime: timeIntSchema,
   subject: z.string(),
   section: z.string(),
+  details: z.string().nullable().optional(),
   departmentRequestedTo: z.enum(DEPARTMENTS).nullable().optional(),
   fileUrl: z.string().nullable().optional(),
 

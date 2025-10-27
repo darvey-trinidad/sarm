@@ -81,6 +81,8 @@ export function useScheduleActions({
 
           subject: data.subject ?? "",
           section: data.section ?? "",
+          details: data.details ?? null,
+          // fileUrl: data.fileUrl ?? null, // commented dahil wala pang fileUrl sa borrowingData
         },
         {
           onSuccess: () => {
