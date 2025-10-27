@@ -80,13 +80,6 @@ export default function UserRoomRequest() {
   return (
     <div className="space-y-4">
       <div className="space-y-5">
-        <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">Classroom Requests</h2>
-          <p className="text-muted-foreground">
-            View and manage your classroom requests
-          </p>
-        </div>
-
         {/* Search Bar */}
         <div className="relative">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />

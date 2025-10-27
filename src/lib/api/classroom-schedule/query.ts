@@ -109,6 +109,7 @@ export const getRoomRequestById = async (id: string) => {
         responderName: responder.name,
         responderEmail: responder.email,
         status: roomRequests.status,
+        departmentRequestedTo: roomRequests.departmentRequestedTo,
         createdAt: roomRequests.createdAt,
         respondedAt: roomRequests.respondedAt,
       })
@@ -144,6 +145,7 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
         section: roomRequests.section,
         requestorId: user.id,
         requestorName: user.name,
+        departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
       })
@@ -187,6 +189,7 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
         section: roomRequests.section,
         requestorId: user.id,
         requestorName: user.name,
+        departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
       })

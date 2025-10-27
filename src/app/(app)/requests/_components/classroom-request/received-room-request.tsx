@@ -1,53 +1,84 @@
 "use client";
 import { api } from "@/trpc/react";
+import { useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import {
-  DoorOpen,
+  CalendarIcon,
   Clock,
+  Search,
+  XCircle,
+  BookOpenText,
+  Users,
+  DoorOpen,
+  CalendarCheck,
   MapPin,
   Calendar,
-  Users,
-  CalendarCheck,
 } from "lucide-react";
-import { ReceivedRoomSkeleton } from "../skeletons/received-room-skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { PageRoutes } from "@/constants/page-routes";
-import { NoRoomRequest } from "../no-data-mesage/dahsboard-nothing-found";
+import NoRoomRequest from "@/components/loading-state/no-room-request";
+import LoadingMessage from "@/components/loading-state/loading-message";
 import { Roles } from "@/constants/roles";
+import { env } from "@/env";
+import { PageRoutes } from "@/constants/page-routes";
 export default function ReceivedRoomRequest() {
   const { data: session } = authClient.useSession();
-  const { data: ReceivedRoomRequest, isLoading } =
-    api.classroomSchedule.getRoomRequestsByResponderId.useQuery(
-      {
-        responderId: session?.user.id ?? "",
-      },
-      {
-        enabled: !!session?.user.id,
-      },
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
+
+  const { mutate: cancelRoomRequestMutation } = api.classroomSchedule.cancelRoomRequest.useMutation();
+
+  const {
+    data: receivedRoomRequests,
+    isLoading,
+    refetch: refetchClassroomRequests,
+  } = api.classroomSchedule.getRoomRequestsByResponderId.useQuery({
+    responderId: session?.user.id ?? "",
+  });
+
+  const filteredClassroomRequests = useMemo(() => {
+    if (!receivedRoomRequests) return [];
+
+    const searchLower = searchTerm.toLowerCase();
+    return receivedRoomRequests.filter((classroomRequest) =>
+      classroomRequest.classroomName.toLowerCase().includes(searchLower),
     );
+  }, [receivedRoomRequests, searchTerm]);
 
   const handlOpenSchedule = (requestId: string) => {
     window.open(
-      `${process.env.NEXT_PUBLIC_APP_URL}${PageRoutes.RESPOND}/${requestId}`,
+      `${env.NEXT_PUBLIC_APP_URL}${PageRoutes.RESPOND}/${requestId}`,
       "_blank",
     );
   };
-  return (
-    <Card className="w-full p-6 sm:w-[800px]">
-      <CardTitle className="text-md font-semibold">Room Request</CardTitle>
 
-      <ScrollArea className="h-[330px]">
-        <div className="space-y-4">
-          {isLoading ? (
-            <ReceivedRoomSkeleton />
-          ) : ReceivedRoomRequest?.length === 0 ? (
+  return (
+    <div className="space-y-4">
+      <div className="space-y-5">
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
+          <Input
+            id="search"
+            placeholder="Search by classroom name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-xs pl-10"
+          />
+        </div>
+
+        {/* Classroom Requests Card Lists */}
+        <div className="grid gap-4">
+          {isLoading && filteredClassroomRequests?.length === 0 ? (
             <NoRoomRequest />
+          ) : isLoading ? (
+            <LoadingMessage />
           ) : (
-            ReceivedRoomRequest?.map((request) => (
+            filteredClassroomRequests?.map((request) => (
               <div key={request.id} className="w-full">
                 <Card className="border-none bg-stone-50 p-6 shadow-none">
                   <div className="flex flex-col gap-2">
@@ -78,7 +109,7 @@ export default function ReceivedRoomRequest() {
 
                     {/* Content Section */}
                     <CardContent className="p-0">
-                      <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
+                      <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5 text-gray-400" />
                           <span>{formatISODate(request.date)}</span>
@@ -119,7 +150,8 @@ export default function ReceivedRoomRequest() {
             ))
           )}
         </div>
-      </ScrollArea>
-    </Card>
+      </div>
+      {ConfirmationDialog}
+    </div>
   );
 }
