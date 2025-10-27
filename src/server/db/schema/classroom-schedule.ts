@@ -62,6 +62,7 @@ export const roomRequests = sqliteTable("room_requests", {
 
   departmentRequestedTo: text("department_requested_to", { enum: DEPARTMENTS }), // department the room belongs to, if requester is from different dept
   fileUrl: text("file_url"),
+  details: text("details"),
 
   status: text("status", { enum: ROOM_REQUEST_STATUS }).$defaultFn(() => DEFAULT_ROOM_REQUEST_STATUS).notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()).notNull(),
