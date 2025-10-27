@@ -151,6 +151,7 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
         departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
+        details: roomRequests.details,
         fileUrl: roomRequests.fileUrl,
       })
       .from(roomRequests)
@@ -202,6 +203,7 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
         departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
+        details: roomRequests.details,
         fileUrl: roomRequests.fileUrl,
       })
       .from(roomRequests)

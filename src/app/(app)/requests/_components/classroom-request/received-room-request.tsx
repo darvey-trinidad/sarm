@@ -16,6 +16,7 @@ import {
   Calendar,
   AlertCircle,
   User,
+  Info,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -156,6 +157,14 @@ export default function ReceivedRoomRequest() {
                             </div>
                           </div>
                         )
+                      }
+                      {
+                        request.details && (<div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                          <div className="flex items-center gap-1.5">
+                            <Info className="h-3.5 w-3.5 text-gray-400" />
+                            <span>Details: {request.details}</span>
+                          </div>
+                        </div>)
                       }
                     </CardContent>
                     <div className="text-muted-foreground border-border flex border-t mt-2 pt-3 text-xs">

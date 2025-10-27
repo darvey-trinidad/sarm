@@ -11,6 +11,7 @@ import {
   BookOpenText,
   Users,
   User,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -149,6 +150,14 @@ export default function UserRoomRequest() {
                             <span>Requested to: {classroomRequest.responderName}</span>
                           </div>
                         </div>
+                        {
+                          classroomRequest.details && (<div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                            <div className="flex items-center gap-1.5">
+                              <Info className="h-3.5 w-3.5 text-gray-400" />
+                              <span>Details: {classroomRequest.details}</span>
+                            </div>
+                          </div>)
+                        }
                       </div>
                     </div>
 
