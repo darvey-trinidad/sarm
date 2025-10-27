@@ -20,6 +20,7 @@ interface BorrowingData {
   subject: string | null;
   section: string | null;
   details: string | null;
+  fileUrl: string | null;
 }
 
 interface UseScheduleActionsProps {
@@ -68,6 +69,7 @@ export function useScheduleActions({
       console.log("schedule", schedule);
       console.log("data", data);
       console.log("departmentRequestedTo:::", departmentRequestedTo);
+      console.log("file", data.fileUrl);
       await createRoomRequest(
         {
           classroomId: schedule.classroomId,
@@ -82,7 +84,7 @@ export function useScheduleActions({
           subject: data.subject ?? "",
           section: data.section ?? "",
           details: data.details ?? null,
-          // fileUrl: data.fileUrl ?? null, // commented dahil wala pang fileUrl sa borrowingData
+          fileUrl: data.fileUrl ?? null,
         },
         {
           onSuccess: () => {
