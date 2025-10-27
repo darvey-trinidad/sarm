@@ -1,0 +1,1 @@
+ALTER TABLE `room_requests` ADD `file_url` text;
