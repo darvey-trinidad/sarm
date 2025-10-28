@@ -1,4 +1,4 @@
-import { db, eq, and, or, inArray } from "@/server/db";
+import { db, eq, and, or, inArray, gte, lte } from "@/server/db";
 import { classroomSchedule, classroomVacancy, classroomBorrowing, roomRequests } from "@/server/db/schema/classroom-schedule";
 import type { ClassroomScheduleWithoutId, ClassroomVacancyWithoutId, ClassroomBorrowingWithoutId, RoomRequest } from "@/server/db/types/classroom-schedule";
 import { splitScheduleToHourlyTimeslot, splitVacancyToHourlyTimeslot, splitBorrowingToHourlyTimeslot, splitTimeToHourlyTimeslot, splitTimeToHourlyTimeslotSchedule, mergeAdjacentClassroomBorrowings } from "@/lib/helper/classroom-schedule";
@@ -140,16 +140,18 @@ export const deleteClassroomBorrowing = async (records: CancelClassroomBorrowing
   }
 }
 
-export const returnClassroomBorrowing = async (date: Date, facultyId: string, startTime: number, endTime: number) => {
+export const returnClassroomBorrowing = async (date: Date, endDate: Date, facultyId: string, startTime: number, endTime: number) => {
   try {
     const borrowingsOnDate = await db
       .select()
       .from(classroomBorrowing)
       .where(
         and(
-          eq(classroomBorrowing.date, date),
+          gte(classroomBorrowing.date, date),
+          lte(classroomBorrowing.date, endDate),
           eq(classroomBorrowing.facultyId, facultyId),
         ))
+      .orderBy(classroomBorrowing.date, classroomBorrowing.startTime)
       .all();
 
     if (borrowingsOnDate.length === 0) return;
@@ -161,6 +163,9 @@ export const returnClassroomBorrowing = async (date: Date, facultyId: string, st
     )
 
     if (overlappingBorrowings.length === 0) return;
+
+    console.log("borrowingsOnDate: ", borrowingsOnDate);
+    console.log("mergedBorrowingsOnDate: ", mergedBorrowingsOnDate);
 
     overlappingBorrowings.forEach(async (borrowing) => {
       await deleteClassroomBorrowing({ classroomId: borrowing.classroomId, date: borrowing.date, startTime: borrowing.startTime, endTime: borrowing.endTime });

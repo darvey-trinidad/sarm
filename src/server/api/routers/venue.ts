@@ -131,10 +131,6 @@ export const venueRouter = createTRPCRouter({
   getVenueReservationPastMonthsStats: protectedProcedure.query(async () => {
     return await getVenueReservationPastMonthsStats();
   }),
-  returnClassroomBorrowing: protectedProcedure
-    .query(async () => {
-      return await returnClassroomBorrowing(new Date("2025-10-31"), "f3TDwXzVWtjYCZ25qEwcbCb4ioGkZ0dQ", 700, 1200);
-    }),
   editVenueReservationStatus: protectedProcedure
     .input(editVenueReservationStatusSchema)
     .mutation(async ({ input }) => {
@@ -152,6 +148,7 @@ export const venueRouter = createTRPCRouter({
           if (venueName?.includes("socialhall")) {
             await returnClassroomBorrowing(
               editVenueReservationRes.date,
+              editVenueReservationRes.endDate,
               editVenueReservationRes.reserverId,
               editVenueReservationRes.startTime,
               editVenueReservationRes.endTime
