@@ -10,6 +10,9 @@ import {
   XCircle,
   BookOpenText,
   Users,
+  User,
+  Info,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +22,7 @@ import {
   getStatusColorRoomRequest,
   getStatusIconRoomRequest,
 } from "../user-view/request-status";
-import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
+import { checkIsPastRequest, formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import NoRoomRequest from "@/components/loading-state/no-room-request";
@@ -80,13 +83,6 @@ export default function UserRoomRequest() {
   return (
     <div className="space-y-4">
       <div className="space-y-5">
-        <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">Classroom Requests</h2>
-          <p className="text-muted-foreground">
-            View and manage your classroom requests
-          </p>
-        </div>
-
         {/* Search Bar */}
         <div className="relative">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
@@ -108,7 +104,7 @@ export default function UserRoomRequest() {
           ) : (
             filteredClassroomRequests?.map((classroomRequest) => (
               <Card key={classroomRequest.id}>
-                <CardContent className="p-4">
+                <CardContent className="">
                   <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
@@ -149,10 +145,38 @@ export default function UserRoomRequest() {
                             </span>
                           </div>
                         </div>
+                        <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                          <div className="flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-gray-400" />
+                            <span>Requested to: {classroomRequest.responderName}</span>
+                          </div>
+                        </div>
+                        {
+                          classroomRequest.details && (<div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
+                            <div className="flex items-center gap-1.5">
+                              <Info className="h-3.5 w-3.5 text-gray-400" />
+                              <span>Details: {classroomRequest.details}</span>
+                            </div>
+                          </div>)
+                        }
                       </div>
                     </div>
 
                     <div className="mt-2 flex items-center gap-2 md:mt-0">
+                      {classroomRequest.fileUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            classroomRequest.fileUrl &&
+                            window.open(classroomRequest.fileUrl, "_blank")
+                          }
+                          className="flex items-center gap-1"
+                        >
+                          <FileText className="h-4 w-4" />
+                          View Attachment
+                        </Button>
+                      )}
                       {classroomRequest.status ===
                         RoomRequestStatus.Pending && (
                           <div>
@@ -162,6 +186,7 @@ export default function UserRoomRequest() {
                                 handleCancel(classroomRequest.id);
                               }}
                               className="bg-orange-600 text-white hover:bg-orange-700"
+                              disabled={checkIsPastRequest(classroomRequest.date, classroomRequest.endTime)}
                             >
                               <XCircle className="mr-1 h-4 w-4" />
                               Cancel

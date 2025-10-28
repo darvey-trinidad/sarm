@@ -17,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
 import { NoRoomRequest } from "../no-data-mesage/dahsboard-nothing-found";
+import { Roles } from "@/constants/roles";
 export default function ReceivedRoomRequest() {
   const { data: session } = authClient.useSession();
   const { data: ReceivedRoomRequest, isLoading } =
@@ -65,6 +66,7 @@ export default function ReceivedRoomRequest() {
                           size="sm"
                           onClick={() => handlOpenSchedule(request.id)}
                           className="hidden sm:block"
+                          disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)}
                         >
                           <div className="flex items-center gap-2">
                             <CalendarCheck className="h-4 w-4" />
@@ -108,8 +110,9 @@ export default function ReceivedRoomRequest() {
                     size="sm"
                     onClick={() => handlOpenSchedule(request.id)}
                     className="sm:hidden"
+                    disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)}
                   >
-                    View Schedule
+                    Respond
                   </Button>
                 </Card>
               </div>

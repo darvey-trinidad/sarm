@@ -17,7 +17,7 @@ import { SCHEDULE_SOURCE } from "@/constants/schedule";
 import { CLASSROOM_TYPE_LABELS, type ClassroomType } from "@/constants/classroom-type";
 import Link from "next/link";
 import { Roles } from "@/constants/roles";
-import { DeptOrOrgValues } from "@/constants/dept-org";
+import { DeptOrOrgValues, type Department } from "@/constants/dept-org";
 const SLOT_HEIGHT = 45;
 const DaysofWeek = [
   "Monday",
@@ -44,6 +44,7 @@ export default function ClassroomCalendarView({
   const [schedules, setSchedules] = useState<FinalClassroomSchedule[]>([]);
   const [selectedItem, setSelectedItem] =
     useState<FinalClassroomSchedule | null>(null);
+  const [departmentRequestedTo, setDepartmentRequestedTo] = useState<Department | null>(null);
   const [currentWeek, setCurrentWeek] = useState(() => new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -135,8 +136,11 @@ export default function ClassroomCalendarView({
 
   const handleScheduleClick = (schedule: FinalClassroomSchedule) => {
     if (session?.user.role !== Roles.FacilityManager) {
-      const authorizedToRoom = checkRoomAuthority(session?.user.departmentOrOrganization ?? DeptOrOrgValues.ITDS, classRoomType);
-      if (!authorizedToRoom) return;
+      const [authorizedToRoom, department] = checkRoomAuthority(session?.user.departmentOrOrganization ?? DeptOrOrgValues.ITDS, classRoomType);
+
+      if ((schedule.source === SCHEDULE_SOURCE.Unoccupied || schedule.source === SCHEDULE_SOURCE.Vacancy) && !authorizedToRoom) return;
+
+      if (!authorizedToRoom) setDepartmentRequestedTo(department);
     }
 
     const now = new Date();
@@ -373,6 +377,7 @@ export default function ClassroomCalendarView({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         selectedItem={selectedItem}
+        departmentRequestedTo={departmentRequestedTo}
         currentUser={session?.user}
         onMarkVacant={markAsVacant}
         onClaimSlot={claimSlot}

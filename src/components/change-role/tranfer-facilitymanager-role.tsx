@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { AutoComplete, type Option } from "@/components/ui/autocomplete";
 import { toast } from "sonner";
-import { UserRound, ArrowRightLeft } from "lucide-react";
+import { Building, ArrowRightLeft } from "lucide-react";
 import { useConfirmationDialog } from "../dialog/use-confirmation-dialog";
 
-interface TransferDepartmentHeadModalProps {
+interface TransferFacilityManagerModalProps {
   facultyList: Array<{
     id: string;
     name: string | null;
@@ -24,16 +24,16 @@ interface TransferDepartmentHeadModalProps {
     departmentOrOrganization?: string | null;
   }>;
   currentUserId: string;
-  onTransfer: (newHeadId: string) => Promise<void>;
+  onTransfer: (newManagerId: string) => Promise<void>;
   isTransferring: boolean;
 }
 
-export function TransferDepartmentHeadModal({
+export function TransferFacilityManagerModal({
   facultyList,
   currentUserId,
   onTransfer,
   isTransferring,
-}: TransferDepartmentHeadModalProps) {
+}: TransferFacilityManagerModalProps) {
   const [open, setOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState<Option | undefined>();
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog();
@@ -45,6 +45,7 @@ export function TransferDepartmentHeadModal({
       value: faculty.id,
       label: faculty.name!,
       email: faculty.email,
+      department: faculty.departmentOrOrganization ?? "No Department",
     }));
 
   const handleTransfer = async () => {
@@ -55,7 +56,7 @@ export function TransferDepartmentHeadModal({
 
     try {
       await onTransfer(selectedFaculty.value);
-      toast.success("Department Head role transferred successfully!");
+      toast.success("Facility Manager role transferred successfully!");
       setOpen(false);
       setSelectedFaculty(undefined);
     } catch (error) {
@@ -70,8 +71,8 @@ export function TransferDepartmentHeadModal({
     }
 
     showConfirmation({
-      title: "Transfer Department Head Role",
-      description: `Are you sure you want to transfer the Department Head role to ${selectedFaculty.label}? You will be assigned the Faculty role after this transfer.`,
+      title: "Transfer Facility Manager Role",
+      description: `Are you sure you want to transfer the Facility Manager role to ${selectedFaculty.label}? You will be assigned the Faculty role after this transfer.`,
       confirmText: "Transfer Role",
       cancelText: "Cancel",
       variant: "success",
@@ -104,19 +105,18 @@ export function TransferDepartmentHeadModal({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <UserRound className="h-5 w-5" />
-              Transfer Department Head Role
+              <Building className="h-5 w-5" />
+              Transfer Facility Manager Role
             </DialogTitle>
             <DialogDescription>
-              Select a faculty member from your department to become the new
-              Department Head. You will be assigned the Faculty role after the
-              transfer.
+              Select a faculty member to become the new Facility Manager. You
+              will be assigned the Faculty role after the transfer.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Select New Department Head
+                Select New Facility Manager
               </label>
               <AutoComplete
                 options={facultyOptions}
@@ -127,15 +127,19 @@ export function TransferDepartmentHeadModal({
                 disabled={isTransferring}
               />
               {selectedFaculty && (
-                <p className="text-muted-foreground text-xs">
-                  Email: {selectedFaculty.email}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-muted-foreground text-xs">
+                    Email: {selectedFaculty.email}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Department: {selectedFaculty.department}
+                  </p>
+                </div>
               )}
             </div>
             {facultyOptions.length === 0 && (
               <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-                No other faculty members available in your department for role
-                transfer.
+                No other faculty members available for role transfer.
               </div>
             )}
           </div>
@@ -150,7 +154,9 @@ export function TransferDepartmentHeadModal({
             <Button
               onClick={handleTransferClick}
               disabled={
-                !selectedFaculty || isTransferring || facultyList.length === 0
+                !selectedFaculty ||
+                isTransferring ||
+                facultyOptions.length === 0
               }
             >
               {isTransferring ? "Transferring..." : "Transfer Role"}

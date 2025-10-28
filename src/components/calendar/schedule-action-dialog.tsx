@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,8 @@ import { toTimeInt } from "@/lib/utils";
 import { Roles } from "@/constants/roles";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getScheduleTypeInfo } from "./_components/schedule-type-info";
+import type { Department } from "@/constants/dept-org";
+import { UploadButton } from "@/utils/uploadthing";
 
 export type UserSession = BetterAuthSession["user"] | undefined;
 
@@ -35,6 +38,7 @@ interface ScheduleActionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedItem: FinalClassroomSchedule | null;
+  departmentRequestedTo?: Department | null;
   currentUser: UserSession;
   onMarkVacant: (
     schedule: FinalClassroomSchedule,
@@ -51,18 +55,22 @@ interface ScheduleActionDialogProps {
   onRequestToBorrow: (
     schedule: FinalClassroomSchedule,
     data: BorrowingData,
+    departmentRequestedTo?: Department | null,
   ) => Promise<void>;
 }
 export default function ScheduleActionDialog({
   open,
   onOpenChange,
   selectedItem,
+  departmentRequestedTo,
   currentUser,
   onMarkVacant,
   onClaimSlot,
   onCancelBorrowing,
   onRequestToBorrow,
 }: ScheduleActionDialogProps) {
+  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfName, setPdfName] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isBorrowMode, setIsBorrowMode] = useState(false);
   const [borrowingData, setBorrowingData] = useState<BorrowingData>({
@@ -74,6 +82,7 @@ export default function ScheduleActionDialog({
     subject: "",
     section: "",
     details: "",
+    fileUrl: "",
   });
 
   if (!selectedItem) return null;
@@ -167,6 +176,7 @@ export default function ScheduleActionDialog({
         subject: "",
         section: "",
         details: "",
+        fileUrl: "",
       });
     } catch (error) {
       console.error("Error claiming slot:", error);
@@ -194,7 +204,11 @@ export default function ScheduleActionDialog({
 
     setLoading(true);
     try {
-      await onRequestToBorrow(selectedItem, borrowingData);
+      await onRequestToBorrow(
+        selectedItem,
+        borrowingData,
+        departmentRequestedTo,
+      );
       onOpenChange(false);
       setBorrowingData({
         classroomId: selectedItem?.classroomId ?? "",
@@ -205,6 +219,7 @@ export default function ScheduleActionDialog({
         subject: "",
         section: "",
         details: "",
+        fileUrl: "",
       });
     } catch (error) {
       console.error("Error requesting to borrow:", error);
@@ -720,6 +735,57 @@ export default function ScheduleActionDialog({
                   </div>
                 </div>
 
+                {/* Additional Details */}
+                <div className="space-y-2">
+                  <Label htmlFor="details">Additional Details</Label>
+                  <Input
+                    id="details"
+                    placeholder="e.g., Lending to Sir. John Doe"
+                    value={borrowingData.details ?? ""}
+                    onChange={(e) =>
+                      setBorrowingData({
+                        ...borrowingData,
+                        details: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* File Upload */}
+                <div className="flex flex-col gap-2">
+                  <Label>Attachments</Label>
+                  {pdfUrl.length ? (
+                    <a
+                      className="text-primary border-grey rounded-sm border px-2 py-1 underline"
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div>{pdfName || "pdf"}</div>
+                    </a>
+                  ) : null}
+
+                  <UploadButton
+                    className="ut-button:bg-primary ut-button:w-full ut-button:h-7 ut-button:rounded-xs text-sm font-medium"
+                    endpoint="pdfUploader"
+                    onClientUploadComplete={(res) => {
+                      console.log("File uploaded:", res);
+                      const url = res[0]?.ufsUrl ?? "";
+                      const name = res[0]?.name ?? "";
+                      setPdfUrl(url);
+                      setPdfName(name);
+                      setBorrowingData({
+                        ...borrowingData,
+                        fileUrl: url,
+                      });
+                      toast.success("File uploaded successfully!");
+                    }}
+                    onUploadError={(error: Error) => {
+                      console.log("Error uploading:", error.message);
+                      toast.error("Failed to upload file");
+                    }}
+                  />
+                </div>
                 {/* Validation Messages */}
                 {borrowingData.startTime >= borrowingData.endTime && (
                   <div className="rounded bg-red-50 p-2 text-sm text-red-600">

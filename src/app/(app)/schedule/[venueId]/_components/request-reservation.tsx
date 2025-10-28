@@ -237,8 +237,7 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
             >
               <ScrollArea className="h-75">
                 <div className="space-y-4">
-
-                  {/* Date */}
+                  {/* Start Date */}
                   <FormField
                     control={form.control}
                     name="date"
@@ -275,7 +274,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                             <Calendar
                               mode="single"
                               selected={field.value}
-                              onSelect={field.onChange}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                if (date) {
+                                  form.setValue("endDate", date);
+                                }
+                              }}
                               captionLayout="dropdown"
                               disabled={(date) => {
                                 const today = new Date();
@@ -300,6 +304,10 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       <FormItem className="flex flex-col">
                         <FormLabel>
                           End Date<p className="text-destructive">*</p>
+                          <p className="text-muted-foreground text-xs">
+                            (for single-day events, keep the end date same as
+                            start date)
+                          </p>
                         </FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -332,11 +340,11 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                               onSelect={field.onChange}
                               captionLayout="dropdown"
                               disabled={(date) => {
-                                const today = new Date();
+                                const start = dateParam;
                                 const normalizedDate = new Date(date);
                                 normalizedDate.setHours(0, 0, 0, 0);
-                                today.setHours(0, 0, 0, 0);
-                                return normalizedDate <= today;
+                                start.setHours(0, 0, 0, 0);
+                                return normalizedDate < start;
                               }}
                             />
                           </PopoverContent>
@@ -345,7 +353,6 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
                       </FormItem>
                     )}
                   />
-
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Start Time */}

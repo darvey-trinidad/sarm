@@ -148,7 +148,7 @@ export default function FacultyCalendarView() {
       schedDate < dateToday ||
       (schedDate.getTime() === dateToday.getTime() &&
         schedule.endTime <
-          now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+        now.getHours() * 100 + (now.getMinutes() * 100) / 60);
 
     if (schedIsPast) return;
 
@@ -257,9 +257,8 @@ export default function FacultyCalendarView() {
                   return (
                     <div
                       key={day}
-                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${
-                        isMobile ? "w-[280px] flex-shrink-2" : ""
-                      }`}
+                      className={`bg-muted/50 border-r p-3 last:border-r-0 ${isMobile ? "w-[280px] flex-shrink-2" : ""
+                        }`}
                     >
                       <div className="text-sm font-medium">{day}</div>
                       <div className="text-muted-foreground text-xs">
@@ -319,15 +318,29 @@ export default function FacultyCalendarView() {
                         Borrowed Time
                       </div>
                     )}
+                    {
+                      schedule.source !== SCHEDULE_SOURCE.Vacancy && schedule.source !== SCHEDULE_SOURCE.Unoccupied && (
+                        <div className="truncate text-xs font-medium">
+                          {schedule.buildingName} - Room {schedule.classroomName}
+                        </div>
+                      )
+                    }
                     <div className="truncate text-xs font-medium">
                       {schedule.source === "Initial Schedule" ||
-                      schedule.source === "Borrowing"
+                        schedule.source === "Borrowing"
                         ? `${schedule.subject} - ${schedule.section}`
                         : "Free Time"}
                     </div>
                     <div className="text-muted-foreground truncate text-xs">
                       {`${TIME_MAP[schedule.startTime]} - ${TIME_MAP[schedule.endTime]}`}
                     </div>
+                    {
+                      schedule.details && (
+                        <div className="text-muted-foreground text-xs mt-1 break-words line-clamp-3">
+                          {schedule.details}
+                        </div>
+                      )
+                    }
                   </div>
                 ))}
 

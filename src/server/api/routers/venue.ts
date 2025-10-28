@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { createVenue, createVenueReservation, editVenue, editVenueReservation } from "@/lib/api/venue/mutation";
-import { checkVenueReservationConflicts, getAllUpcomingVenueReservations, getAllVenueReservationsByUserId, getAllVenueReservationsForCalendarView, getAllVenues, getVenueReservationPastMonthsStats } from "@/lib/api/venue/query";
+import { checkVenueReservationConflicts, getAllUpcomingVenueReservations, getAllVenueReservationsByUserId, getAllVenueReservationsForCalendarView, getAllVenues, getVenueById, getVenueReservationPastMonthsStats } from "@/lib/api/venue/query";
 import { createVenueSchema, createVenueReservationSchema, createVenueReservationWithBorrowingSchema, getAllVenueReservationsSchema, editVenueReservationWithBorrowingSchema, editVenueReservationAndBorrowingStatusSchema, editVenueReservationStatusSchema, editVenueSchema } from "@/server/api-utils/validators/venue";
 import { getAllVenueReservations } from "@/lib/api/venue/query";
 import { generateUUID } from "@/lib/utils";
@@ -13,6 +13,7 @@ import { notifyResourceBorrower } from "@/emails/notify-resource-borrower";
 import { notifyFmReservation } from "@/emails/notify-fm-reservation";
 import { notifyFmBorrowing } from "@/emails/notify-fm-borrowing";
 import z from "zod";
+import { returnClassroomBorrowing } from "@/lib/api/classroom-schedule/mutation";
 
 export const venueRouter = createTRPCRouter({
   createVenue: protectedProcedure
@@ -37,7 +38,7 @@ export const venueRouter = createTRPCRouter({
       if (!venueReservation) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not create venue reservation" });
       await notifyFmReservation(venueReservation.id);
 
-      if (venueReservation.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
+      if (venueReservation.status.toLowerCase() === ReservationStatus.Approved.toLowerCase()) {
         await notifyPeInstructors(venueReservation.id);
       }
 
@@ -69,7 +70,7 @@ export const venueRouter = createTRPCRouter({
 
       await notifyFmReservation(venueReservation.id);
 
-      if (venueReservation.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase()) {
+      if (venueReservation.status.toLowerCase() === ReservationStatus.Approved.toLowerCase()) {
         await notifyPeInstructors(venueReservation.id);
       }
 
@@ -130,6 +131,10 @@ export const venueRouter = createTRPCRouter({
   getVenueReservationPastMonthsStats: protectedProcedure.query(async () => {
     return await getVenueReservationPastMonthsStats();
   }),
+  returnClassroomBorrowing: protectedProcedure
+    .query(async () => {
+      return await returnClassroomBorrowing(new Date("2025-10-31"), "f3TDwXzVWtjYCZ25qEwcbCb4ioGkZ0dQ", 700, 1200);
+    }),
   editVenueReservationStatus: protectedProcedure
     .input(editVenueReservationStatusSchema)
     .mutation(async ({ input }) => {
@@ -138,10 +143,26 @@ export const venueRouter = createTRPCRouter({
 
         if (!editVenueReservationRes) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not update venue reservation status" });
 
-        if (input.status.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase())
+        if (input.status.toLowerCase() === ReservationStatus.Rejected.toLowerCase()
+          || input.status.toLowerCase() === ReservationStatus.Canceled.toLowerCase()) {
+          const venue = await getVenueById(editVenueReservationRes.venueId);
+
+          const venueName = venue?.name.toLowerCase().replace(" ", "");
+
+          if (venueName?.includes("socialhall")) {
+            returnClassroomBorrowing(
+              editVenueReservationRes.date,
+              editVenueReservationRes.reserverId,
+              editVenueReservationRes.startTime,
+              editVenueReservationRes.endTime
+            );
+          }
+        }
+
+        if (input.status.toLowerCase() === ReservationStatus.Approved.toLowerCase())
           await notifyPeInstructors(input.id);
 
-        if (input.status.toLocaleLowerCase() !== ReservationStatus.Pending.toLocaleLowerCase())
+        if (input.status.toLowerCase() !== ReservationStatus.Pending.toLowerCase())
           await notifyVenueReserver(input.id);
 
         return {
@@ -167,10 +188,10 @@ export const venueRouter = createTRPCRouter({
 
         const res = await editBorrowingTransactionByVenueReservationId(input.id, { status: input.borrowingStatus });
 
-        if (input.reservationStatus.toLocaleLowerCase() === ReservationStatus.Approved.toLocaleLowerCase())
+        if (input.reservationStatus.toLowerCase() === ReservationStatus.Approved.toLowerCase())
           await notifyPeInstructors(input.id);
 
-        if (input.reservationStatus.toLocaleLowerCase() !== ReservationStatus.Pending.toLocaleLowerCase()) {
+        if (input.reservationStatus.toLowerCase() !== ReservationStatus.Pending.toLowerCase()) {
           await notifyVenueReserver(input.id);
           if (res) {
             await notifyResourceBorrower(res.id);

@@ -16,6 +16,15 @@ export const getAllVenues = async () => {
   }
 }
 
+export const getVenueById = async (id: string) => {
+  try {
+    return await db.select().from(venue).where(eq(venue.id, id)).get();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function getAllVenueReservations({
   status,
   venueId,

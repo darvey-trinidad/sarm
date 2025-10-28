@@ -6,7 +6,7 @@ import { TIME_KEY_SET } from "@/constants/timeslot";
 import { format } from "date-fns";
 import type { FinalClassroomSchedule } from "@/types/clasroom-schedule";
 import { ClassroomTypeValues, type ClassroomType } from "@/constants/classroom-type";
-import { DeptOrOrgValues } from "@/constants/dept-org";
+import { DepartmentValues, DeptOrOrgValues, type Department } from "@/constants/dept-org";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -103,23 +103,50 @@ export const checkIsPastSchedule = (schedule: FinalClassroomSchedule) => {
   return schedIsPast;
 }
 
-export const checkRoomAuthority = (dept: string, classroomType: ClassroomType) => {
+export const checkIsPastRequest = (date: Date, endTime: number) => {
+  const now = new Date();
+  const dateToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+  const schedDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+
+  const schedIsPast =
+    schedDate < dateToday ||
+    (schedDate.getTime() === dateToday.getTime() &&
+      endTime <
+      now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+
+  console.log("schedDate", schedDate);
+  console.log("dateToday", dateToday);
+  console.log("endTime", endTime);
+  console.log("schedIsPast", schedIsPast);
+
+  return schedIsPast;
+}
+
+export const checkRoomAuthority = (dept: string, classroomType: ClassroomType): [authorizedToRoom: boolean, roomDepartment: Department | null] => {
   switch (classroomType) {
     case ClassroomTypeValues.Lecture:
-      return true;
+      return [true, null];
     case ClassroomTypeValues.ComputerLaboratory:
-      return dept === DeptOrOrgValues.ITDS || dept === DeptOrOrgValues.BINDTECH;
+      return [dept === DeptOrOrgValues.ITDS, DepartmentValues.ITDS];
     case ClassroomTypeValues.HMLaboratory:
-      return dept === DeptOrOrgValues.HTM;
+      return [dept === DeptOrOrgValues.HTM, DepartmentValues.HTM];
     case ClassroomTypeValues.BiologyLaboratory:
     case ClassroomTypeValues.ChemistryLaboratory:
     case ClassroomTypeValues.PhysicsLaboratory:
-      return dept === DeptOrOrgValues.GATE;
+      return [dept === DeptOrOrgValues.GATE, DepartmentValues.GATE];
     case ClassroomTypeValues.ElectronicsLaboratory:
     case ClassroomTypeValues.DraftingLaboratory:
-      return dept === DeptOrOrgValues.BINDTECH;
+      return [dept === DeptOrOrgValues.BINDTECH, DepartmentValues.BINDTECH];
     default:
-      return false;
+      return [false, null];
   }
 };
 

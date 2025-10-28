@@ -1,10 +1,14 @@
-export const DEPARTMENT_OR_ORGANIZATION = [
-  // departments
+export const DEPARTMENTS = [
   "itds",
   "bindtech",
   "gate",
   "gba",
   "htm",
+] as const
+
+export const DEPARTMENT_OR_ORGANIZATION = [
+  // departments
+  ...DEPARTMENTS,
   // organizations
   "elites",
   "abacus",
@@ -13,6 +17,15 @@ export const DEPARTMENT_OR_ORGANIZATION = [
   "student_council",
   "laurel_publication"
 ] as const;
+
+export const DepartmentValues = {
+  ITDS: DEPARTMENTS[0],
+  BINDTECH: DEPARTMENTS[1],
+  GATE: DEPARTMENTS[2],
+  GBA: DEPARTMENTS[3],
+  HTM: DEPARTMENTS[4],
+}
+
 
 export const DEPARTMENT_OR_ORGANIZATION_OPTIONS = DEPARTMENT_OR_ORGANIZATION.map((item) => ({
   value: item,
@@ -35,5 +48,7 @@ export const DeptOrOrgValues = {
   STUDENT_COUNCIL: DEPARTMENT_OR_ORGANIZATION[9],
   LAUREL_PUBLICATION: DEPARTMENT_OR_ORGANIZATION[10],
 }
+
+export type Department = typeof DEPARTMENTS[number];
 
 export type DepartmentOrOrganization = typeof DEPARTMENT_OR_ORGANIZATION[number];

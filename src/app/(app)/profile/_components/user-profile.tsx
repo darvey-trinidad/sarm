@@ -30,6 +30,7 @@ import { formatISODate } from "@/lib/utils";
 import { useConfirmationDialog } from "@/components/dialog/use-confirmation-dialog";
 import { NotificationSubscribeButton } from "@/components/notifications/notification-subscription-button";
 import { TransferDepartmentHeadModal } from "@/components/change-role/transfer-department-head-role";
+import { TransferFacilityManagerModal } from "@/components/change-role/tranfer-facilitymanager-role";
 export default function UserProfile() {
   const { data: session, refetch: refetchSession } = authClient.useSession();
   const { data: userData, refetch: refetchUserData } =
@@ -48,14 +49,22 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDepartment, setEditedDepartment] = useState("");
+  //per department
   const { data: getAllFacultyByDepartment } =
     api.auth.getAllFacultyByDepartment.useQuery(undefined, {
       enabled: session?.user.role === Roles.DepartmentHead,
     });
+  //all faculty
+  const { data: getAllFaculty } = api.auth.getAllFaculty.useQuery();
   //change the role of the user
-  const { mutate: transferDepartmentHeadRole, isPending: isTransferring } =
-    api.auth.transferDepartmentHeadRole.useMutation();
-  // Sync state when userData is loaded or updated
+  const {
+    mutate: transferDepartmentHeadRole,
+    isPending: isTransferringDepartmentHead,
+  } = api.auth.transferDepartmentHeadRole.useMutation();
+  const {
+    mutate: transferFacilityManagerRole,
+    isPending: isTransferringFacilityManager,
+  } = api.auth.transferFacilityManagerRole.useMutation();
 
   useEffect(() => {
     if (userData) {
@@ -170,9 +179,7 @@ export default function UserProfile() {
                 placeholder="Enter your full name"
               />
             ) : (
-              <p className="pl-7 text-base">
-                {userData?.name ?? "Loading..."}
-              </p>
+              <p className="pl-7 text-base">{userData?.name ?? "Loading..."}</p>
             )}
           </div>
 
@@ -182,9 +189,7 @@ export default function UserProfile() {
               <Mail className="text-muted-foreground h-5 w-5" />
               <span>Email Address</span>
             </Label>
-            <p className="pl-7 text-base">
-              {userData?.email ?? "Loading..."}
-            </p>
+            <p className="pl-7 text-base">{userData?.email ?? "Loading..."}</p>
           </div>
 
           {/* Department Field - EDITABLE */}
@@ -216,8 +221,8 @@ export default function UserProfile() {
               <p className="pl-7 text-base">
                 {userData?.departmentOrOrganization
                   ? (DEPARTMENT_OR_ORGANIZATION_OPTIONS.find(
-                    (opt) => opt.value === userData.departmentOrOrganization,
-                  )?.label ?? userData.departmentOrOrganization)
+                      (opt) => opt.value === userData.departmentOrOrganization,
+                    )?.label ?? userData.departmentOrOrganization)
                   : "Loading..."}
               </p>
             )}
@@ -230,7 +235,7 @@ export default function UserProfile() {
                 <Briefcase className="text-muted-foreground h-5 w-5" />
                 <span>Role</span>
               </Label>
-              {isEditing && session?.user.role === Roles.DepartmentHead && (
+              {session?.user.role === Roles.DepartmentHead && (
                 <TransferDepartmentHeadModal
                   facultyList={getAllFacultyByDepartment ?? []}
                   currentUserId={session?.user.id ?? ""}
@@ -254,7 +259,34 @@ export default function UserProfile() {
                       );
                     });
                   }}
-                  isTransferring={isTransferring}
+                  isTransferring={isTransferringDepartmentHead}
+                />
+              )}
+              {session?.user.role === Roles.FacilityManager && (
+                <TransferFacilityManagerModal
+                  facultyList={getAllFaculty ?? []}
+                  currentUserId={session?.user.id ?? ""}
+                  onTransfer={async (newManagerId) => {
+                    await new Promise<void>((resolve) => {
+                      transferFacilityManagerRole(
+                        { newFacilityManagerUserId: newManagerId },
+                        {
+                          onSuccess: async () => {
+                            void refetchSession();
+                            await refetchUserData();
+                            resolve();
+                          },
+                          onError: (error) => {
+                            toast.error(
+                              error.message ?? "Failed to transfer role",
+                            );
+                            resolve();
+                          },
+                        },
+                      );
+                    });
+                  }}
+                  isTransferring={isTransferringFacilityManager}
                 />
               )}
             </div>

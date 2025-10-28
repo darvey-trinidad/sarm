@@ -7,7 +7,7 @@ import VenueReservationUser from "./user-view/venue-reservation-user";
 import ResourceReservationUser from "./user-view/resource-reservation-user";
 import { authClient } from "@/lib/auth-client";
 import { Roles } from "@/constants/roles";
-import UserRoomRequest from "./classroom-request/user-room-request";
+import RoomRequest from "./classroom-request/room-request";
 
 type RequestTabContentProps = {
   role: string;
@@ -108,7 +108,7 @@ export default function RequestTabContent({ role }: RequestTabContentProps) {
             {
               (role === Roles.DepartmentHead || role === Roles.Faculty || role === Roles.PEInstructor) && (
                 <TabsContent value="room-request">
-                  <UserRoomRequest />
+                  <RoomRequest />
                 </TabsContent>
               )
             }

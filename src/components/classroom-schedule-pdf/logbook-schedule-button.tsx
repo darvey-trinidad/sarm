@@ -17,11 +17,12 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { newDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { handleGenerateReport } from "./generate-report";
 
 type logBookScheduleProps = {
   classroomId: string;
@@ -31,8 +32,9 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleGenerateLogs = (e: React.FormEvent) => {
+  const handleGenerateLogs = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!startDate || !endDate) {
@@ -48,9 +50,19 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
 
     console.log("Generate logs with:", logData);
 
-    setOpen(false);
-    setStartDate(undefined);
-    setEndDate(undefined);
+    setLoading(true);
+    try {
+      await handleGenerateReport(classroomId, startDate, endDate);
+
+      setOpen(false);
+      setStartDate(undefined);
+      setEndDate(undefined);
+    } catch (error) {
+      toast.error("Failed to generate report");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,9 +73,9 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleGenerateLogs}>
           <DialogHeader>
-            <DialogTitle>Logbook Schedule</DialogTitle>
+            <DialogTitle>Classroom Logs</DialogTitle>
             <DialogDescription>
-              Input start date and end date to generate logbook schedule.
+              Input start date and end date to generate classroom's schedule logs.
             </DialogDescription>
           </DialogHeader>
 
@@ -78,6 +90,7 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
                     id="start-date"
                     variant="outline"
                     className="w-full justify-start text-left font-normal"
+                    disabled={loading}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {startDate ? format(startDate, "PPP") : "Pick a date"}
@@ -109,6 +122,7 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
                     id="end-date"
                     variant="outline"
                     className="w-full justify-start text-left font-normal"
+                    disabled={loading}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {endDate ? format(endDate, "PPP") : "Pick a date"}
@@ -134,11 +148,20 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={loading}>
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Generate</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

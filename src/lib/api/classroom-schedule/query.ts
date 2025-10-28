@@ -1,4 +1,4 @@
-import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne } from "@/server/db";
+import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne, or, desc } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
 import {
   classroomSchedule,
@@ -23,8 +23,8 @@ import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
 import type { ClassroomType } from "@/constants/classroom-type";
 import { RoomRequestStatus } from "@/constants/room-request-status";
-import type { c } from "node_modules/better-auth/dist/shared/better-auth.ClXlabtY";
-import { request } from "http";
+import { Roles, type Roles as RolesType } from "@/constants/roles";
+import type { Department, DepartmentOrOrganization } from "@/constants/dept-org";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (
@@ -109,6 +109,8 @@ export const getRoomRequestById = async (id: string) => {
         responderName: responder.name,
         responderEmail: responder.email,
         status: roomRequests.status,
+        departmentRequestedTo: roomRequests.departmentRequestedTo,
+        details: roomRequests.details,
         createdAt: roomRequests.createdAt,
         respondedAt: roomRequests.respondedAt,
       })
@@ -124,13 +126,32 @@ export const getRoomRequestById = async (id: string) => {
   }
 };
 
-export const getRoomRequestsByResponderId = async (responderId: string) => {
+export const getRoomRequestsByResponderId = async ({ responderId, role, department }: {
+  responderId: string,
+  role: RolesType | undefined | null,
+  department: Department | undefined | null
+}) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
     const midnightPH = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
     );
+
+    const requestor = alias(user, "requestor");
+    const responder = alias(user, "responder");
+
+    console.log("role", role);
+    console.log("department", department);
+
+    const conditions = [];
+    if (role === Roles.DepartmentHead && department) {
+      console.log("entered 1");
+      conditions.push(or(eq(roomRequests.departmentRequestedTo, department), eq(roomRequests.responderId, responderId)));
+    } else {
+      console.log("entered 2");
+      conditions.push(eq(roomRequests.responderId, responderId))
+    }
 
     return await db
       .select({
@@ -142,22 +163,26 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
         endTime: roomRequests.endTime,
         subject: roomRequests.subject,
         section: roomRequests.section,
-        requestorId: user.id,
-        requestorName: user.name,
+        requestorId: requestor.id,
+        requestorName: requestor.name,
+        responderId: responder.id,
+        responderName: responder.name,
+        departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
+        details: roomRequests.details,
+        fileUrl: roomRequests.fileUrl,
       })
       .from(roomRequests)
       .where(
         and(
-          eq(roomRequests.responderId, responderId),
-          eq(roomRequests.status, RoomRequestStatus.Pending),
-          gte(roomRequests.date, midnightPH),
+          ...conditions
         ),
       )
-      .innerJoin(user, eq(roomRequests.requesterId, user.id))
+      .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
-      .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
+      .orderBy(desc(roomRequests.createdAt), asc(roomRequests.startTime))
       .all();
   } catch (error) {
     console.log("Failed to get room request:", error);
@@ -175,6 +200,9 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
 
     console.log(midnightPH);
 
+    const requestor = alias(user, "requestor");
+    const responder = alias(user, "responder");
+
     return await db
       .select({
         id: roomRequests.id,
@@ -185,21 +213,26 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
         endTime: roomRequests.endTime,
         subject: roomRequests.subject,
         section: roomRequests.section,
-        requestorId: user.id,
-        requestorName: user.name,
+        requestorId: requestor.id,
+        requestorName: requestor.name,
+        responderId: responder.id,
+        responderName: responder.name,
+        departmentRequestedTo: roomRequests.departmentRequestedTo,
         status: roomRequests.status,
         createdAt: roomRequests.createdAt,
+        details: roomRequests.details,
+        fileUrl: roomRequests.fileUrl,
       })
       .from(roomRequests)
       .where(
         and(
           eq(roomRequests.requesterId, requesterId),
-          gte(roomRequests.date, midnightPH),
         ),
       )
-      .innerJoin(user, eq(roomRequests.requesterId, user.id))
+      .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
+      .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
-      .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
+      .orderBy(desc(roomRequests.createdAt), asc(roomRequests.startTime))
       .all();
   } catch (error) {
     console.log("Failed to get room request:", error);
