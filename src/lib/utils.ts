@@ -103,6 +103,33 @@ export const checkIsPastSchedule = (schedule: FinalClassroomSchedule) => {
   return schedIsPast;
 }
 
+export const checkIsPastRequest = (date: Date, endTime: number) => {
+  const now = new Date();
+  const dateToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+  const schedDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+
+  const schedIsPast =
+    schedDate < dateToday ||
+    (schedDate.getTime() === dateToday.getTime() &&
+      endTime <
+      now.getHours() * 100 + (now.getMinutes() * 100) / 60);
+
+  console.log("schedDate", schedDate);
+  console.log("dateToday", dateToday);
+  console.log("endTime", endTime);
+  console.log("schedIsPast", schedIsPast);
+
+  return schedIsPast;
+}
+
 export const checkRoomAuthority = (dept: string, classroomType: ClassroomType): [authorizedToRoom: boolean, roomDepartment: Department | null] => {
   switch (classroomType) {
     case ClassroomTypeValues.Lecture:

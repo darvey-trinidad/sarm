@@ -21,7 +21,7 @@ import {
   getStatusColorRoomRequest,
   getStatusIconRoomRequest,
 } from "../user-view/request-status";
-import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
+import { checkIsPastRequest, formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { RoomRequestStatus } from "@/constants/room-request-status";
 import NoRoomRequest from "@/components/loading-state/no-room-request";
@@ -171,6 +171,7 @@ export default function UserRoomRequest() {
                                 handleCancel(classroomRequest.id);
                               }}
                               className="bg-orange-600 text-white hover:bg-orange-700"
+                              disabled={checkIsPastRequest(classroomRequest.date, classroomRequest.endTime)}
                             >
                               <XCircle className="mr-1 h-4 w-4" />
                               Cancel

@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
+import { checkIsPastRequest, formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import NoRoomRequest from "@/components/loading-state/no-room-request";
 import LoadingMessage from "@/components/loading-state/loading-message";
@@ -122,7 +122,8 @@ export default function ReceivedRoomRequest() {
                           size="sm"
                           onClick={() => handlOpenSchedule(request.id)}
                           className="hidden sm:block"
-                          disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
+                          disabled={checkIsPastRequest(request.date, request.endTime)
+                            || (session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
                             || request.status !== RoomRequestStatusValues.Pending}
                         >
                           <div className="flex items-center gap-2">
@@ -165,7 +166,7 @@ export default function ReceivedRoomRequest() {
                         </div>
                       </div>
                       {
-                        !!request.departmentRequestedTo && (
+                        (!!request.departmentRequestedTo && session?.user.id !== request.responderId) && (
                           <div className="text-muted-foreground flex flex-col gap-4 pt-2 lg:flex-row">
                             <div className="flex items-center gap-1.5">
                               <User className="h-3.5 w-3.5 text-gray-400" />
@@ -191,7 +192,9 @@ export default function ReceivedRoomRequest() {
                     size="sm"
                     onClick={() => handlOpenSchedule(request.id)}
                     className="sm:hidden"
-                    disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)}
+                    disabled={checkIsPastRequest(request.date, request.endTime)
+                      || (session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
+                      || request.status !== RoomRequestStatusValues.Pending}
                   >
                     Respond
                   </Button>
