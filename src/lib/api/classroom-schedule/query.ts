@@ -1,4 +1,4 @@
-import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne } from "@/server/db";
+import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne, or } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
 import {
   classroomSchedule,
@@ -23,6 +23,8 @@ import { toTimeInt } from "@/lib/utils";
 import { alias } from "drizzle-orm/sqlite-core";
 import type { ClassroomType } from "@/constants/classroom-type";
 import { RoomRequestStatus } from "@/constants/room-request-status";
+import { Roles, type Roles as RolesType } from "@/constants/roles";
+import type { Department, DepartmentOrOrganization } from "@/constants/dept-org";
 
 // single day schedule
 export const getInitialClassroomSchedule = async (
@@ -108,6 +110,7 @@ export const getRoomRequestById = async (id: string) => {
         responderEmail: responder.email,
         status: roomRequests.status,
         departmentRequestedTo: roomRequests.departmentRequestedTo,
+        details: roomRequests.details,
         createdAt: roomRequests.createdAt,
         respondedAt: roomRequests.respondedAt,
       })
@@ -123,7 +126,11 @@ export const getRoomRequestById = async (id: string) => {
   }
 };
 
-export const getRoomRequestsByResponderId = async (responderId: string) => {
+export const getRoomRequestsByResponderId = async ({ responderId, role, department }: {
+  responderId: string,
+  role: RolesType | undefined | null,
+  department: Department | undefined | null
+}) => {
   try {
     const now = new Date();
     now.setHours(now.getHours() + 8);
@@ -133,6 +140,22 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
 
     const requestor = alias(user, "requestor");
     const responder = alias(user, "responder");
+
+    console.log("role", role);
+    console.log("department", department);
+
+    const conditions = [];
+    if (role === Roles.DepartmentHead && department) {
+      console.log("entered 1");
+      conditions.push(or(eq(roomRequests.departmentRequestedTo, department), eq(roomRequests.responderId, responderId)));
+      conditions.push(eq(roomRequests.status, RoomRequestStatus.Pending))
+      conditions.push(gte(roomRequests.date, midnightPH))
+    } else {
+      console.log("entered 2");
+      conditions.push(eq(roomRequests.responderId, responderId))
+      conditions.push(eq(roomRequests.status, RoomRequestStatus.Pending))
+      conditions.push(gte(roomRequests.date, midnightPH))
+    }
 
     return await db
       .select({
@@ -157,9 +180,7 @@ export const getRoomRequestsByResponderId = async (responderId: string) => {
       .from(roomRequests)
       .where(
         and(
-          eq(roomRequests.responderId, responderId),
-          eq(roomRequests.status, RoomRequestStatus.Pending),
-          gte(roomRequests.date, midnightPH),
+          ...conditions
         ),
       )
       .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))

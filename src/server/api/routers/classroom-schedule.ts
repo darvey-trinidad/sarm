@@ -56,6 +56,7 @@ import { Roles } from "@/constants/roles";
 import { sendPushNotification } from "@/lib/push-service";
 import { TIME_MAP, type TimeInt } from "@/constants/timeslot";
 import { notifyConflictingRoomRequestor } from "@/emails/notify-room-requestors";
+import type { Department, DepartmentOrOrganization } from "@/constants/dept-org";
 
 export const classroomScheduleRouter = createTRPCRouter({
   createClassroomSchedule: protectedProcedure
@@ -298,12 +299,12 @@ export const classroomScheduleRouter = createTRPCRouter({
         await notifyRoomRequestor(input.roomRequestId);
 
         if (input.status === RoomRequestStatus.Accepted) {
-          await createClassroomVacancy({
-            classroomId: roomRequestRecord.classroomId,
-            date: roomRequestRecord.date,
-            startTime: roomRequestRecord.startTime,
-            endTime: roomRequestRecord.endTime,
-          });
+          // await createClassroomVacancy({
+          //   classroomId: roomRequestRecord.classroomId,
+          //   date: roomRequestRecord.date,
+          //   startTime: roomRequestRecord.startTime,
+          //   endTime: roomRequestRecord.endTime,
+          // });
           await createClassroomBorrowing({
             classroomId: roomRequestRecord.classroomId,
             date: roomRequestRecord.date,
@@ -312,6 +313,7 @@ export const classroomScheduleRouter = createTRPCRouter({
             facultyId: roomRequestRecord.requestorId,
             subject: roomRequestRecord.subject,
             section: roomRequestRecord.section,
+            details: roomRequestRecord.details,
           });
 
           const conflicts = await getConflictingRoomRequests(roomRequestRecord.id);
@@ -341,8 +343,12 @@ export const classroomScheduleRouter = createTRPCRouter({
     }),
   getRoomRequestsByResponderId: protectedProcedure
     .input(z.object({ responderId: z.string() }))
-    .query(async ({ input }) => {
-      const res = await getRoomRequestsByResponderId(input.responderId);
+    .query(async ({ input, ctx }) => {
+      const res = await getRoomRequestsByResponderId({
+        responderId: input.responderId,
+        role: ctx.session?.user.role as Roles,
+        department: ctx.session?.user.departmentOrOrganization as Department,
+      });
       return res;
     }),
   getRoomRequestsByRequestorId: protectedProcedure

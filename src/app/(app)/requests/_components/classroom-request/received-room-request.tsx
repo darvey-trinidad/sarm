@@ -95,12 +95,14 @@ export default function ReceivedRoomRequest() {
                           <CardTitle className="text-md">
                             {request.requestorName}
                           </CardTitle>
-                          <Badge
-                            className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"
-                          >
-                            <AlertCircle className="h-4 w-4 text-yellow-600" />
-                            <span>From other department</span>
-                          </Badge>
+                          {
+                            request.departmentRequestedTo && (<Badge
+                              className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"
+                            >
+                              <AlertCircle className="h-4 w-4 text-yellow-600" />
+                              <span>From other department</span>
+                            </Badge>)
+                          }
                         </div>
 
                         <Button
