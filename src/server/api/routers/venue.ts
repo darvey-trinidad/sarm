@@ -150,7 +150,7 @@ export const venueRouter = createTRPCRouter({
           const venueName = venue?.name.toLowerCase().replace(" ", "");
 
           if (venueName?.includes("socialhall")) {
-            returnClassroomBorrowing(
+            await returnClassroomBorrowing(
               editVenueReservationRes.date,
               editVenueReservationRes.reserverId,
               editVenueReservationRes.startTime,

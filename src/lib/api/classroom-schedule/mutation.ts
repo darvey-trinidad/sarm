@@ -163,7 +163,7 @@ export const returnClassroomBorrowing = async (date: Date, facultyId: string, st
     if (overlappingBorrowings.length === 0) return;
 
     overlappingBorrowings.forEach(async (borrowing) => {
-      deleteClassroomBorrowing({ classroomId: borrowing.classroomId, date: borrowing.date, startTime: borrowing.startTime, endTime: borrowing.endTime });
+      await deleteClassroomBorrowing({ classroomId: borrowing.classroomId, date: borrowing.date, startTime: borrowing.startTime, endTime: borrowing.endTime });
       console.log("Deleted classroom borrowing: ", borrowing);
     })
 

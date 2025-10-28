@@ -87,7 +87,7 @@ interface EditState {
 
 // Shared state for editing
 let currentEditState: EditState | null = null;
-const editStateListeners: Set<(state: EditState | null) => void> = new Set();
+const editStateListeners = new Set<(state: EditState | null) => void>();
 
 const setEditState = (state: EditState | null) => {
   currentEditState = state;
@@ -195,6 +195,106 @@ function ActionsCell({ user }: { user: User }) {
   );
 }
 
+// Create separate components for cells that need to use hooks
+function RoleCell({ user }: { user: User }) {
+  const editState = useEditState();
+  const isEditing = editState?.userId === user.id;
+
+  if (isEditing) {
+    return (
+      <Select
+        value={editState.role}
+        onValueChange={(val) =>
+          setEditState({ ...editState, role: val as Roles })
+        }
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {ROLES_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
+
+  return <div className="pl-3">{getUserRoleLabel(user.role)}</div>;
+}
+
+function DepartmentCell({ user }: { user: User }) {
+  const editState = useEditState();
+  const isEditing = editState?.userId === user.id;
+
+  if (isEditing && editState) {
+    return (
+      <Select
+        value={editState.departmentOrOrganization}
+        onValueChange={(val) =>
+          setEditState({ ...editState, departmentOrOrganization: val })
+        }
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select dept/org" />
+        </SelectTrigger>
+        <SelectContent>
+          {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
+
+  const val = user.departmentOrOrganization;
+  return val ? (
+    <div className="pl-3">{val.toUpperCase()}</div>
+  ) : (
+    <div className="text-muted-foreground pl-3">N/A</div>
+  );
+}
+
+function StatusCell({ user }: { user: User }) {
+  const editState = useEditState();
+  const isEditing = editState?.userId === user.id;
+
+  if (isEditing) {
+    return (
+      <Select
+        value={editState.isActive ? "active" : "inactive"}
+        onValueChange={(val) =>
+          setEditState({ ...editState, isActive: val === "active" })
+        }
+      >
+        <SelectTrigger className="w-[130px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="active">
+            <div className="flex items-center">
+              <UserCheck className="mr-2 h-4 w-4 text-green-600" />
+              Active
+            </div>
+          </SelectItem>
+          <SelectItem value="inactive">
+            <div className="flex items-center">
+              <UserX className="mr-2 h-4 w-4 text-red-600" />
+              Inactive
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    );
+  }
+
+  return getStatusBadge(user.isActive);
+}
+
 export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "name",
@@ -210,71 +310,12 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "role",
     header: createSortableHeader("Role"),
-    cell: ({ row }) => {
-      const editState = useEditState();
-      const isEditing = editState?.userId === row.original.id;
-
-      if (isEditing) {
-        return (
-          <Select
-            value={editState.role}
-            onValueChange={(val) =>
-              setEditState({ ...editState, role: val as Roles })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ROLES_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      }
-
-      return <div className="pl-3">{getUserRoleLabel(row.original.role)}</div>;
-    },
+    cell: ({ row }) => <RoleCell user={row.original} />,
   },
   {
     accessorKey: "departmentOrOrganization",
     header: createSortableHeader("Department/Organization"),
-    cell: ({ row }) => {
-      const editState = useEditState();
-      const isEditing = editState?.userId === row.original.id;
-
-      if (isEditing) {
-        return (
-          <Select
-            value={editState.departmentOrOrganization}
-            onValueChange={(val) =>
-              setEditState({ ...editState, departmentOrOrganization: val })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select dept/org" />
-            </SelectTrigger>
-            <SelectContent>
-              {DEPARTMENT_OR_ORGANIZATION_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      }
-
-      const val: string | null = row.getValue("departmentOrOrganization");
-      return val ? (
-        <div className="pl-3">{val.toUpperCase()}</div>
-      ) : (
-        <div className="text-muted-foreground pl-3">N/A</div>
-      );
-    },
+    cell: ({ row }) => <DepartmentCell user={row.original} />,
   },
   {
     accessorKey: "createdAt",
@@ -300,41 +341,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "isActive",
     header: "Status",
-    cell: ({ row }) => {
-      const editState = useEditState();
-      const isEditing = editState?.userId === row.original.id;
-
-      if (isEditing) {
-        return (
-          <Select
-            value={editState.isActive ? "active" : "inactive"}
-            onValueChange={(val) =>
-              setEditState({ ...editState, isActive: val === "active" })
-            }
-          >
-            <SelectTrigger className="w-[130px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">
-                <div className="flex items-center">
-                  <UserCheck className="mr-2 h-4 w-4 text-green-600" />
-                  Active
-                </div>
-              </SelectItem>
-              <SelectItem value="inactive">
-                <div className="flex items-center">
-                  <UserX className="mr-2 h-4 w-4 text-red-600" />
-                  Inactive
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        );
-      }
-
-      return getStatusBadge(row.original.isActive);
-    },
+    cell: ({ row }) => <StatusCell user={row.original} />,
   },
   {
     id: "actions",

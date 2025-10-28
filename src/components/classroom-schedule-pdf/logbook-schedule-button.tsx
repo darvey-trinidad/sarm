@@ -75,7 +75,7 @@ export function LogbookScheduleButton({ classroomId }: logBookScheduleProps) {
           <DialogHeader>
             <DialogTitle>Classroom Logs</DialogTitle>
             <DialogDescription>
-              Input start date and end date to generate classroom's schedule logs.
+              Input start date and end date to generate classroom&apos;s schedule logs.
             </DialogDescription>
           </DialogHeader>
 
