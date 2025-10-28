@@ -10,14 +10,16 @@ import {
   Users,
   CalendarCheck,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { ReceivedRoomSkeleton } from "../skeletons/received-room-skeleton";
-import { formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
+import { checkIsPastRequest, formatISODate, formatLocalTime, toTimeInt } from "@/lib/utils";
 import { TIME_MAP } from "@/constants/timeslot";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { PageRoutes } from "@/constants/page-routes";
 import { NoRoomRequest } from "../no-data-mesage/dahsboard-nothing-found";
 import { Roles } from "@/constants/roles";
+import { RoomRequestStatusValues } from "@/constants/room-request-status";
 export default function ReceivedRoomRequest() {
   const { data: session } = authClient.useSession();
   const { data: ReceivedRoomRequest, isLoading } =
@@ -48,7 +50,12 @@ export default function ReceivedRoomRequest() {
             <NoRoomRequest />
           ) : (
             ReceivedRoomRequest?.map((request) => (
-              <div key={request.id} className="w-full">
+              <div key={request.id}
+                className={`w-full ${checkIsPastRequest(request.date, request.endTime) || request.status !== RoomRequestStatusValues.Pending
+                  ? "hidden"
+                  : ""
+                  }`}
+              >
                 <Card className="border-none bg-stone-50 p-6 shadow-none">
                   <div className="flex flex-col gap-2">
                     <CardHeader className="p-0">
@@ -60,13 +67,21 @@ export default function ReceivedRoomRequest() {
                           <CardTitle className="text-md">
                             {request.requestorName}
                           </CardTitle>
+                          <Badge
+                            className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"
+                          >
+                            {request.status.charAt(0).toUpperCase() +
+                              request.status.slice(1)}
+                          </Badge>
                         </div>
 
                         <Button
                           size="sm"
                           onClick={() => handlOpenSchedule(request.id)}
                           className="hidden sm:block"
-                          disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)}
+                          disabled={checkIsPastRequest(request.date, request.endTime)
+                            || (session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
+                            || request.status !== RoomRequestStatusValues.Pending}
                         >
                           <div className="flex items-center gap-2">
                             <CalendarCheck className="h-4 w-4" />
@@ -110,7 +125,9 @@ export default function ReceivedRoomRequest() {
                     size="sm"
                     onClick={() => handlOpenSchedule(request.id)}
                     className="sm:hidden"
-                    disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)}
+                    disabled={checkIsPastRequest(request.date, request.endTime)
+                      || (session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
+                      || request.status !== RoomRequestStatusValues.Pending}
                   >
                     Respond
                   </Button>
