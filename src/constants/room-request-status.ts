@@ -12,6 +12,13 @@ export const RoomRequestStatus = {
   Canceled: ROOM_REQUEST_STATUS[3],
 }
 
+export const RoomRequestStatusValues = {
+  Pending: "pending",
+  Accepted: "accepted",
+  Declined: "declined",
+  Canceled: "canceled",
+}
+
 export const DEFAULT_ROOM_REQUEST_STATUS = ROOM_REQUEST_STATUS[0];
 
 export type RoomRequestStatusType = typeof ROOM_REQUEST_STATUS[number];

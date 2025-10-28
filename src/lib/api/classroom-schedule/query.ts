@@ -1,4 +1,4 @@
-import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne, or } from "@/server/db";
+import { db, and, eq, inArray, gte, lte, asc, sql, lt, gt, ne, or, desc } from "@/server/db";
 import { building, classroom } from "@/server/db/schema/classroom";
 import {
   classroomSchedule,
@@ -148,13 +148,9 @@ export const getRoomRequestsByResponderId = async ({ responderId, role, departme
     if (role === Roles.DepartmentHead && department) {
       console.log("entered 1");
       conditions.push(or(eq(roomRequests.departmentRequestedTo, department), eq(roomRequests.responderId, responderId)));
-      conditions.push(eq(roomRequests.status, RoomRequestStatus.Pending))
-      conditions.push(gte(roomRequests.date, midnightPH))
     } else {
       console.log("entered 2");
       conditions.push(eq(roomRequests.responderId, responderId))
-      conditions.push(eq(roomRequests.status, RoomRequestStatus.Pending))
-      conditions.push(gte(roomRequests.date, midnightPH))
     }
 
     return await db
@@ -186,7 +182,7 @@ export const getRoomRequestsByResponderId = async ({ responderId, role, departme
       .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
       .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
-      .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
+      .orderBy(desc(roomRequests.createdAt), asc(roomRequests.startTime))
       .all();
   } catch (error) {
     console.log("Failed to get room request:", error);
@@ -231,13 +227,12 @@ export const getRoomRequestsByRequesterId = async (requesterId: string) => {
       .where(
         and(
           eq(roomRequests.requesterId, requesterId),
-          gte(roomRequests.date, midnightPH),
         ),
       )
       .innerJoin(requestor, eq(roomRequests.requesterId, requestor.id))
       .innerJoin(responder, eq(roomRequests.responderId, responder.id))
       .innerJoin(classroom, eq(roomRequests.classroomId, classroom.id))
-      .orderBy(asc(roomRequests.date), asc(roomRequests.startTime))
+      .orderBy(desc(roomRequests.createdAt), asc(roomRequests.startTime))
       .all();
   } catch (error) {
     console.log("Failed to get room request:", error);

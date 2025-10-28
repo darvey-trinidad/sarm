@@ -29,6 +29,12 @@ import LoadingMessage from "@/components/loading-state/loading-message";
 import { Roles } from "@/constants/roles";
 import { env } from "@/env";
 import { PageRoutes } from "@/constants/page-routes";
+import {
+  getStatusColorRoomRequest,
+  getStatusIconRoomRequest,
+} from "../user-view/request-status";
+import { RoomRequestStatusValues } from "@/constants/room-request-status";
+
 export default function ReceivedRoomRequest() {
   const { data: session } = authClient.useSession();
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -95,6 +101,13 @@ export default function ReceivedRoomRequest() {
                           <CardTitle className="text-md">
                             {request.requestorName}
                           </CardTitle>
+                          <Badge
+                            className={`${getStatusColorRoomRequest(request.status)} flex items-center gap-1`}
+                          >
+                            {getStatusIconRoomRequest(request.status)}
+                            {request.status.charAt(0).toUpperCase() +
+                              request.status.slice(1)}
+                          </Badge>
                           {
                             request.departmentRequestedTo && (<Badge
                               className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"
@@ -109,7 +122,8 @@ export default function ReceivedRoomRequest() {
                           size="sm"
                           onClick={() => handlOpenSchedule(request.id)}
                           className="hidden sm:block"
-                          disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)}
+                          disabled={(session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
+                            || request.status !== RoomRequestStatusValues.Pending}
                         >
                           <div className="flex items-center gap-2">
                             <CalendarCheck className="h-4 w-4" />
