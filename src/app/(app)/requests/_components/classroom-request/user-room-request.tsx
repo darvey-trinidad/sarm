@@ -12,6 +12,7 @@ import {
   Users,
   User,
   Info,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,7 +104,7 @@ export default function UserRoomRequest() {
           ) : (
             filteredClassroomRequests?.map((classroomRequest) => (
               <Card key={classroomRequest.id}>
-                <CardContent className="p-4">
+                <CardContent className="">
                   <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row">
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
@@ -162,6 +163,20 @@ export default function UserRoomRequest() {
                     </div>
 
                     <div className="mt-2 flex items-center gap-2 md:mt-0">
+                      {classroomRequest.fileUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            classroomRequest.fileUrl &&
+                            window.open(classroomRequest.fileUrl, "_blank")
+                          }
+                          className="flex items-center gap-1"
+                        >
+                          <FileText className="h-4 w-4" />
+                          View Attachment
+                        </Button>
+                      )}
                       {classroomRequest.status ===
                         RoomRequestStatus.Pending && (
                           <div>

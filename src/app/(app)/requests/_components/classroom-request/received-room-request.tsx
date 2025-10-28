@@ -17,6 +17,7 @@ import {
   AlertCircle,
   User,
   Info,
+  FileText,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,16 +91,16 @@ export default function ReceivedRoomRequest() {
           ) : (
             filteredClassroomRequests?.map((request) => (
               <div key={request.id} className="w-full">
-                <Card className="border-none bg-stone-50 p-6 shadow-none">
+                <Card className="p-6">
                   <div className="flex flex-col gap-2">
                     <CardHeader className="p-0">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className="border-primary/30 bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg border">
+                          {/* <div className="border-primary/30 bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg border">
                             <DoorOpen className="text-primary h-5 w-5" />
-                          </div>
+                          </div> */}
                           <CardTitle className="text-md">
-                            {request.requestorName}
+                            Room {request.classroomName}
                           </CardTitle>
                           <Badge
                             className={`${getStatusColorRoomRequest(request.status)} flex items-center gap-1`}
@@ -118,19 +119,36 @@ export default function ReceivedRoomRequest() {
                           }
                         </div>
 
-                        <Button
-                          size="sm"
-                          onClick={() => handlOpenSchedule(request.id)}
-                          className="hidden sm:block"
-                          disabled={checkIsPastRequest(request.date, request.endTime)
-                            || (session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
-                            || request.status !== RoomRequestStatusValues.Pending}
-                        >
-                          <div className="flex items-center gap-2">
-                            <CalendarCheck className="h-4 w-4" />
-                            Respond
-                          </div>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {request.fileUrl && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                request.fileUrl &&
+                                window.open(request.fileUrl, "_blank")
+                              }
+                              className="flex items-center gap-1"
+                            >
+                              <FileText className="h-4 w-4" />
+                              View Attachment
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            onClick={() => handlOpenSchedule(request.id)}
+                            className="hidden sm:block"
+                            disabled={checkIsPastRequest(request.date, request.endTime)
+                              || (session?.user.role !== Roles.DepartmentHead && !!request.departmentRequestedTo)
+                              || request.status !== RoomRequestStatusValues.Pending}
+                          >
+                            <div className="flex items-center gap-2">
+                              <CalendarCheck className="h-4 w-4" />
+                              Respond
+                            </div>
+                          </Button>
+                        </div>
+
                       </div>
                     </CardHeader>
 

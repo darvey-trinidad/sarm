@@ -319,7 +319,7 @@ export default function FacultyCalendarView() {
                       </div>
                     )}
                     {
-                      schedule.source === SCHEDULE_SOURCE.InitialSchedule || schedule.source === SCHEDULE_SOURCE.Borrowing && (
+                      schedule.source !== SCHEDULE_SOURCE.Vacancy && schedule.source !== SCHEDULE_SOURCE.Unoccupied && (
                         <div className="truncate text-xs font-medium">
                           {schedule.buildingName} - Room {schedule.classroomName}
                         </div>
