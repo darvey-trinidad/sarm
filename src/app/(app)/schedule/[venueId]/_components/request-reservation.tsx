@@ -693,11 +693,12 @@ export default function RequestReservationModal({ venueId }: VenuePageProps) {
 
               <div className="flex items-center space-x-2">
                 <Checkbox
+                  className="hidden"
                   id="borrowItems"
                   checked={isBorrowingItems}
                   onCheckedChange={(checked) => setIsBorrowingItems(!!checked)}
                 />
-                <Label>Borrow Items</Label>
+                <Label className="hidden">Borrow Items</Label>
               </div>
 
               {/* Validation Messages */}
